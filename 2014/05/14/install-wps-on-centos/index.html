@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="INSTALL 1.Download wps from the website:http://community.wps.cn/download/ or use the following command:    $wget http://community.wps.cn/download/wps-office-8.1.0.3724-0.1.b1p2.i686.rpm  2.Install rpm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Install WPS on CentOS">
+<meta property="og:url" content="http://blog.xinspace.xin/2014/05/14/install-wps-on-centos/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="INSTALL 1.Download wps from the website:http://community.wps.cn/download/ or use the following command:    $wget http://community.wps.cn/download/wps-office-8.1.0.3724-0.1.b1p2.i686.rpm  2.Install rpm">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Install WPS on CentOS">
+<meta name="twitter:description" content="INSTALL 1.Download wps from the website:http://community.wps.cn/download/ or use the following command:    $wget http://community.wps.cn/download/wps-office-8.1.0.3724-0.1.b1p2.i686.rpm  2.Install rpm">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2014/05/14/install-wps-on-centos/">
+
+
+
+
+
+  <title>Install WPS on CentOS | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2014/05/14/install-wps-on-centos/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Install WPS on CentOS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-05-14T13:42:06+07:00">
+                2014-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>INSTALL</p>
+<p>1.Download wps from the website:<a href="http://community.wps.cn/download/" target="_blank" rel="noopener">http://community.wps.cn/download/</a> or use the following command:<br>    $wget <a href="http://community.wps.cn/download/wps-office-8.1.0.3724-0.1.b1p2.i686.rpm" target="_blank" rel="noopener">http://community.wps.cn/download/wps-office-8.1.0.3724-0.1.b1p2.i686.rpm</a> </p>
+<p>2.Install rpm file without dependencies<br>    $sudo rpm -ivh wps-office-8.1.0.3724-0.1.b1p2.i686.rpm –nodeps</p>
+<p>3.Download libstdc++-4.8.2-7.fc20.i686.rpm from the website:<a href="http://rpm.pbone.net/index.php3/stat/4/idpl/25199571/dir/fedora_20/com/libstdc++-4.8.2-7.fc20.i686.rpm.html" target="_blank" rel="noopener">http://rpm.pbone.net/index.php3/stat/4/idpl/25199571/dir/fedora_20/com/libstdc++-4.8.2-7.fc20.i686.rpm.html</a> or use the following command:<br>    $wget <a href="ftp://ftp.univie.ac.at/systems/linux/fedora/updates/20/x86_64/libstdc++-4.8.2-7.fc20.i686.rpm" target="_blank" rel="noopener">ftp://ftp.univie.ac.at/systems/linux/fedora/updates/20/x86_64/libstdc++-4.8.2-7.fc20.i686.rpm</a></p>
+<pre><code>I suppose your download location is ~/Downloads/libstdc++-4.8.2-7.fc20.i686.rpm
+</code></pre><a id="more"></a>
+<p>4.Unpack the rpm file<br>    $cd ~/Downloads/<br>    $rpm2cpio libstdc++-4.8.2-7.fc20.i686.rpm | cpio -idmv<br>    $ls -al</p>
+<pre><code>We can find a usr folder.
+</code></pre><p>5.Copy the lib file to the wps lib file<br>    $sudo cp ~/Downloads/usr/lib/libstdc++.so.6.0.19 /opt/kingsoft/wps-office/office6/libstdc++.so.6</p>
+<p>6.Install the dependencies<br>    $sudo yum install -y glibc.i686 libX11.i686 freetype.i686 zlib.i686 glib2.i686 libpng.i686 libSM.i686 libICE.i686 libXrender.i686 libXext.i686 fontconfig.i686 cups-libs.i686</p>
+<p>7.Now we can open the wps with icon of command($wps &amp;). But when creating a new file, the wps will quit immediately, maybe the freetype is too old. Download freetype-2.4.11-6.fc19.i686.rpm from the website:<a href="http://rpm.pbone.net/index.php3/stat/4/idpl/21848898/dir/fedora_19/com/freetype-2.4.11-6.fc19.i686.rpm.html" target="_blank" rel="noopener">http://rpm.pbone.net/index.php3/stat/4/idpl/21848898/dir/fedora_19/com/freetype-2.4.11-6.fc19.i686.rpm.html</a> or use the following command:<br>    $wget <a href="ftp://ftp.univie.ac.at/systems/linux/fedora/releases/19/Everything/i386/os/Packages/f/freetype-2.4.11-6.fc19.i686.rpm" target="_blank" rel="noopener">ftp://ftp.univie.ac.at/systems/linux/fedora/releases/19/Everything/i386/os/Packages/f/freetype-2.4.11-6.fc19.i686.rpm</a></p>
+<pre><code>I suppose your download location is ~/Downloads/freetype-2.4.11-6.fc19.i686.rpm
+</code></pre><p>8.Unpack the rpm file and copy the lib to the proper folder.<br>    $rpm2cpio freetype-2.4.11-6.fc19.i686.rpm | cpio -idmv<br>    $sudo cp ~/Downloads/usr/lib/libfreetype.so.6.10.0 /opt/kingsoft/wps-office/office6/libfreetype.so.6</p>
+<p>9.And now, you can use wps normally.</p>
+<p>10.When you open it, it maybe says you lost your fonts, and you can goto the website:<a href="http://bbs.wps.cn/thread-22363500-1-1.html" target="_blank" rel="noopener">http://bbs.wps.cn/thread-22363500-1-1.html</a> to find the solution of the problem.</p>
+<p>ORIGINAL ARTICLE: <a href="http://bbs.wps.cn/thread-22412865-1-1.html" target="_blank" rel="noopener">http://bbs.wps.cn/thread-22412865-1-1.html</a><br>The download website in Origianl Article is incorrect, because it is reset and you can not visit it. Visit my link above will get correct file.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/04/23/ssh-corrupt/" rel="next" title="SSH登录后闲置一段时间自动断连解决">
+                <i class="fa fa-chevron-left"></i> SSH登录后闲置一段时间自动断连解决
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/05/14/screenshot-on-gnome/" rel="prev" title="Screenshot on Gnome">
+                Screenshot on Gnome <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

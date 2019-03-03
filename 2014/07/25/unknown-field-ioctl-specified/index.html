@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="暑假学嵌入式，在学linux内核驱动的时候，动手写了一个很简单的驱动，遇到了这么一个问题： error: unknown field ‘ioctl’ specified in initializer。 我原先的代码关键部分先贴出来：     static int hello_ioctl (struct inode inode, struct file filp, unsigned int cmd,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="error: unknown field &#39;ioctl&#39; specified in initializer">
+<meta property="og:url" content="http://blog.xinspace.xin/2014/07/25/unknown-field-ioctl-specified/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="暑假学嵌入式，在学linux内核驱动的时候，动手写了一个很简单的驱动，遇到了这么一个问题： error: unknown field ‘ioctl’ specified in initializer。 我原先的代码关键部分先贴出来：     static int hello_ioctl (struct inode inode, struct file filp, unsigned int cmd,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="error: unknown field &#39;ioctl&#39; specified in initializer">
+<meta name="twitter:description" content="暑假学嵌入式，在学linux内核驱动的时候，动手写了一个很简单的驱动，遇到了这么一个问题： error: unknown field ‘ioctl’ specified in initializer。 我原先的代码关键部分先贴出来：     static int hello_ioctl (struct inode inode, struct file filp, unsigned int cmd,">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2014/07/25/unknown-field-ioctl-specified/">
+
+
+
+
+
+  <title>error: unknown field 'ioctl' specified in initializer | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2014/07/25/unknown-field-ioctl-specified/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">error: unknown field 'ioctl' specified in initializer</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-07-25T03:52:20+07:00">
+                2014-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>暑假学嵌入式，在学linux内核驱动的时候，动手写了一个很简单的驱动，遇到了这么一个问题：</p>
+<p>error: unknown field ‘ioctl’ specified in initializer。</p>
+<p>我原先的代码关键部分先贴出来：    </p>
+<p>static int hello_ioctl (struct inode <em>inode, struct file </em>filp, unsigned int cmd, unsigned long arg)<br>{<br>  int ret=0;</p>
+<p>  switch (cmd) {<br>  case HELLO_ONE:<br>    printk (“HELLO_ONE cmd  calledn”);<br>    break;<br>  case HELLO_TWO:<br>    printk (“HELLO_TWO cmd calledn”);<br>    break;<br>  default:<br>    printk (“cmd other calledn”);<br>    break;<br>  }</p>
+<p>  return ret;<br>}  </p>
+<p>struct file_operations hello_fops = {<br> .owner = THIS_MODULE,<br> .open  = hello_open,<br> .release = hello_release,<br> .read  = hello_read,<br> .write = hello_write,<br> .ioctl = hello_ioctl<br>};</p>
+<p>出错提示是.ioctl=hello_ioctl这一句出错了，错误提示的意思是struct file_operations结构体中没有定义ioctl这个red属性。这就让我纳闷了，书上明明说了有的，而且演示代码也是这么写的，怎么到了我这里就不行了呢？</p>
+<a id="more"></a>
+<p>逐一排查错误，最后发现，是内核版本的差异导致的。linux下可以使用命令：uname -r来查看现在正在运行的linux内核版本呢。<br>书上用的linux内核版本是2.6.26.2，而我的linux版本是3.5.0。在网上查了资料，才知道linux自从2.6.38之后，对struct file_operations结构体做了一些改动，其中就把原来的ioctl属性改为了unlocked_ioctl，函数原型为：long (<em>unlocked_ioctl) (struct file </em>, unsigned int, unsigned long);<br>这就解释了为什么有那个错误提示了。</p>
+<p>了解了出错原因，那修改起来就简单了。如果你的内核版本是2.6.38以下，那不用修改，也不可能会出这个错误，如果内核版本在2.6.38以上，那么做如下修改(以我上面贴出的代码为例)：</p>
+<p><del datetime="2014-07-24T11:35:49+00:00">static int hello_ioctl (struct inode <em>inode, struct file </em>filp, unsigned int cmd, unsigned long arg)</del><br>static <strong>long</strong> hello_ioctl (<del datetime="2014-07-24T11:35:49+00:00">struct inode <em>inode,</em></del> struct file filp, unsigned int cmd, unsigned long arg)<br>{<br>  int ret=0;</p>
+<p>  switch (cmd) {<br>  case HELLO_ONE:<br>    printk (“HELLO_ONE cmd  calledn”);<br>    break;<br>  case HELLO_TWO:<br>    printk (“HELLO_TWO cmd calledn”);<br>    break;<br>  default:<br>    printk (“cmd other calledn”);<br>    break;<br>  }</p>
+<p>  return ret;<br>}  </p>
+<p>struct file_operations hello_fops = {<br> .owner = THIS_MODULE,<br> .open  = hello_open,<br> .release = hello_release,<br> .read  = hello_read,<br> .write = hello_write,<br> <del datetime="2014-07-24T11:35:49+00:00">.ioctl = hello_ioctl</del><br> .unlocked_ioctl = hello_ioctl,<br>};</p>
+<p>上面修改后的部分中，将hello_ioctl函数的返回值改为long，将函数第一个参数inode指针删除掉，将file_operations结构体中的.ioctl属性改为.unlocked_ioctl，然后再编译…..就可以了！</p>
+<p>如果还有不明白的，可以发邮件联系我:<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/05/14/centos-e6-b7-bb-e5-8a-a0yum-e6-ba-90/" rel="next" title="Centos添加YUM源">
+                <i class="fa fa-chevron-left"></i> Centos添加YUM源
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/07/25/wordpress-blog-trans/" rel="prev" title="wordpress博客整站搬迁">
+                wordpress博客整站搬迁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

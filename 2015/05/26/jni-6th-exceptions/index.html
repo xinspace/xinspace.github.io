@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前面几章也提到过在原生代码中对JNI函数调用后总会检查错误，如果有异常，则直接中断执行，直接返回。本章介绍在原生代码中检测错误并从异常中恢复。本章关注的异常处理是调用JNI函数之后产生的异常，而不是其他的异常。比如，在原生代码中使用了系统调用，那么对错误的处理就要遵循系统调用的规则；如果使用了Java API，那么就应该遵循Java的规则。本章值关注JNI函数对异常处理的规则。 6.1 概述通过几">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第六章 异常">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/26/jni-6th-exceptions/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="前面几章也提到过在原生代码中对JNI函数调用后总会检查错误，如果有异常，则直接中断执行，直接返回。本章介绍在原生代码中检测错误并从异常中恢复。本章关注的异常处理是调用JNI函数之后产生的异常，而不是其他的异常。比如，在原生代码中使用了系统调用，那么对错误的处理就要遵循系统调用的规则；如果使用了Java API，那么就应该遵循Java的规则。本章值关注JNI函数对异常处理的规则。 6.1 概述通过几">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第六章 异常">
+<meta name="twitter:description" content="前面几章也提到过在原生代码中对JNI函数调用后总会检查错误，如果有异常，则直接中断执行，直接返回。本章介绍在原生代码中检测错误并从异常中恢复。本章关注的异常处理是调用JNI函数之后产生的异常，而不是其他的异常。比如，在原生代码中使用了系统调用，那么对错误的处理就要遵循系统调用的规则；如果使用了Java API，那么就应该遵循Java的规则。本章值关注JNI函数对异常处理的规则。 6.1 概述通过几">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/26/jni-6th-exceptions/">
+
+
+
+
+
+  <title>JNI技术解析第六章 异常 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/26/jni-6th-exceptions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第六章 异常</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-26T15:12:30+07:00">
+                2015-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前面几章也提到过在原生代码中对JNI函数调用后总会检查错误，如果有异常，则直接中断执行，直接返回。本章介绍在原生代码中检测错误并从异常中恢复。本章关注的异常处理是调用JNI函数之后产生的异常，而不是其他的异常。比如，在原生代码中使用了系统调用，那么对错误的处理就要遵循系统调用的规则；如果使用了Java API，那么就应该遵循Java的规则。本章值关注JNI函数对异常处理的规则。</p>
+<h1 id="6-1-概述"><a href="#6-1-概述" class="headerlink" title="6.1 概述"></a>6.1 概述</h1><p>通过几个例子来介绍JNI提供的异常处理函数。</p>
+<h2 id="6-1-1-在原生代码中缓存并抛出异常"><a href="#6-1-1-在原生代码中缓存并抛出异常" class="headerlink" title="6.1.1 在原生代码中缓存并抛出异常"></a>6.1.1 在原生代码中缓存并抛出异常</h2><a id="more"></a>
+<p>下面的程序展示如何生命一个抛出异常的原生函数。CatchThrow类声明了doit()原生函数，该函数抛出IllegalArgumentException：</p>
+<p><div class="page" title="Page 87"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">class CatchThrow {<br>       private native void doit() throws IllegalArgumentException;<br>       //回调函数，在doit()中调用它<br>       private void callback() throws NullPointerException {<br>           throw new NullPointerException(“CatchThrow.callback”);<br>       }</pre></p>
+<pre><code>public static void main(String args[]) {
+    CatchThrow c = new CatchThrow();
+    try {
+        c.doit();//调用doit()，该原生函数会抛出异常
+    } catch (Exception e) {
+        System.out.println(&quot;In Java:nt&quot; + e);
+    }
+} 
+static {
+    System.loadLibrary(&quot;CatchThrow&quot;);
+}
+</code></pre><p>}<br><br><br><br><br>doit()原生函数的代码如下：</p>
+<p><div class="page" title="Page 88"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_CatchThrow_doit(JNIEnv <em>env, jobject obj)<br>{<br>    jthrowable exc;<br>    jclass cls = (</em>env)-&gt;GetObjectClass(env, obj);<br>    //找到CatchThrow类的callback()方法的ID<br>    jmethodID mid = (<em>env)-&gt;GetMethodID(env, cls, “callback”, “()V”);<br>    if (mid == NULL)<br>        return;<br>    //调用callback()方法，它抛出NullPointerException异常。<br>    (</em>env)-&gt;CallVoidMethod(env, obj, mid);<br>   <span style="color: #ff0000;"> exc = (<em>env)-&gt;ExceptionOccurred(env);</em></span><br>    if (exc) {<br>        //如果捕获到了异常<br>        jclass newExcCls;<br>        //打印异常的描述信息<br>        <span style="color: #ff0000;">(env)-&gt;ExceptionDescribe(env);<br>        <span style="color: #000000;">//清除异常</span><br>        (<em>env)-&gt;ExceptionClear(env);<br></em></span>        //找到IllegalArgumentException类<br>        newExcCls = (env)-&gt;FindClass(env, “java/lang/IllegalArgumentException”);<br>        if (newExcCls == NULL)<br>            return;<br>        //抛出该异常<br>        (*env)-&gt;ThrowNew(env, newExcCls, “thrown from C code”);<br>    }<br>}</pre><br><br><br><br><br>编译运行这个程序，产生的结果如下：</p>
+<p><div class="page" title="Page 89"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">java.lang.NullPointerException:<br>           at CatchThrow.callback(CatchThrow.java)<br>           at CatchThrow.doit(Native Method)<br>           at CatchThrow.main(CatchThrow.java)<br>In Java:<br>           java.lang.IllegalArgumentException: thrown from C code</pre><br><br><br><br><br>在上面的程序中，原生函数使用CallVoidMethod()函数回调了Java中的callback()方法，这个方法抛出NullPointerException异常。当CallVoidMethod()函数返回时，原生函数使用<span style="color: #000000;"><span style="color: #ff0000;">ExceptionOccurred()函数检查调用CallVoidMethod()函数期间是否抛出了异常，如果有异常抛出，就使用ExceptionDescribe()函数打印描述信息，使用ExceptionClear()函数清除异常</span>。清除完Java回调函数中抛出的异常后，原生代码自己抛出一个IllegalArgumentException异常，并返回，该异常被Java的catch语句捕获。</span></p>
+<p>在处理异常时，原生代码与Java代码有所区别。在Java中，当抛出了异常，Java虚拟机自动将代码控制流转换到与异常匹配的try/catch语句块，然后清除异常，执行异常处理代码。而原生代码中，当调用JNI函数期间抛出了异常(出现了错误)，程序员需要显式的自己控制执行流。</p>
+<h2 id="6-1-2-为抛出异常制作工具函数"><a href="#6-1-2-为抛出异常制作工具函数" class="headerlink" title="6.1.2 为抛出异常制作工具函数"></a>6.1.2 为抛出异常制作工具函数</h2><p>在原生代码中抛出异常包括两步：首先使用FincClass()函数找到要抛出的异常的类(IllegalArgumentException类)，然后使用ThrowNew()函数抛出该异常。为了简化任务，我们可以编写一个原生工具函数封装在原生代码中抛出异常的工作。</p>
+<p>下面我们编写了一个抛出指定名称和内容的异常的工具函数：</p>
+<p><div class="page" title="Page 89"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">void JNU_ThrowByName(JNIEnv <em>env, const char </em>name, const char <em>msg)<br>{<br>       jclass cls = (</em>env)-&gt;FindClass(env, name);<br>       /<em> 如果cls是NULL，说明已经有异常被抛出了 </em>/<br>       if (cls != NULL) {<br>           (<em>env)-&gt;ThrowNew(env, cls, msg);<br>       }<br>       /</em> 在工具函数中一定要特别注意释放局部引用 <em>/<br>       (</em>env)-&gt;DeleteLocalRef(env, cls);<br>}</pre><br><br><br><br><br>在本文种，JNU前缀代表JNI Utilities(JNI工具函数)。</p>
+<p>该工具函数使用FindClass()函数索引name指定的类名，如果返回NULL，说明没有找到这个name的类，Java虚拟机会抛出NoClassDefFoundError的异常。JNU_ThrowByName()工具函数只打算返回一个挂起的(未处理、未清除的)异常，因此，若JNI函数本身发生异常的话，该工具函数直接调用DeleteLocalRef()函数释放空的(cls == NULL)局部引用,这个操作不会做任何事情，当工具函数返回时，挂起的异常(这时这个异常由FindClass查找name类失败而抛出的)就会被Java代码捕获。</p>
+<p>如果FindClass()函数不返回NULL，说明找到了name指定的类，并创建了局部引用。此时cls != NULL，工具函数就抛出cls代表的异常，并在返回前释放了cls。当工具函数返回时，挂起的异常(此时的异常由ThrowNew()手动抛出的)也会被Java代码捕获。</p>
+<h1 id="6-2-适当的异常处理"><a href="#6-2-适当的异常处理" class="headerlink" title="6.2 适当的异常处理"></a>6.2 适当的异常处理</h1><p>在编写JNI程序的时候，程序员必须要特别注意发生异常的条件，并编写代码检查和处理这些异常。适当的异常处理虽然有些单调，但却是健壮程序的必要部分。</p>
+<h2 id="6-2-1-检查异常"><a href="#6-2-1-检查异常" class="headerlink" title="6.2.1 检查异常"></a>6.2.1 检查异常</h2><p>在JNI中有两种方法检测是否抛出了异常：</p>
+<p>1.大多数的JNI函数会返回一个特定值(如NULL)来表示调用此函数期间发生了错误，同时该返回值也表明了当前线程存在一个挂起的(未处理的)异常。</p>
+<p>2.当JNI函数的返回值无法表明是否发生了异常时，就必须使用JNI提供的函数来检查是否发生了异常。在当前线程中检查是否有异常抛出可以使用ExceptionOccurred()函数和ExceptionCheck()函数。ExceptionCheck()函数是Java SDK 1.2中新推出的函数。</p>
+<h2 id="6-2-2-处理异常"><a href="#6-2-2-处理异常" class="headerlink" title="6.2.2 处理异常"></a>6.2.2 处理异常</h2><p>原生函数在检测到有异常抛出后，同样有两种方法处理异常：</p>
+<p>1.直接返回，由原生函数的调用者进行异常处理。</p>
+<p>2.使用JNI提供的ExceptionClear()函数清理异常，并执行自己的异常处理代码。</p>
+<p><span style="color: #ff0000;">切记：在进行后续调用JNI函数之前必须检查、处理并清除掉抛出的异常</span>。在当前线程中如果有未处理的(未清除的)异常时，调用大部分的JNI函数的结果是未定义的(可能不会有影响，可能会导致程序崩溃)，只有少部分的JNI函数可以被安全调用。一般来讲，当有异常抛出时，你只能调用那些用来检查、处理和清除这个异常的相关的JNI函数。<span style="color: #ff0000;">当检测到异常被抛出时，及时的释放引用。</span></p>
+<h2 id="6-2-3-公共工具函数中处理异常"><a href="#6-2-3-公共工具函数中处理异常" class="headerlink" title="6.2.3 公共工具函数中处理异常"></a>6.2.3 公共工具函数中处理异常</h2><p>在编写工具函数时应特别注意要把异常传递到其调用者那里，尤其注意一下两方面：</p>
+<p>1.工具函数应该尽量返回一个能够标识是否抛出了异常的错误返回码，这样可以简化其调用者对异常检查和处理的工作。</p>
+<p>2.工具函数在其自己的异常处理代码中应该格外注意管理好引用(见第五章)。</p>
+<p>我们使用一个例子来说明，下面的工具函数根据参数中指定的名字和方法描述符调用Java类中的某个方法。</p>
+<p><pre escaped="true" lang="php" line="1">jvalue JNU_CallMethodByName(JNIEnv <em>env, jboolean </em>hasException, jobject obj, const char <em>name, const char </em>descriptor, …)<br>{<br>    va_list args;<br>    jclass clazz;<br>    jmethodID mid;<br>    jvalue result;<br>    //申请创建2个局部引用<br>    if ((<em>env)-&gt;EnsureLocalCapacity(env, 2) == JNI_OK) {<br>        clazz = (</em>env)-&gt;GetObjectClass(env, obj);<br>        //获取clazz所指类的名为name、签名为descriptor的方法的ID<br>        mid = (<em>env)-&gt;GetMethodID(env, clazz, name, descriptor);<br>        if (mid) {<br>            const char </em>p = descriptor;<br>            //跳过方法签名中的参数部分<br>            while (<em>p != ‘)’) p++;<br>            //跳过’)’<br>            p++;<br>            //对方法签名中的返回值进行处理<br>            va_start(args, descriptor);<br>            switch (</em>p) {<br>                case ‘V’:  //返回void<br>                    (<em>env)-&gt;CallVoidMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘[‘://返回数组类型<br>                case ‘L’:<br>                    result.l = (</em>env)-&gt;CallObjectMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘Z’://返回boolean类型<br>                    result.z = (<em>env)-&gt;CallBooleanMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘B’://返回byte类型<br>                    result.b = (</em>env)-&gt;CallByteMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘C’://返回char类型<br>                    result.c = (<em>env)-&gt;CallCharMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘S’://返回short类型<br>                    result.s = (</em>env)-&gt;CallShortMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘I’://返回int类型<br>                    result.i = (<em>env)-&gt;CallIntMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘J’://返回long类型<br>                    result.j = (</em>env)-&gt;CallLongMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘F’://返回float类型<br>                    result.f = (<em>env)-&gt;CallFloatMethodV(env, obj, mid, args);<br>                    break;<br>                case ‘D’://返回double类型<br>                    result.d = (</em>env)-&gt;CallDoubleMethodV(env, obj, mid, args);<br>                    break;<br>                default://非法<br>                    (<em>env)-&gt;FatalError(env, “illegal descriptor”);<br>            }<br>            va_end(args);<br>        }<br>        //及时释放不再使用的局部引用<br>        (</em>env)-&gt;DeleteLocalRef(env, clazz);<br>    }<br>    //如果传入的jbollean<em>不是NULL的话<br>    if (hasException) {<br>        //检查是否发生异常。如果有异常，则返回JNI_TRUE，否则返回JNI_FALSE
+        </em>hasException = (<em>env)-&gt;ExceptionCheck(env);<br>    }<br>    return result;<br>}</em></pre><br>在上述工具函数中，传入的jboolean hasException参数是该工具函数的调用者传入的一个boolean类型的变量的地址。如果传入的地址不是NULL的话，hasException就能够指明在调用工具函数期间是否抛出了异常。</p>
+<p>工具函数首先向虚拟机申请创建两个局部引用：一个是clazz，保存相应类的引用；一个是result，保存Call&lt;Typye&gt;Method()函数的返回值。接下来获取obj的类的引用和方法的ID，根据方法的返回类型，switch语句块调用不同的Call&lt;Type&gt;Method()方法。当hasExcepton不是NULL时，就调用ExceptionCheck()函数检查在上述步骤中是否抛出了异常。</p>
+<p>ExceptonCheck()函数是Java SDK 1.2推出的新的函数。它的功能与ExceptionOccurred()函数类似，不同之处在于ExceptionCheck()函数在有异常抛出时返回JNI_TRUE，无异常时返回JNI_FALSE，而不会像ExceptionOccurred()函数一样返回异常类对象的引用。当原生代码中只是想要知道是否发生异常(不需要异常类对象的引用)时，ExceptionCheck()函数就简化了局部引用的管理。上述代码中的ExceptionCheck()函数部分可以用ExceptionOccurred()函数改写：</p>
+<p><div class="page" title="Page 95"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">if (hasException) {<br>           //ExceptionOccurred()函数返回异常类对象的引用<br>           jthrowable exc = (<em>env)-&gt;ExceptionOccurred(env);<br>           //如果exc!=NULL的话，说明抛出了异常，</em>hasException为JNI_TRUE，否则，没有发生异常，<em>hasException为JNI_FALSE。
+           </em>hasException = exc != NULL;<br>           (<em>env)-&gt;DeleteLocalRef(env, exc);<br>}</em></pre><br><br><br><br><br>上面的(env)-&gt;DeleteLocalRef(env, exc);这条语句是必须的，<span style="color: #ff0000;">在原生代码的异常处理代码中要记得释放不再使用的局部引用</span>。</p>
+<p>之后，我们可以使用上面编写的JNU_CallMethodByName()工具函数了，在调用这个工具函数时，我们不必检查异常了，因为工具函数内部就已经完成了这些工作，并用hasException所指向的值来表示。</p>
+<p>本章介绍了异常的检查、处理和清除等内容，始终注意，在原生代码中处理异常并不像Java中那样方便，需要程序员自己时刻注意。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/24/jni-5th-local-global-reference/" rel="next" title="JNI技术解析第五章 局部引用和全局引用">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第五章 局部引用和全局引用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/26/android-studio-ndk-c1/" rel="prev" title="Android Studio NDK开发第一章：安装与配置">
+                Android Studio NDK开发第一章：安装与配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#6-1-概述"><span class="nav-number">1.</span> <span class="nav-text">6.1 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-1-在原生代码中缓存并抛出异常"><span class="nav-number">1.1.</span> <span class="nav-text">6.1.1 在原生代码中缓存并抛出异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-2-为抛出异常制作工具函数"><span class="nav-number">1.2.</span> <span class="nav-text">6.1.2 为抛出异常制作工具函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-2-适当的异常处理"><span class="nav-number">2.</span> <span class="nav-text">6.2 适当的异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-1-检查异常"><span class="nav-number">2.1.</span> <span class="nav-text">6.2.1 检查异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-2-处理异常"><span class="nav-number">2.2.</span> <span class="nav-text">6.2.2 处理异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-3-公共工具函数中处理异常"><span class="nav-number">2.3.</span> <span class="nav-text">6.2.3 公共工具函数中处理异常</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

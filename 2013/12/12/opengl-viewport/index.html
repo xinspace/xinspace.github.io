@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近在学OpenGL，是个新手。在看蓝宝书的时候，发现上面解释的窗口、视口和剪裁区域有些难以理解（因为之前没有学习过计算机图形学或者MFC等GDI编程，所以对这些概念不好理解）。在谷歌上也搜过，发现有很多人解释这些词，不过还有些模糊。经过一段时间的郁闷与纠结，逐渐的了解了这些概念（不保证完全正确，只代表本人的观点，如有不对，请发邮件批评指正）。 之所以有这些概念，是因为图形的坐标需要转换。我们先以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL中window(窗口)、viewport(视口)和裁剪区域">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/12/12/opengl-viewport/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="最近在学OpenGL，是个新手。在看蓝宝书的时候，发现上面解释的窗口、视口和剪裁区域有些难以理解（因为之前没有学习过计算机图形学或者MFC等GDI编程，所以对这些概念不好理解）。在谷歌上也搜过，发现有很多人解释这些词，不过还有些模糊。经过一段时间的郁闷与纠结，逐渐的了解了这些概念（不保证完全正确，只代表本人的观点，如有不对，请发邮件批评指正）。 之所以有这些概念，是因为图形的坐标需要转换。我们先以">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenGL中window(窗口)、viewport(视口)和裁剪区域">
+<meta name="twitter:description" content="最近在学OpenGL，是个新手。在看蓝宝书的时候，发现上面解释的窗口、视口和剪裁区域有些难以理解（因为之前没有学习过计算机图形学或者MFC等GDI编程，所以对这些概念不好理解）。在谷歌上也搜过，发现有很多人解释这些词，不过还有些模糊。经过一段时间的郁闷与纠结，逐渐的了解了这些概念（不保证完全正确，只代表本人的观点，如有不对，请发邮件批评指正）。 之所以有这些概念，是因为图形的坐标需要转换。我们先以">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/12/12/opengl-viewport/">
+
+
+
+
+
+  <title>OpenGL中window(窗口)、viewport(视口)和裁剪区域 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/12/12/opengl-viewport/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OpenGL中window(窗口)、viewport(视口)和裁剪区域</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-12-12T20:52:36+07:00">
+                2013-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在学OpenGL，是个新手。在看蓝宝书的时候，发现上面解释的窗口、视口和剪裁区域有些难以理解（因为之前没有学习过计算机图形学或者MFC等GDI编程，所以对这些概念不好理解）。在谷歌上也搜过，发现有很多人解释这些词，不过还有些模糊。经过一段时间的郁闷与纠结，逐渐的了解了这些概念（不保证完全正确，只代表本人的观点，如有不对，请发邮件批评指正）。</p>
+<p>之所以有这些概念，是因为图形的坐标需要转换。我们先以2维坐标系为例，3维的是一个道理，只不过加了一个z轴而已。</p>
+<p>1.直角坐标系：是由两条相互垂直的轴确定了一个2维平面。你想要画的任何图形必须在这个坐标系中表示出来，也就是说图形中的每个点都必须有个坐标，这个比较容易理解。直角坐标系只是一个逻辑上的坐标系，也就是说这个坐标系是你自己想出来的，比如你自己想的这个直角坐标系的原点(0,0)在显示屏的左下角，向右为x轴正方向，向上为y轴正方向，又比如你自己想的这个坐标系的原点(0,0)位于显示屏的中间，向右为x轴正方向，向左为其负方向，向上为y轴正方向，向下为其负方向等等。这个坐标系只是你自己想出来的，假设你在这个直角坐标系中画了2个点，坐标为(1,0)和(100,100)，你画的这两个点只是在你想的这个坐标系中而已，如果你要打印显示屏的话，这些点可能和你想象中的位置不一样，原因很简单，可能显示屏的坐标系与你自己想的这个坐标系不重合。比如你自己想的坐标系的原点是位于显示屏的左下角，而屏幕的坐标系（这个坐标系是由某些标准规定的，我这里只是随便举个例子）的原点位于显示屏的中间（假设在你想的坐标系中，显示屏的中间点的坐标为(300, 200)，就是说屏幕宽600像素，高400像素），这时你画的两个点(1,0)和（100,100）在两个坐标系中表现的完全不一样。由此，可以得到两个概念，一个是显示屏的坐标系，即所说的设备坐标系；另一个是你自己想的坐标系，即逻辑坐标系。</p>
+<p>2.裁剪区域：在上一步的逻辑坐标中，我们画了2个点（1,0）(100,100)，但是，这个点只是出现在我们的逻辑坐标中，并不一定会出现在我们的设备坐标中，也就是说不一定会显示在我们的屏幕上。那么，我们怎么保证我们再逻辑坐标中画的图形能够显示到设备坐标中呢？这就让剪裁区域派上用场了。剪裁区域是处于逻辑坐标中的一个矩形区域，这个矩形区域可以自己设置大小，在这个矩形区域出现的任何图形都会被映射到设备坐标中，即你能在屏幕上看到这些图形，而在这个矩形区域之外的图形，不能够被映射到设备坐标中，当然就无法从屏幕上看到这些图形。举例来说，你自己设置的剪裁区域的左下角坐标为(0,0)，右上角坐标为(50,50)，也就是说这个剪裁区域宽50像素，高50像素，那么第一个点（1,0）处于这个剪裁区域内，而第二个点（100,100）在这个剪裁区域外，因此，第一个点能够从逻辑坐标系映射到设备坐标系中，在屏幕上显示出来，而第二个点不能被映射，也就不能被显示。所以，我们要把想要别人看到的图形放入到裁剪区域中，不想让别人看到的图形放到剪裁区域之外。剪裁区域的大小是自己设置的，不可能任何时候都和整个显示屏窗口一样大小。</p>
+<p>3.视口：视口(viewport)，作用就是把剪裁区域中的图形的坐标映射到设备坐标，使得转换后的图形能够看起来和在你想象的逻辑坐标系中位置、比例等等相同。视口也可以定义，可以定义为和整个显示屏的窗口一样大，也可以定义的和剪裁区域一样大，也可以设置的很小很小。当视口被定义为何窗口一样大时，你可以理解为剪裁区域内的图形被全屏放到了屏幕上；当定义的和剪裁区域一样大时，你可以理解为图形直接被原样大小的从剪裁区域映射到了相同大小的屏幕区域内而已。</p>
+<p>4.窗口：窗口就是显示屏的整个屏幕了，这个没有必要解释太多了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/09/08/virtualmm-virtualad-mmu/" rel="next" title="虚拟内存空间、虚拟地址空间和MMU映射(内存分页机制)">
+                <i class="fa fa-chevron-left"></i> 虚拟内存空间、虚拟地址空间和MMU映射(内存分页机制)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/01/21/install-g/" rel="prev" title="linux下安装gcc和g++">
+                linux下安装gcc和g++ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="众所周知，CPU有外频和倍频，还有主频等等，有时还听说CPU可以超频工作，这些词汇是什么意思呢？ 任何的电子器件都必须有一定的工作频率，这个频率相当于心跳，电子器件以这个频率为准来计算指令周期，简单说就是电子器件在一秒钟之内能够工作多少次的意思。CPU也是电子器件，所以CPU也具有频率。比如说intel的Core 2 Duo型号E8400的CPU频率为3.0GHz，表示这个CPU在一秒之内能够进行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU的外频与倍频以及超频的含义">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/07/27/cpu-hz/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="众所周知，CPU有外频和倍频，还有主频等等，有时还听说CPU可以超频工作，这些词汇是什么意思呢？ 任何的电子器件都必须有一定的工作频率，这个频率相当于心跳，电子器件以这个频率为准来计算指令周期，简单说就是电子器件在一秒钟之内能够工作多少次的意思。CPU也是电子器件，所以CPU也具有频率。比如说intel的Core 2 Duo型号E8400的CPU频率为3.0GHz，表示这个CPU在一秒之内能够进行">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CPU的外频与倍频以及超频的含义">
+<meta name="twitter:description" content="众所周知，CPU有外频和倍频，还有主频等等，有时还听说CPU可以超频工作，这些词汇是什么意思呢？ 任何的电子器件都必须有一定的工作频率，这个频率相当于心跳，电子器件以这个频率为准来计算指令周期，简单说就是电子器件在一秒钟之内能够工作多少次的意思。CPU也是电子器件，所以CPU也具有频率。比如说intel的Core 2 Duo型号E8400的CPU频率为3.0GHz，表示这个CPU在一秒之内能够进行">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/07/27/cpu-hz/">
+
+
+
+
+
+  <title>CPU的外频与倍频以及超频的含义 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/07/27/cpu-hz/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CPU的外频与倍频以及超频的含义</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-07-27T23:35:04+07:00">
+                2013-07-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>众所周知，CPU有外频和倍频，还有主频等等，有时还听说CPU可以超频工作，这些词汇是什么意思呢？</p>
+<p>任何的电子器件都必须有一定的工作频率，这个频率相当于心跳，电子器件以这个频率为准来计算指令周期，简单说就是电子器件在一秒钟之内能够工作多少次的意思。CPU也是电子器件，所以CPU也具有频率。比如说intel的Core 2 Duo型号E8400的CPU频率为3.0GHz，表示这个CPU在一秒之内能够进行3.0×10^9次工作，每次工作可以进行一些指令，完成某些操作等等。</p>
+<p>了解了频率，我们再来说一下外频吧。</p>
+<p>一台计算机必须要有输入、输出设备，存储设备、运算设备和控制设备五部分组成，其中运算设备和控制设备被整合在CPU中，存储设备一般是内存，也叫做主存，输入设备一般为键盘鼠标，输出设备一般为显示屏和打印机等。未来完成一整套工作，比如说我们输入一份文档，再打印出来这一套动作，就需要这五部分协调工作，这就需要CPU与其他三部分（存储设备，输入输出设备）进行联系。在intel的x86架构的主板上大家可以明显看到，CPU与内存和显卡等是用北桥连接的，速度较快，而CPU与IO设备（网卡，键盘，鼠标，打印机等）是用南桥连接的，速度较慢。而南桥与北桥上的频率就可以称为CPU的外频，即CPU与外部设备进行通信的频率。</p>
+<p>一般来讲，一个主板上的CPU与内存等的外频一致是最好的，大家的频率一致，工作起来就很顺畅。就像一条流水线，如果你工作的过快或者过慢，都会导致你前面或者后面的人有一堆工作做不完，而如果大家工作速度都差不多的话，整条流水线看起来就顺畅的多。这就告诉我们，在自己组装电脑的时候，千万不要什么都买最好的，重要的是看各个组件的外频是否一致，特别是CPU与内存的外频。如果CPU的外频比内存高很多，那么内存就成了整台电脑性能的瓶颈。</p>
+<p>有了外频，那倍频和主频是什么意思呢？</p>
+<p>CPU如果只靠外频来工作的话，那么工作效率肯定很差，因为整台计算机的几乎所有工作都必须经过CPU的处理才能实现，比如计算机的加减乘除，计算机屏幕的显示，打印数据，浏览网页等等都会要CPU进行相应的运算才行。这就要求CPU要比其他组件工作的更快才行。打个比方，如果我们要浏览网页，首先就是打开浏览器，而这需要CPU把相应浏览器的程序放到内存中，然后浏览器才能顺利打开，打开一个网页的时候，CPU需要经过一定的运算才能获得网页上的图片和文字，CPU再经过处理才能把这些文字和图片显示到屏幕上。如果CPU一直使用外频来工作的话，假如内存每一秒钟运行一条指令，而CPU也是这个频率，那么当浏览器程序已经全部放到内存中的时候，CPU还没有下载完网页的图片和文字，但是现实生活中不是这样的，你一点开浏览器，网页的内容立马就可以现实出来了（如果你不是这样的话，说明你的网速太慢了），这就要求CPU的运算速度必须比内存快才行，也就是说CPU的频率要比内存的频率快很多才行。</p>
+<p>这样就有了疑惑了，上面提到CPU与内存的外频一致是做好的，而现在又说CPU的频率比内存的频率要快很多才行，这是怎么一回事？</p>
+<p>可以看到，一个是CPU的外频，一个是CPU的频率（也可以称为主频）。外频是与外界通信的频率，大家一致当然最好，而主频是自己一个人的时候的工作频率，当然越快越好，所以外频和主频之间肯定有一定的关系，这个关系就是倍频啦。即CPU的主频=外频×倍频。假如CPU对外通信的频率3.33MHz，这说明CPU和内存之间一秒钟可以通信3.33×10^6次，够快吧。而CPU为了提升运算速度，必须提高自己的主频，所以在CPU与外部通信结束后，在内部进行运算的时候就要用到主频了。</p>
+<p>到这里，我们就清楚了，外频是与外部进行通信的频率，最好与内存等组件的外频一致;而主频是CPU内部自己进行运算时候的频率，这个频率必须要高的多，才能保证整个计算机的性能;而主频与外频之间的倍数就成为倍频，比如一款CPU的外频为333MHz，而其主频为3.0GHz，所以倍频就是9倍（3.0G=333M×9）。</p>
+<p>而所谓的超频就是让CPU在高频率下工作，也就是说通过超频调整CPU的主频，让CPU的主频更高，从而提升整体的性能。在CPU出厂的时候，倍频一般是被厂家锁定了，不能修改的，所以超频一般指的是超外频，也就是说提高CPU的外频。前面讲到，提升外频会影响CPU与其他组件的通信，所以超频不一定会提高计算机的整体性能，有时候可能会让计算机速度变得更慢更甚者会死机等。超频会让CPU工作在高负荷状态下，CPU会累的（呵呵），所以建议大家不要超频</p>
+<p>介绍完了CPU的主频，外频，倍频及超频了，本文也就要结束了。如果还有不明白的地方，请留言探讨哈。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/07/27/http-post-get/" rel="next" title="HTTP POST GET 方法的区别">
+                <i class="fa fa-chevron-left"></i> HTTP POST GET 方法的区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/07/31/delete-to-trash/" rel="prev" title="Delete a file to Trash in bash shell in linux">
+                Delete a file to Trash in bash shell in linux <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

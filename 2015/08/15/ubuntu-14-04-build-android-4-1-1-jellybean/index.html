@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我的Android开发环境是在OS X搭建的，本来想按照官网上的配置在Mac上编译Android，但是因为Xcode版本很高，编译Android 4.1.1要求Xcode是4.x版本，但是我的是6.4的，所以总是出现奇怪的错误，比如xxx行有问题等等。所以，果断安装Ubuntu虚拟机。 具体的步骤不再赘述，官网上有，地址是：编译、运行Android。要翻墙，可以看我的博文：只要按照官网的步骤一步步">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu 14.04 编译 Android 4.1.1 jellybean 过程记录">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/08/15/ubuntu-14-04-build-android-4-1-1-jellybean/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="我的Android开发环境是在OS X搭建的，本来想按照官网上的配置在Mac上编译Android，但是因为Xcode版本很高，编译Android 4.1.1要求Xcode是4.x版本，但是我的是6.4的，所以总是出现奇怪的错误，比如xxx行有问题等等。所以，果断安装Ubuntu虚拟机。 具体的步骤不再赘述，官网上有，地址是：编译、运行Android。要翻墙，可以看我的博文：只要按照官网的步骤一步步">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ubuntu 14.04 编译 Android 4.1.1 jellybean 过程记录">
+<meta name="twitter:description" content="我的Android开发环境是在OS X搭建的，本来想按照官网上的配置在Mac上编译Android，但是因为Xcode版本很高，编译Android 4.1.1要求Xcode是4.x版本，但是我的是6.4的，所以总是出现奇怪的错误，比如xxx行有问题等等。所以，果断安装Ubuntu虚拟机。 具体的步骤不再赘述，官网上有，地址是：编译、运行Android。要翻墙，可以看我的博文：只要按照官网的步骤一步步">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/08/15/ubuntu-14-04-build-android-4-1-1-jellybean/">
+
+
+
+
+
+  <title>Ubuntu 14.04 编译 Android 4.1.1 jellybean 过程记录 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/08/15/ubuntu-14-04-build-android-4-1-1-jellybean/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ubuntu 14.04 编译 Android 4.1.1 jellybean 过程记录</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-15T14:46:48+07:00">
+                2015-08-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我的Android开发环境是在OS X搭建的，本来想按照官网上的配置在Mac上编译Android，但是因为Xcode版本很高，编译Android 4.1.1要求Xcode是4.x版本，但是我的是6.4的，所以总是出现奇怪的错误，比如xxx行有问题等等。所以，果断安装Ubuntu虚拟机。</p>
+<p>具体的步骤不再赘述，官网上有，地址是：<a href="https://source.android.com/source/initializing.html" target="_blank" rel="noopener">编译、运行Android</a>。要翻墙，可以看我的博文：只要按照官网的步骤一步步来，编译基本不会遇到问题。我在编译过程中只遇到了两个问题，下面会详细描述。</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>有些地方需要注意，仔细看官网的描述。</p>
+<p>1.要编译2.3及以后的版本，就必须使用64位系统。</p>
+<p>2.官网上某些要求并非是必须的，比如我没有配置<strong>Initialing Build Environment</strong>的<strong>Using a separate output directory</strong>这一节，也没有配置<strong>Building and Running</strong>的<strong>Using Cache</strong>这一节，按照需求进行选择。</p>
+<a id="more"></a>
+<p>3.在<strong>Initialing Build Environment</strong>的<strong>Install JDK</strong>这一节中，开始时要求在Ubuntu安装<span style="color: #ff0000;">OpenJDK Java7来编译master分支</span>上的版本。但master分支上的版本一般不稳定，是最新版本的。因此，一般研究源代码都会选择其他分支，比如我选择的是4.1.1_r3。所以，不能在Ubuntu上安装OpenJDK7来编译4.1.1。在这一节的最后会有：</p>
+<p><pre>To develop older versions of Android, download and install the corresponding version of the <a href="http://www.oracle.com/technetwork/java/javase/archive-139210.html" target="_blank" rel="noopener">Java JDK</a>:<br><span style="color: #ff0000;">Java 6: for Gingerbread through KitKat</span><br><span style="color: #ff0000;">Java 5: for Cupcake through Froyo</span></pre><br>也就是说，要编译Android的旧版本(非master分支上的版本)，就按照需要下载相应的Sun  JDK。根据<a href="https://source.android.com/source/build-numbers.html" target="_blank" rel="noopener">Android版本对照表</a>(访问需翻墙)，<span style="color: #ff0000;">Cupcake是Android 1.5，Froyo是Android 2.2x，Gingerbread是Android 2.3，KitKat是Android 4.x。</span>我要编译4.1.1，所以在Gingerbread到KitKat之间，因此需要安装Sun Java6。</p>
+<p>4.在<strong>Building and Running</strong>的<strong>Choose a Target</strong>一节中，使用lunch命令来配置一些变量，可以给其加上命令参数，也可以不加。<span style="color: #ff0000;">我建议不加，运行之后根据需要选择相应的目标机。</span>官网上给出的lunch命令的参数与我在编译Android 4.1.1时运行lunch时的参数不同。</p>
+<p>5.在<strong>Building and Running</strong>的<strong>Building the Code</strong>一节中，可以使用make -jN命令来指定使用N个线程同时编译代码。<span style="color: #ff0000;">官网推荐将N设置为机器CPU可以同时处理的线程的1至2倍</span>，比如机器有2个CPU，每个CPU有4核，每个核支持双线程，那么机器可以同时处理2<em>4</em>2=16个线程，这16个线程是真正的并行，因此，N可以设置为16至32。当然，N还要根据内存的大小做相应的调整。我虚拟机配置的单CPU，2核，每个核支持单线程，内存4G，我将N设置为8，虽然感觉比较卡，但主机还能正常浏览网页，编译过程也很顺利。</p>
+<h1 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h1><p><strong>1.错误提示类似：You may want to install switch module perl</strong></p>
+<p>要安装Perl的Switch模块，Ubuntu下使用命令：</p>
+<p><pre>sudo apt-get install libswitch-perl</pre><br>安装完成后，继续make -jN。</p>
+<p><strong>2.错误提示类似：make *</strong> out/target/common/docs/api-stubs-timestamp error 45**</p>
+<p>根据Google的结果，这是<strong>build/core/droiddoc.mk</strong>文件中有命名冲突，按照下面的步骤修改：</p>
+<p><pre>vi xxx/build/core/droiddoc.mk  # xxx/是你的Android源码所在的根目录<br>在文件中查找类似下面的两行，可能不完全一样：<br>@echo Docs droiddoc: $(PRIVATE_OUT_DIR)<br>$ mkdir -p $(dir<strong> $(full_target))
+</strong>就是加粗的$(full_target)变量与出错了，把第二行修改为：<br>$(hide) mkdir -p $@</pre><br>修改完之后，保存并退出编辑器，继续make -jN。</p>
+<p><strong>3.当源码顺利编译完成之后，按照官网上的步骤，下面就要执行命令：</strong></p>
+<p><pre>emulator</pre><br>来启动Android模拟器了，但是我执行之后提示<strong>“emulator: Command not found”</strong>。可以执行下面的命令来启动模拟器：</p>
+<p><pre>cd &lt;your-android-source-root-directory&gt;/<br>. build/envsetup.sh   #<span style="color: #ff0000;">注意，点”.”与build/envsetup.sh之间有空格<br></span>#lunch的参数因需而异。<span style="color: #ff0000;">这里的参数必须与之前编译之前运行lunch命令时的参数要一致。</span><br>lunch 1<br>emulator   #这次就可以顺利运行Android模拟器了。</pre></p>
+<p><br>&nbsp;</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>1.<a href="http://askubuntu.com/questions/204481/how-to-install-perl-switch-pm-module-required-to-build-webkit-gtk" target="_blank" rel="noopener">安装Perl的Switch模块</a></p>
+<p>2.<a href="https://groups.google.com/forum/#!topic/android-building/gVBuZyNZXlE" target="_blank" rel="noopener">解决问题2的方法1</a></p>
+<p>3.<a href="http://www.cnblogs.com/lake-of-embedded-system/p/3641958.html" target="_blank" rel="noopener">解决问题2的方法2</a></p>
+<p>4.解决问题3的方法——《Android的设计与实现 卷I》 第一章第1.5.2节第2小节的步骤3 运行模拟器，在第18页。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/14/vmware-fusion-ubuntu-client-share-folder/" rel="next" title="VMware Fusion Ubuntu 14.04 客户机 设置共享目录">
+                <i class="fa fa-chevron-left"></i> VMware Fusion Ubuntu 14.04 客户机 设置共享目录
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/16/os-x-linux-terminal-git-proxy/" rel="prev" title="OS X (Linux) 终端下git使用代理">
+                OS X (Linux) 终端下git使用代理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#注意事项"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#遇到的问题"><span class="nav-number">2.</span> <span class="nav-text">遇到的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

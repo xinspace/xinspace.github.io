@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="如题，根据http://threebit.net/tutorials/apache2_modules/tut1/tutorial1.html这个页面在linux安装配置tutorial one module的话，会出现一些问题，下面记录我在安装配置过程中遇到的问题和解决方案。 如下约定： 1.红色字要特别注意，有一些提醒; 2.打了‘#’号的是注释而不是命令; 3.粗体字是小节; 4.主流程是ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="根据apache2 module tutorial one在linux下安装配置apache">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/05/17/apache2-linux-configure/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="如题，根据http://threebit.net/tutorials/apache2_modules/tut1/tutorial1.html这个页面在linux安装配置tutorial one module的话，会出现一些问题，下面记录我在安装配置过程中遇到的问题和解决方案。 如下约定： 1.红色字要特别注意，有一些提醒; 2.打了‘#’号的是注释而不是命令; 3.粗体字是小节; 4.主流程是ma">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="根据apache2 module tutorial one在linux下安装配置apache">
+<meta name="twitter:description" content="如题，根据http://threebit.net/tutorials/apache2_modules/tut1/tutorial1.html这个页面在linux安装配置tutorial one module的话，会出现一些问题，下面记录我在安装配置过程中遇到的问题和解决方案。 如下约定： 1.红色字要特别注意，有一些提醒; 2.打了‘#’号的是注释而不是命令; 3.粗体字是小节; 4.主流程是ma">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/05/17/apache2-linux-configure/">
+
+
+
+
+
+  <title>根据apache2 module tutorial one在linux下安装配置apache | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/05/17/apache2-linux-configure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">根据apache2 module tutorial one在linux下安装配置apache</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-05-17T22:06:02+07:00">
+                2013-05-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>如题，根据<a href="http://threebit.net/tutorials/apache2_modules/tut1/tutorial1.html" target="_blank" rel="noopener">http://threebit.net/tutorials/apache2_modules/tut1/tutorial1.html</a>这个页面在linux安装配置tutorial one module的话，会出现一些问题，下面记录我在安装配置过程中遇到的问题和解决方案。</p>
+<p>如下约定：</p>
+<p>1.红色字要特别注意，有一些提醒;</p>
+<p>2.打了‘#’号的是注释而不是命令;</p>
+<p>3.粗体字是小节;</p>
+<p>4.主流程是main steps，主流程中遇到的问题解决方案的分支是child steps，有时候会从主流程跳到相应的子流程或者问题解决完了要从子流程跳回主流程，请大家注意看。如果没有碰到相关的问题的话，可以直接跳过这个问题的解决方案的子流程。</p>
+<a id="more"></a>
+<p>&nbsp;</p>
+<h1 id="Tutorial-One"><a href="#Tutorial-One" class="headerlink" title="Tutorial One"></a><span style="color: #000000;"><strong>Tutorial One</strong></span></h1><p>This tutorial is not intended to showcase Apache’s module API. Instead, it guides the reader through <em>the other</em> tasks that must be done to properly develop, compile and install a custom module - namely <strong>autoconf</strong> and<strong>automake</strong>.</p>
+<h2 id="Preparation"><a href="#Preparation" class="headerlink" title="Preparation"></a>Preparation</h2><p>If you don’t actually want to run or test the code in this tutorial, then feel free to skip this step. Otherwise, you’ll want to perform the following actions so your work area prepared for compiling and running the tutorial.</p>
+<p>I have assumed in this tutorial that you have an account on a Linux (or Unix) machine and you have installed the GNU build tools (autoconf, automake, etc). If you haven’t then you’re not going to get very far - consult your OS documentation.</p>
+<pre># Prepare the temporary directory
+cd $HOME
+mkdir threebit-tutorials
+cd threebit-tutorials
+
+# Remember the tutorial home directory for later.
+export TUTORIAL_HOME=`pwd`</pre>
+
+<p><strong>Download via HTTP</strong></p>
+<pre>cd $TUTORIAL_HOME
+wget ["http://threebit.net/tutorials/tutorials.tar.gz"](http://threebit.net/tutorials/tutorials.tar.gz)
+tar zxvf tutorials.tar.gz</pre>
+<pre><span style="color: #ff0000;">**Apache** _Note: You will get a "404 - Not Found" error if 2.0.43 is no longer the newest 
+version of Apache. Just substitute the current version tag if that is the case.go to 
+the websit to seethe last version of httpd server:_</span>**[http://httpd.apache.org/](http://httpd.apache.org/).
+**</pre>
+<pre>cd $TUTORIAL_HOME
+wget [http://www.apache.org/dist/httpd/httpd-2.0.43.tar.gz](http://www.apache.org/dist/httpd/httpd-2.0.43.tar.gz)
+tar zxf httpd-2.0.43.tar.gz
+cd httpd-2.0.43
+./configure --prefix=$TUTORIAL_HOME/apache2 --enable-so
+<span style="color: #ff0000;">Apache Note:配置服务器，这里会出一些问题，比如APR not found，PCRE needed等，所以下面这一步比较
+麻烦，请按照如下所述的步骤一步步的来。配置一下，如果出现APR not found错误，请按照下面步骤，如果没
+有出现，请跳到main step。**
+
+**</span><span style="color: #ff0000;">Apache Note:</span><span style="color: #000000;"><span style="color: #ff0000;">the follow steps will show you the way to solove the APR not found problem
+-child steps.</span>
+</span>
+<span style="color: #000000;">**Download and install APR**</span>
+wget http://labs.mop.com/apache-mirror//apr/apr-1.4.6.tar.gz</pre>
+<div style="text-align: left;"><span style="color: #ff0000;">Apache Note:可能你下载的版本已经不是1.4.6了，用自己的版本号替代掉1.4.6即可。在[<span style="color: #ff0000;">http://apr.apache.org/download.cgi</span>](http://apr.apache.org/download.cgi)查看最新版本</span></div>
+<div style="text-align: left;">tar zxvf  apr-1.4.6.tar.gz</div>
+<div style="text-align: left;">mv apr-1.4.6 apr</div>
+<div style="text-align: left;">mv apr $TUTORIAL_HOME/httpd-2.4.4/srclib/</div>
+<div style="text-align: left;">cd $TUTORIAL_HOME/httpd-2.4.4/srclib/apr</div>
+<div style="text-align: left;">./configure --prefix=$TUTORIAL_HOME/apache2/apr</div>
+<div style="text-align: left;">make &amp;&amp; make install</div>
+<div style="text-align: left;"></div>
+<div style="text-align: left;"><span style="color: #000000;">**Download and install APR-util**</span></div>
+<div style="text-align: left;"><span style="color: #ff0000;">Apache Note:可能你下载的版本已经不是1.4.6了，用自己的版本号替代掉1.4.1即可。在[<span style="color: #ff0000;">http://apr.apache.org/download.cgi</span>](http://apr.apache.org/download.cgi)查看最新版本</span></div>
+<div style="text-align: left;">wget http://labs.mop.com/apache-mirror//apr/apr-util-1.4.1.tar.gz</div>
+<div style="text-align: left;">
+<div>tar zxvf apr-util-1.4.1.tar.gz</div>
+<div>mv apr-util-1.4.1 apr-util</div>
+<div>mv apr-util $TUTORIAL_HOME/httpd-2.4.4/srclib/</div>
+<div>cd $TUTORIAL_HOME/httpd-2.4.4/srclib/apr-util</div>
+<div>./configure --prefix=$TUTORIAL_HOME/apache2/apr-util --with-apr=$TUTORIAL_HOME/apache2/apr/bin/apr-1-config</div>
+<div>make &amp;&amp; make install</div>
+<div></div>
+<div><span style="color: #000000;">**Download and install PCRE**</span></div>
+<div>[http://sourceforge.net/projects/pcre/files/pcre/](http://sourceforge.net/projects/pcre/files/pcre/8.32/)下载最新版本，假如下载的是8.32.zip</div>
+<div><span style="color: #ff0000;">Apache Note:可能你下载的版本已经不是8.30了，用自己的版本号替代掉8.30即可。</span></div>
+<div>
+<div>unzip pcre-8.32.zip</div>
+<div>cd pcre-8.32</div>
+<div>./configure --prefix=$TUTORIAL_HOME/apache2/pcre</div>
+<div> make &amp;&amp; make install</div>
+</div>
+</div>
+<pre><span style="color: #ff0000;">Apache Note**:**the follow steps are the main steps.
+</span>cd $TUTORIAL_HOME/httpd-2.4.4/
+./configure --prefix=$TUTORIAL_HOME/apache2 --enable-so --enable-rewrite --with-apr=
+$TUTORIAL_HOME/apache2/apr --with-apr-util=$TUTORIAL_HOME/apache2/apr-util 
+--with-pcre=$TUTORIAL_HOME/apache2/pcre/bin/pcre-config
+
+make make install</pre>
+<div>
+<div style="text-align: left;"><span style="color: #ff0000;">Apache Note:如果一下载的httpd版本里面包含了APR，即不会出现APR not found的错误的话，配置安装httpd的命令如下：</span></div>
+<div style="text-align: left;">./configure --prefix=/usr/local/apache2 --enable-so --enable-rewrite  --with-pcre=/usr/local/pcre/bin/pcre-config</div>
+<div style="text-align: left;"> make &amp;&amp; make install</div>
+<div style="text-align: left;"></div>
+<div style="text-align: left;">
+
+<span style="color: #000000;">**Now**</span> we will fix the _ServerName_ and _Listen_ configuration directives so that we can run this installation as an unpriviledged user.
+<pre># store the location of the apache configuration file.
+HTTPCONF=$TUTORIAL_HOME/apache2/conf/httpd.conf
+
+# replace the ServerName directive
+cat $HTTPCONF | sed 's/#ServerName new.host.name:80/ServerName localhost/' &gt; $HTTPCONF.new
+mv $HTTPCONF.new $HTTPCONF
+
+# replace the Listen directive.
+cat $HTTPCONF | sed 's/^Listen 80/Listen 21000/' &gt; $HTTPCONF.new
+mv $HTTPCONF.new $HTTPCONF</pre>
+#and test the configuration:
+<pre>$TUTORIAL_HOME/apache2/bin/apachectl configtest
+Syntax OK
+
+<span style="color: #ff0000;">Apache Note:the purpose of this module is to write data to the error log for each HTTP 
+request. We are obviously building a useless module - but by limiting what the module 
+does it becomes easier to explain what everything is doing.
+_接下来，这个教程介绍了apache2_modules/tut1目录下的一些文件及GNU的build tool,如果感兴趣可以
+读一下，不感兴趣可以直接跳过.
+_</span></pre>
+
+<h2 id="mod-tut1-c"><a href="#mod-tut1-c" class="headerlink" title="mod_tut1.c"></a>mod_tut1.c</h2><p>The <a href="http://threebit.net/tutorials/apache2_modules/tut1/mod_tut1.c" target="_blank" rel="noopener">source code</a> to the module is pretty much self documenting but let us examine each block independently.</p>
+<pre></pre>
+<pre>/*
+ * Include the core server components.
+ */
+#include "httpd.h"
+#include "http_config.h"</pre>
+<pre><span style="color: #ff0000;">_Obviously an Apache module will require information about structures, macros 
+and functionsfrom Apache's core. These two header files are all that is 
+required for this module, but real modules will need to include other header
+files relating to request handling, logging, protocols,etc._</span></pre>
+<pre>/*
+ * Declare and populate the module's data structure.  The
+ * name of this structure ('tut1_module') is important - it
+ * must match the name of the module.  This structure is the
+ * only "glue" between the httpd core and the module.
+ */
+module [AP_MODULE_DECLARE_DATA](http://lxr.webperf.org/ident.cgi?i=AP_MODULE_DECLARE_DATA) tut1_module =
+{
+  // Only one callback function is provided.  Real
+  // modules will need to declare callback functions for
+  // server/directory configuration, configuration merging
+  // and other tasks.
+  [STANDARD20_MODULE_STUFF](http://lxr.webperf.org/ident.cgi?i=STANDARD20_MODULE_STUFF),
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  mod_tut1_register_hooks,      /* callback for registering hooks */
+};
+
+<span style="color: #ff0000;">_Every module must declare it's data structure as shown above. Since this 
+module does not require any configuration most of the callback locations 
+have been left blank, except for the last one - that one is invoked by the 
+HTTPD core so that the module can declare other functions that should be 
+invoked to handle various events (like an HTTP request)._</span></pre>
+<pre>/*
+ * This function is a callback and it declares what
+ * other functions should be called for request
+ * processing and configuration requests. This
+ * callback function declares the Handlers for
+ * other events.
+ */
+static void mod_tut1_register_hooks ([apr_pool_t](http://lxr.webperf.org/ident.cgi?i=apr_pool_t) *p)
+{
+  // I think this is the call to make to register a
+  // handler for method calls (GET PUT et. al.).
+  // We will ask to be last so that the comment
+  // has a higher tendency to go at the end.
+  ap_hook_handler(mod_tut1_method_handler, NULL, NULL, APR_HOOK_LAST);
+}</pre>
+<pre><span style="color: #ff0000;">_When this function is called by the HTTPD core, it registers a handler that 
+should be invoked for all HTTP requests._</span></pre>
+<pre>/*
+ * This function is registered as a handler for HTTP methods and will
+ * therefore be invoked for all GET requests (and others).  Regardless
+ * of the request type, this function simply sends a message to
+ * STDERR (which httpd redirects to logs/error_log).  A real module
+ * would do *alot* more at this point.
+ */
+static int mod_tut1_method_handler ([request_rec](http://lxr.webperf.org/source.cgi/include/httpd.h#L707) *r)
+{
+  // Send a message to stderr (apache redirects this to the error log)
+  fprintf(stderr,"apache2_mod_tut1: A request was made.n");
+
+  // We need to flush the stream for messages to appear right away.
+  // Performing an fflush() in a production system is not good for
+  // performance - don't do this for real.
+  fflush(stderr);
+
+  // Return DECLINED so that the Apache core will keep looking for
+  // other modules to handle this request.  This effectively makes
+  // this module completely transparent.
+  return [DECLINED](http://lxr.webperf.org/ident.cgi?i=DECLINED);
+}</pre>
+<pre><span style="color: #ff0000;">_This is the function that will be invoked for every HTTP request. This is 
+where the _meat_ of an Apache module should go._</span></pre>
+
+<h2 id="GNU-Build-Tools"><a href="#GNU-Build-Tools" class="headerlink" title="GNU Build Tools"></a>GNU Build Tools</h2><pre><span style="color: #ff0000;">_Looking in _TODO $TUTORIAL_HOME/tut1_, you will find some familiar files that 
+are included with most GNU applications._</span></pre>
+<table>
+<tbody>
+<tr>
+<th align="left">[Makefile.am](http://threebit.net/tutorials/apache2_modules/tut1/Makefile.am)</th>
+<td>An input file for _automake_</td>
+</tr>
+<tr>
+<th align="left">[configure.in](http://threebit.net/tutorials/apache2_modules/tut1/configure.in)</th>
+<td>An inputfile to _autoconf_.</td>
+</tr>
+<tr>
+<th align="left">[mod_tut1.c](http://threebit.net/tutorials/apache2_modules/tut1/mod_tut1.c)</th>
+<td>The source code to the tutorial module.</td>
+</tr>
+<tr>
+<th align="left">tutorial1.html</th>
+<td>This file.</td>
+</tr>
+<tr>
+<td colspan="2" align="left">_**The remaining files can safely be ignored.**_</td>
+</tr>
+<tr>
+<th align="left">AUTHORS</th>
+<td>automake will produce warnings if this file is not present.</td>
+</tr>
+<tr>
+<th align="left">COPYING</th>
+<td>The GPL license. automake will complain if this file is not present.</td>
+</tr>
+<tr>
+<th align="left">CVS/</th>
+<td>CVS state directory. Ignore it. If you downloaded the tutorial using the tar ball then it won't even exist.</td>
+</tr>
+<tr>
+<th align="left">ChangeLog</th>
+<td>Another automake file.</td>
+</tr>
+<tr>
+<th align="left">INSTALL</th>
+<td>Standard install instructions. In this case, it points the reader to this file.</td>
+</tr>
+<tr>
+<th align="left">NEWS</th>
+<td>Another automake file.</td>
+</tr>
+<tr>
+<th align="left">README</th>
+<td>Another automake file.</td>
+</tr>
+</tbody>
+</table>
+<pre></pre>
+This tutorial does not aim to be a complete reference for the GNU build tools. See the following references for information.
+<pre></pre>
+
+<ul>
+<li><a href="http://sources.redhat.com/autobook/" target="_blank" rel="noopener">GNU Autoconf, Automake and Libtool</a><br><a href="http://sources.redhat.com/autobook/" target="_blank" rel="noopener">http://sources.redhat.com/autobook/</a></li>
+<li><a href="http://www.gnu.org/manual/autoconf/" target="_blank" rel="noopener">GNU Autoconf</a><br><a href="http://www.gnu.org/manual/autoconf/" target="_blank" rel="noopener">http://www.gnu.org/manual/autoconf/</a></li>
+<li><a href="http://www.gnu.org/manual/automake/" target="_blank" rel="noopener">GNU Automake</a><br><a href="http://www.gnu.org/manual/automake/" target="_blank" rel="noopener">http://www.gnu.org/manual/automake/</a></li>
+<li><a href="http://www.gnu.org/manual/libtool/" target="_blank" rel="noopener">GNU Libtool</a><br><a href="http://www.gnu.org/manual/libtool/" target="_blank" rel="noopener">http://www.gnu.org/manual/libtool/</a><br><pre><span style="color: #ff0000;"><em>Aside from the module source code itself, the only files of interest to the<br>reader are <strong>configure.in</strong> and <strong>Makefile.am</strong>. To briefly discuss these files without<br>duplicating documetation contained in the above references:</em></span></pre><br><strong>configure.in</strong> is an input file to <strong>autoconf</strong> and is used to configure the module source code and dependencies for each target platform. Running <strong>autoconf</strong> creates the <strong>configure</strong> script we are all so familiar with.<br><pre></pre><br><strong>Makefile.am</strong> is an input file to <strong>automake</strong> and is used to create a <strong>Makefile.in</strong> file. The Makefile.in file is then used by <strong>configure</strong> to create real <strong>Makefile</strong>‘s.<br><pre></pre><br>If you’re confused - have no fear because I still am! You probably don’t need to understand everything - just plug away through the tutorial. If you want to understand what’s going on, I suggest you read the references cited above.<br><pre></pre><br>&nbsp;</li>
+</ul>
+<h2 id="configure-in"><a href="#configure-in" class="headerlink" title="configure.in"></a>configure.in</h2><pre><span style="color: #ff0000;">_I would be lying to you if I told you that I understand everything in this file. 
+However, it seems to work so I'll tell you what I know. :) See [configure.in](http://threebit.net/tutorials/apache2_modules/tut1/configure.in) for 
+raw file._</span></pre>
+<pre>AC_INIT</pre>
+<pre><span style="color: #ff0000;">_The mandatory autoconf initialization macro._</span></pre>
+<pre># Automake initialization
+AM_INIT_AUTOMAKE(mod_tut1, 1.0)</pre>
+<pre><span style="color: #ff0000;">_This macro is provided by automake and is required when automake is used. The 
+arguments are the package name and version number. I have provided reasonable 
+values for the parameters but still haven't figured out what their impact is._</span></pre>
+<pre>AC_PROG_CC
+AM_PROG_LIBTOOL</pre>
+<pre><span style="color: #ff0000;">_These two macros add checks for suitable **cc** and **libtool** programs._</span></pre>
+<pre>AC_DEFUN([APACHE_DIR],[
+
+  AC_ARG_WITH(
+    apache,
+    [  --with-apache[=DIR]     Apache server directory],
+    ,
+    [with_apache="no"]
+  )
+
+  AC_MSG_CHECKING(for Apache directory)
+
+  if test "$with_apache" = "no"; then
+    AC_MSG_ERROR( Specify the apache using --with-apache)
+  else
+    # make sure that a well known include file exists
+    if test -e $with_apache/include/httpd.h; then
+      apache_dir=$with_apache
+      AC_MSG_RESULT(APACHE found!)
+    else
+      AC_MSG_ERROR( $with_apache not found. )
+    fi
+  fi
+
+])</pre>
+<pre><span style="color: #ff0000;">_This declares a new autoconf macro named _APACHE_DIR_. It is used to handle the 
+_--with-apache=/usr/local/apache2_ argument to _configure_._</span></pre>
+<pre>APACHE_DIR</pre>
+<pre><span style="color: #ff0000;">_This runs the _APACHE_DIR_ macro that was just defined. When successfull, the 
+directory location is stored in _apache_dir_._</span></pre>
+<pre>AC_SUBST(apache_dir)</pre>
+<pre><span style="color: #ff0000;">_Not all variables that are set in shell snippets are persisted to the 
+configuration status file (config.status). This call to AC_SUBST persists 
+the value of _apache_dir_._</span></pre>
+<pre>AC_OUTPUT(Makefile)</pre>
+<pre><span style="color: #ff0000;">_Finally, _AC_OUTPUT()_ saves the results of the configuration and causes a 
+real Makefile to be generated._</span></pre>
+
+<h2 id="Makefile-am"><a href="#Makefile-am" class="headerlink" title="Makefile.am"></a>Makefile.am</h2><pre><span style="color: #ff0000;">_This file is used by **automake** to generate a **Makefile.in** file. As stated earlier,
+Makefile.in is then parsed using an invocation of **configure** to create an actual 
+**Makefile**._</span></pre>
+Since writing an Apache module is the same as writing, compiling and linking any standard shared library, **automake** is well suited to the task.
+<pre></pre>
+Again, consult the full automake documentation for all the info. See the raw [Makefile.am](http://threebit.net/tutorials/apache2_modules/tut1/Makefile.am).
+<pre></pre>
+<pre>lib_LTLIBRARIES = libmodtut1.la</pre>
+<pre><span style="color: #ff0000;">_This tells automake that we are creating a shared library named **libmottut1.la**._</span></pre>
+<pre>libmodtut1_la_SOURCES = mod_tut1.c</pre>
+<pre><span style="color: #ff0000;">_This tells automake what source files should be compiled as part of the library. 
+In this case there is only one, but there could be serveral._</span></pre>
+<pre>INCLUDES = -I@apache_dir@/include</pre>
+<pre><span style="color: #ff0000;">_Header files from the apache distribution are required when compiling the module. 
+This directive provides a list of include directories to pass on to **gcc**. Does 
+_apache_dir_ look familiar? If you said yes, then step to the front of the class
+ - **configure** will subsitute the value that was passed in with **--with-apache** 
+when the Makefile is written.
+_</span></pre>
+</div>
+<div style="text-align: left;">
+
+## aclocal, autoconf, automake
+
+<pre>_Now that you have some idea of what those files mean we can run the utilities 
+that use them._</pre>
+**aclocal** is used to import macros defined by automake so that autoconf can understand what's going on.
+
+cd $TUTORIAL_HOME/apache2_modules/tut1
+
+libtoolize
+
+<span style="color: #ff0000;">Apache Note:这一步生成后面必须的文件Itmain.sh</span>
+
+# import automake m4 macros.
+
+aclocal
+<pre><span style="color: #ff0000;">Apache Note:</span><span style="color: #ff0000;">可能会碰到一个问题，大概的意思是缺少AM_LIBTOOL之类的文件，造成这个问题的原因有两个：
+-child steps
+
+</span>1.你没有安装libtool;
+解决方案：sudo yum install libtool
+_2.你的aclocal与libtool没有安装到同一个目录下.
+解决方案：
+_cp /usr/share/aclocal/* /usr/share/aclocal-1.12/
+rm /usr/share/aclocal
+ln -s /usr/share/aclocal-1.12/usr/share/aclocal
+
+#然后把可执行程序也替换一下：
+
+rm /usr/bin/aclocal
+ln -s /usr/bin/aclocal-1.9 /usr/bin/aclocal</pre>
+_原因：_由于新版的Fedora系统在安装新的automake工具的时候，并没有安装到默认的automake目录，而是安装到automake-version,比如automake-1.12目录中,于是aclocal也被安装到了aclocal-version中，跟默认的**libtool**显然就不是同一目录，出现找不到**libtool**的情况也是正常的了,修改的方案就是把默认的aclocal目录中的文件，copy到aclocal-version目录中，然后删除aclocal目录，做一个aclocal的Symbolink连接，连接到ac#local-version目录中。系统自带的aclocal文件夹安装在/usr/share/aclocal中，后来升级的aclocal就安装到了/usr/share/aclocal-1.12中。当aclocal找不到**libtool**的时候，可能的报错还有：**macro `AM_DISABLE_STATIC’ not found in ****library，****macro `AM_PROG_LIBTOOL’ not found in ****library，**用这种方法都可以解决。
+
+<span style="color: #ff0000;">Apache Note:the follow steps are main steps</span>
+<pre># create configure based on configure.in
+autoconf</pre>
+<pre># create Makefile.in based on Makefile.am and configure.in
+automake -a</pre>
+
+<h2 id="configure"><a href="#configure" class="headerlink" title="configure"></a>configure</h2><pre>Now we can run **configure** to prepare the module's **Makefile**.</pre>
+<pre># The ubiquitous configure script
+./configure --with-apache=$TUTORIAL_HOME/apache2**
+**</pre>
+
+<h2 id="make"><a href="#make" class="headerlink" title="make"></a>make</h2><pre>And now we can run **make** to compile the module. <span style="color: #ff0000;">**Note:** don't run **make install**.</span> We'll handle 
+the module installation later.
+make</pre>
+</div>
+<div style="text-align: left;"><span style="color: #ff0000;">Apache Note:这里也可能出现问题，比如apr.h找不到-child steps</span></div>
+<div style="text-align: left;">cp $TUTORIAL_HOME/httpd-2.4.4/srclib/apr/include/* $TUTORIAL_HOME/apache2/include/</div>
+<div style="text-align: left;">cp $TUTORIAL_HOME/httpd-2.4.4/srclib/apr-util/include/* $TUTORIAL_HOME/apache2/include/</div>
+<div style="text-align: left;">#打开$TUTORIAL_HOME/apache2/include/apr.h,找到typedef off64_t apr_off_t;这一句（大概在358行），然后修改为typedef long long apr_off_t;</div>
+<div style="text-align: left;">./configure --with-apache=$TUTORIAL_HOME/apache2</div>
+<div style="text-align: left;">make</div>
+<div style="text-align: left;">原因：主要是$TUTORIAL_HOME/apache2/include/目录下面没有apr.h,apr_hooks.h等头文件（这个就不知道是怎么个情况了），把$TUTORIAL_HOME/httpd-2.4.4/srclib/apr/include和$TUTORIAL_HOME/httpd-2.4.4/srclib/apr-util/include目录下的头文件全部拷到$TUTORIAL_HOME/apache2/include/这个目录中就可以了。apr.h头文件中的apr_off_t类型定义要修改一下。</div>
+<div style="text-align: left;">
+
+## apxs
+
+**** DO NOT RUN _make install_ **** Ordinarially you would, but the install step for an Apache module is different. Instead, **apxs** is used to register the module in _httpd.conf_ and move the shared object into the apache lib directory.
+<pre>$TUTORIAL_HOME/apache2/bin/apxs -i -a -n tut1 libmodtut1.la</pre>
+**apxs** also addes the following line to **httpd.conf**:
+<pre>LoadModule tut1_module        modules/libmodtut1.so</pre>
+
+<h2 id="Run-Apache"><a href="#Run-Apache" class="headerlink" title="Run Apache"></a>Run Apache</h2><pre>Now we are ready to run Apache and test the module.</pre>
+<pre># Change to the apache directory
+cd $TUTORIAL_HOME/apache2
+
+# Start Apache
+bin/apachectl start
+
+# Use Lynx to hit the web server.
+lynx --source http://localhost:21000 | grep success
+
+# Look for the module's message in the error log
+cat logs/error_log | grep tut1
+_apache2_mod_tut1: A request was made._</pre>
+
+<h2 id="Success"><a href="#Success" class="headerlink" title="Success!"></a>Success!</h2><p><pre>The tutorial one module has been successfully compiled and installed into the Apache 2<br>runtime.</pre><br></p></div><p></p>
+<div style="text-align: left;"><br><pre><span style="font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 13px; line-height: 19px;">参考资料：</span></pre><br></div><br><div style="text-align: left;">出现APR not found等问题的解决方案参考资料：</div><br><div style="text-align: left;"><a href="http://91boy.blog.51cto.com/2814767/836766" target="_blank" rel="noopener">http://91boy.blog.51cto.com/2814767/836766</a></div><br><div style="text-align: left;"></div><br><div style="text-align: left;">automake -a出现问题的解决方案参考网站：</div><br><div style="text-align: left;"><a href="http://www.gnu.org/software/automake/manual/html_node/Error-required-file-ltmain_002esh-not-found.html" target="_blank" rel="noopener">http://www.gnu.org/software/automake/manual/html_node/Error-required-file-ltmain_002esh-not-found.html</a></div><br><div style="text-align: left;"></div><br><div style="text-align: left;">缺少apr.h等的解决方案参考资料：</div><br><div style="text-align: left;"><a href="http://www.cnblogs.com/huqingyu/archive/2007/03/19/679282.aspx" target="_blank" rel="noopener">http://www.cnblogs.com/huqingyu/archive/2007/03/19/679282.aspx</a></div><br></div>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/05/08/c-expert/" rel="next" title="《C专家编程》笔记">
+                <i class="fa fa-chevron-left"></i> 《C专家编程》笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/05/23/stardict/" rel="prev" title="linux下的翻译软件：星际译王 stardict or qstardict">
+                linux下的翻译软件：星际译王 stardict or qstardict <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Tutorial-One"><span class="nav-number">1.</span> <span class="nav-text">Tutorial One</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Preparation"><span class="nav-number">1.1.</span> <span class="nav-text">Preparation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mod-tut1-c"><span class="nav-number">1.2.</span> <span class="nav-text">mod_tut1.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GNU-Build-Tools"><span class="nav-number">1.3.</span> <span class="nav-text">GNU Build Tools</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#configure-in"><span class="nav-number">1.4.</span> <span class="nav-text">configure.in</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile-am"><span class="nav-number">1.5.</span> <span class="nav-text">Makefile.am</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#configure"><span class="nav-number">1.6.</span> <span class="nav-text">configure</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#make"><span class="nav-number">1.7.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Run-Apache"><span class="nav-number">1.8.</span> <span class="nav-text">Run Apache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Success"><span class="nav-number">1.9.</span> <span class="nav-text">Success!</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

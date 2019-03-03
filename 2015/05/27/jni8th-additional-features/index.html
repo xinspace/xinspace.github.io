@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本章篇幅较长，需要多天完成。下面部分是05/27/15完成的。 &amp;nbsp; 本章主要讨论JNI的其他特性。 8.1  JNI和线程Java虚拟机支持在同一个地址空间中控制多个线程并发执行。多线程比单线程有多大的复杂度，比如多个线程可能会同时访问一个对象，需要进行多线程的同步与互斥。在继续下面的讨论之前，你必须要懂Java多线程编程，懂得同步与互斥。 8.1.1 多线程的约束">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第八章 JNI的其他特性">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/27/jni8th-additional-features/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="本章篇幅较长，需要多天完成。下面部分是05/27/15完成的。 &amp;nbsp; 本章主要讨论JNI的其他特性。 8.1  JNI和线程Java虚拟机支持在同一个地址空间中控制多个线程并发执行。多线程比单线程有多大的复杂度，比如多个线程可能会同时访问一个对象，需要进行多线程的同步与互斥。在继续下面的讨论之前，你必须要懂Java多线程编程，懂得同步与互斥。 8.1.1 多线程的约束">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第八章 JNI的其他特性">
+<meta name="twitter:description" content="本章篇幅较长，需要多天完成。下面部分是05/27/15完成的。 &amp;nbsp; 本章主要讨论JNI的其他特性。 8.1  JNI和线程Java虚拟机支持在同一个地址空间中控制多个线程并发执行。多线程比单线程有多大的复杂度，比如多个线程可能会同时访问一个对象，需要进行多线程的同步与互斥。在继续下面的讨论之前，你必须要懂Java多线程编程，懂得同步与互斥。 8.1.1 多线程的约束">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/27/jni8th-additional-features/">
+
+
+
+
+
+  <title>JNI技术解析第八章 JNI的其他特性 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/27/jni8th-additional-features/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第八章 JNI的其他特性</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-27T15:20:32+07:00">
+                2015-05-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章篇幅较长，需要多天完成。下面部分是05/27/15完成的。</p>
+<p>&nbsp;</p>
+<p>本章主要讨论JNI的其他特性。</p>
+<h1 id="8-1-JNI和线程"><a href="#8-1-JNI和线程" class="headerlink" title="8.1  JNI和线程"></a>8.1  JNI和线程</h1><p>Java虚拟机支持在同一个地址空间中控制多个线程并发执行。多线程比单线程有多大的复杂度，比如多个线程可能会同时访问一个对象，需要进行多线程的同步与互斥。在继续下面的讨论之前，你必须要懂Java多线程编程，懂得同步与互斥。</p>
+<h2 id="8-1-1-多线程的约束"><a href="#8-1-1-多线程的约束" class="headerlink" title="8.1.1 多线程的约束"></a>8.1.1 多线程的约束</h2><a id="more"></a>
+<p>编写多线程原生代码时时刻要牢记下面的一些约束。只有理解了这些约束并灵活运用，你才能写出线程安全的原生函数，比如：</p>
+<p>1.<span style="color: #ff0000;">JNIEnv指针只在当前线程有效</span>。不能把指针缓存到静态变量或全局变量，也不能把指针传递到另一个线程的函数中。Java虚拟机对同一个线程的多次不同的调用传递一样的JNIEnv指针，但对不同的线程中的函数调用传递不同的JNIEnv指针。</p>
+<p>2.<span style="color: #ff0000;">局部引用也只在当前线程有效</span>。不能把局部引用传递到其他的线程中，如果需要传递局部引用指向的对象，必须记得将局部引用转换为全局引用。</p>
+<h2 id="8-1-2-使用Java同步监视器"><a href="#8-1-2-使用Java同步监视器" class="headerlink" title="8.1.2  使用Java同步监视器"></a>8.1.2  使用Java同步监视器</h2><p>Java多线程同步监视器是Java多线程编程中基本的同步机制。每个对象都能动态的与一个监视器相关联。JNI提供了一些函数允许原生代码使用这种同步机制。</p>
+<p>在Java中使用以下语句块来进行同步：</p>
+<div class="page" title="Page 108"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">synchronized (obj) {<br>       …                   // 临界区代码<br>}</pre><br></div><br></div><br></div><br></div><br>Java中上述语句块保证一个线程在进入临界区代码之前必须要获取与obj对象相关的监视器。这就保证了在同一时间只有一个线程可以获取监视器并执行临界区代码，其他的线程必须等这个线程释放了监视器后才能获取，在这之前，其他线程必须在上述语句块外等待。<br><br>在JNI中，<span style="color: #ff0000;">MonitorEnter()函数用于获取监视器，MonitorExit()函数用于释放监视器</span>。使用这两个JNI函数可以在原生代码中实现与上述语句块相同功能的同步块：<br><div class="page" title="Page 108"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">if ((<em>env)-&gt;MonitorEnter(env, obj) != JNI_OK) {<br>    … /</em> 错误处理代码 <em>/<br>}<br>…     /</em> 临界区代码 <em>/<br>if ((</em>env)-&gt;MonitorExit(env, obj) != JNI_OK) {<br>    … /<em> 错误处理代码 </em>/<br>}</pre><br></div><br></div><br></div><br></div><br>当底层的原生线程出错时(如不能分配足够的内存)，MonitorEnter()函数与MonitorExit()函数就会出错并抛出IllegalMonitorStateException异常。<br><br>注意，<span style="color: #ff0000;">MonitorEnter()函数在临界区代码之前调用，而在每一个可能导致线程退出的地方都要调用MonitorExit()函数，否则就会导致死锁</span>——当前线程退出之前没有释放监视器，其他线程均处于等待状态，临界区代码就无法被执行了。比如：<br><div class="page" title="Page 109"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">if ((<em>env)-&gt;MonitorEnter(env, obj) != JNI_OK) …;<br>…        //临界区代码<br>if ((</em>env)-&gt;ExceptionOccurred(env)) {<br>    … /<em> 异常处理代码 </em>/<br>    /<em> 记得在这个出口调用MonitorExit() </em>/<br>    if ((<em>env)-&gt;MonitorExit(env, obj) != JNI_OK) …;<br>}<br>… /</em> 正常执行路径<br>if ((<em>env)-&gt;MonitorExit(env, obj) != JNI_OK) …;</em></pre><br></div><br></div><br></div><br></div><br>使用<span style="color: #ff0000;">同步监视器进行多线程同步是非常方便的，因此建议使用这种方式进行多线程同步</span>，而不是系统支持的方式(如信号量、互斥锁)。注意，<span style="color: #ff0000;">如果是静态原生函数需要获取监视器，那么必须定义一个静态的原生同步块供其使用，而不是上述的普通的原生同步块</span>。<br><br>## 8.1.3 监视器等待与通知<br><br>除了8.1.2节中提到的MonitorExit()与MonitorEnter()对应的同步机制外，Java API还提供了另外的同步：object.wait, object.notify, object.notifyAll。这三种同步方法没有直接对应的JNI函数，因此我们需要使用JNI调用函数的机制来调用这些Java API：<br><div class="page" title="Page 110"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">/ 下面三个jmethodID是提前计算好了的 <em>/<br>static jmethodID MID_Object_wait; //object.wait<br>static jmethodID MID_Object_notify; //object.notify<br>static jmethodID MID_Object_notifyAll; //object.notifyAll<br><br>void JNU_MonitorWait(JNIEnv </em>env, jobject object, jlong timeout)<br>{<br>    (<em>env)-&gt;CallVoidMethod(env, object, MID_Object_wait, timeout);<br>}<br><br>void JNU_MonitorNotify(JNIEnv </em>env, jobject object)<br>{<br>    (<em>env)-&gt;CallVoidMethod(env, object, MID_Object_notify);<br>}<br><br>void JNU_MonitorNotifyAll(JNIEnv </em>env, jobject object)<br>{<br>    (<em>env)-&gt;CallVoidMethod(env, object, MID_Object_notifyAll);<br>}</em></pre><br></div><br></div><br></div><br></div><br>上述的程序中，假定object.wait, object.notify, object.notifyAll的方法ID在其他地方已经被计算好了，并且缓存在了全局变量中，这里直接使用。当我们获取到了监视器的时候，可以调用上面的三个工具函数进行等待和通知。<br><br>## 8.1.4 在任意上下文中获取JNIEnv指针<br><br>JNIEnv指针只在当前线程有效，原生代码通常可以从Java虚拟机中获得当前线程的JNIEnv作为其函数的第一个参数。但有时原生函数并不是直接由虚拟机调用，此时就无法获得当前线程的JNIEnv指针了，比如在原生代码中，有一个函数是用于被操作系统回调用的(当出现了某种情况，操作系统会调用这个原生函数)，因此这个函数就无法获得当前线程的JNIEnv指针了。<br><br><span style="color: #ff0000;">可以通过Java虚拟机的调用接口的AttachCurrentThread()函数获取当前线程的JNIEnv指针</span>：<br><div class="page" title="Page 111"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><div class="page" title="Page 111"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JavaVM jvm; /<em> 已经在别处计算好了，创建了Java虚拟机 </em>/<br>void f()<br>{<br>    JNIEnv <em>env;<br>    //调用AttachCurrentThread()函数获取JNIEnv指针<br>    (</em>jvm)-&gt;AttachCurrentThread(jvm, (void *<em>)&amp;env, NULL);<br>    … /</em> 使用JNIEnv指针的代码 <em>/<br>}</em></pre><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br>当当前线程被绑定到了虚拟机上时，AttachCurrentThread()就返回当前线程的JNIEnv指针。<br><br><span style="color: #ff0000;">有很多种方法获取JavaVM指针：当Java虚拟机被创建(JNI_CreateJavaVM())的时候就缓存其指针;当虚拟机已经创建后，使用JNI_GetCreatedJavaVMs()方法获取其指针；在原生函数中调用JNI的GetJavaVM()函数；创建一个JNI_OnLoad句柄保存</span>。不像JNIEnv指针，JavaVM指针在多个线程间均有效，因此可以将其缓存到全局变量中。<br><br>JDK 1.2提供了新的方法获取JNIEnv指针：GetEnv()。因此可以使用这个函数来检查当前线程是否已经绑定到了虚拟机，如果已经绑定了，就返回当前线程的JNIEnv指针。<span style="color: #ff0000;">如果当前线程已经绑定了虚拟机，那么GetEnv()与AttachCurrentThread()方法是等效的</span>。<br><br>## 8.1.5 匹配线程模型<br><br>假定一个运行在多线程上得原生代码要访问一个全局资源，必然会引入多线程同步互斥。那么这个原生代码是调用JNI函数MonitorEnter()与MonitorExit()呢还是使用操作系统提供的原生线程同步互斥(如mutex_lock()与mutex_unlock())呢？同样的，当原生代码需要创建线程的时候，是应该创建一个java.lang.Thread对象然后使用JNI回调Thread.start()方法呢，还是应该使用操作系统提供的本地线程API(如pthread_create())呢？<br><br>答案就是：<span style="color: #ff0000;">如果Java虚拟机支持原生代码中使用的线程模型的话，那上述的方法就可以</span>。<br><br>线程模型是指操作系统如何在系统调用中实现重要的线程操作，比如线程调度、上下文切换、同步和阻塞等等。在本地线程模型(操作系统提供的线程模型)中操作系统管理所有的线程操作。在用户线程模型中，应用程序代码就必须实现线程操作。比如，Linux版本的JDK和Java 2 SDK中的”Green Thread”线程模型使用ANSI C的函数setjmp()和longjmp()实现上下文切换。<br><br><span style="color: #ff0000;">如果使用Java语言编写多线程应用，那么就不用关系Java虚拟机底层的线程模型</span>。Java平台可以在任何提供了某种线程模型的操作系统上工作。大部分的本地和第三方线程包提供了实现Java虚拟机线程模型的基本操作。<br><br>然后，<span style="color: #ff0000;">编写JNI程序就必须额外注意线程模型了</span>。当Java虚拟机使用的线程模型与原生代码中使用的线程模型和同步机制不匹配时，原生函数就可能无法正常工作。比如，当原生代码在它使用的线程模型中被阻塞了，但是使用另一种线程模型的Java虚拟机却不知道它阻塞了。这样一来，其他线程就无法被调度，应用程序就会陷入死锁。<br><br><span style="color: #ff0000;">Java虚拟机如果使用本地线程模型，那么编写JNI就非常方便灵活。如果虚拟机使用第三方的线程模型，那么JNI程序要么不使用线程模型，要么链接第三方线程模型库。</span><br><br>你的Java虚拟机到底使用什么线程模型，最好参考一下它的说明文件。<br><br>&nbsp;<br><br>下面的部分是05/28/15完成的<br><br>&nbsp;<br><br># 8.2 编写国际化代码<br><br>当编写的原生应用要在不同地域使用时，就需要特别注意了。JNI提供了很多的方法获取Java平台的国际化特性。下面以字符串转换为例介绍如何写出国际化的代码，因为在一些地区文件名或文字信息中含有非ASCII字符。<br><br>Java虚拟机使用Unicode编码字符串。尽管某些操作系统(比如Windows NT)也支持Unicode，但是大部分系统都只支持本地区的字符串编码。<br><br>如果系统使用的不是UTF-8编码的字符串，那么就不能使用GetStringUTFChars()与GetStringRegion()函数从jstring变为本地字符串。<br><br>## 8.2.1 用本地字符串创建jstring<br><br><span style="color: #ff0000;">使用String类的构造函数String(byte[] bytes)把本地字符串转换为jstring</span>。下面的工具函数把本地的C字符串转换为了jstring对象：<br><div class="page" title="Page 113"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">//第二个参数是C字符串<br>jstring JNU_NewStringNative(JNIEnv env, const char <em>str)<br>{<br>       jstring result;<br>       jbyteArray bytes = 0;<br>       int len;<br>       //申请创建2个局部引用<br>       if ((</em>env)-&gt;EnsureLocalCapacity(env, 2) &lt; 0) {<br>           return NULL; /<em> 内存用完了 </em>/<br>       }<br>       len = strlen(str);<br>       //创建byte[]数组，存储C字符串<br>       bytes = (<em>env)-&gt;NewByteArray(env, len);<br>       if (bytes != NULL) {<br>           //存储C字符串到byte[]数组<br>           (</em>env)-&gt;SetByteArrayRegion(env, bytes, 0, len, (jbyte <em>)str);<br>           //使用String(byte[] bytes)构造函数创建jstring对象<br>           result = (</em>env)-&gt;NewObject(env, Class_java_lang_String, MID_String_init, bytes);<br>           //在工具函数中记得删除不再使用的局部引用<br>           (<em>env)-&gt;DeleteLocalRef(env, bytes);<br>           return result;<br>       }<br>       return NULL;<br>}</em></pre><br></div><br></div><br></div><br></div><br>在上述的工具函数中，Class_java_lang_String是java.lang.Stirng类的全局引用，MID_String_init是String(byte[] bytes)构造函数的方法ID，也是全局变量。<br><br>## 8.2.2 把jstring转换为本地字符串<br><br><span style="color: #ff0000;">使用String.getBytes()方法将jstring对象的值转换为本地字符串</span>，下面的工具函数完成这个功能：<br><div class="page" title="Page 114"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">char JNU_GetStringNativeChars(JNIEnv <em>env, jstring jstr)<br>{<br>    jbyteArray bytes = 0;<br>    jthrowable exc;<br>    char </em>result = 0;<br>    //申请创建2个局部引用<br>    if ((<em>env)-&gt;EnsureLocalCapacity(env, 2) &lt; 0) {<br>        return 0; /</em> 内存使用完了 <em>/<br>    }<br>    //调用String.getBytes()方法，MID_String_getBytes是其方法ID，全局变量。<br>    bytes = (</em>env)-&gt;CallObjectMethod(env, jstr, MID_String_getBytes);<br>    exc = (<em>env)-&gt;ExceptionOccurred(env);<br>    if (!exc) { //没有异常被抛出<br>        jint len = (</em>env)-&gt;GetArrayLength(env, bytes);<br>        result = (char <em>)malloc(len + 1);<br>        if (result == 0) {//内存分配失败<br>            JNU_ThrowByName(env, “java/lang/OutOfMemoryError”, 0);<br>            //返回前记得删除不再使用的引用<br>            (</em>env)-&gt;DeleteLocalRef(env, bytes);<br>            return 0;<br>        }<br>        //把bytes的内容拷贝到分配的内存中<br>        (<em>env)-&gt;GetByteArrayRegion(env, bytes, 0, len, (jbyte </em>)result);<br>        result[len] = ‘ ’; //字符串以’ ’结尾<br>    } else { //抛出了异常<br>        (<em>env)-&gt;DeleteLocalRef(env, exc);//删除不再需要的引用<br>    }<br>    (</em>env)-&gt;DeleteLocalRef(env, bytes); //删除不再需要的引用<br>    return result;<br>}</pre><br></div><br></div><br></div><br></div>
+
+<h2 id="8-3-注册原生函数"><a href="#8-3-注册原生函数" class="headerlink" title="8.3 注册原生函数"></a>8.3 注册原生函数</h2><p>在应用程序执行原生函数之前，它进行下面两步完成加载包含原生函数实现的原生库并且链接这个库中的原生函数实现代码：</p>
+<p>1.System.loadLibrary()函数查找并加载指定名字的原生库:</p>
+<p><pre escaped="true">System.loadLibrary(“example”); //加载libexample.so</pre><br>2.Java虚拟机在加载的一个或多个原生库中定位并链接原生函数的实现。比如调用Example.f()函数就必须定位并且链接原生函数Java_Example_f()，这个函数可能在已经加载的libexample.so库中。</p>
+<p>这一节将介绍另一种方法完成上述的第二步。除了依赖Java虚拟机在加载的库中定位并链接原生函数，<span style="color: #ff0000;">JNI程序员可以在原生代码中使用类引用、函数名和函数签名来注册一个函数指针，今儿手动链接这个原生函数</span>。如：</p>
+<div class="page" title="Page 115"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">//下面注册void JNICALL g_impl(JNIEnv<em> env, jobject obj);<br><br>JNINativeMethod nm;<br>nm.name = “g”;<br>/</em> 给定方法签名 <em>/<br>nm.signature = “()V”;<br>nm.fnPtr = g_impl;<br>//注册这个函数指针<br><span style="color: #ff0000;">(</span></em>env)-&gt;RegisterNatives(env, cls, &amp;nm, 1);<br></pre><br></div><br></div><br></div><br></div><br>原生函数g_impl()不需要遵循JNI的命名规范(因为只有函数指针被调用，名字用不到)，也不用从原生库中导出符号(因此不需要JNIEXPORT前缀)。但它必须要遵守JNI的调用规范，因此必须要有JNICALL前缀。<br><br><span style="color: #ff0000;">RegisterNatives()有如下的作用：</span><br><br><span style="color: #ff0000;">1.有时快速注册大量的原生方法非常方便有效，不再依靠Java虚拟机较慢的定位链接函数。</span><br><br><span style="color: #ff0000;">2.可以在原生函数中多次调用RegisterNatives()函数，这样可以在运行时更新函数。</span><br><br><span style="color: #ff0000;">3.当原生应用嵌入了Java虚拟机并且想要链接一个在这个原生应用中定义的原生函数时，RegisterNatives()函数就特别有用。因为Java虚拟机只会在加载的库中定位链接函数，并不能在原生应用中定位链接</span>。<br><br># 8.4 加载和卸载句柄<br><br>加载和卸载句柄在Java 2 SDK 1.2被支持。<span style="color: #ff0000;">它允许原生库导出两个函数：一个函数在System.loadLibrary()加载原生库的时候运行，另一个函数在虚拟机卸载原生库的时候运行</span>。<br><br>## 8.4.1 JNI_OnLoad()句柄<br><br>当System.loadLibrary()函数加载原生库的时候，虚拟机就在该原生库中搜寻下面的导出入口：<br><div class="page" title="Page 116"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1"><span style="color: #ff0000;">JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM <em>jvm, void </em>reserved);</span></pre><br></div><br></div><br></div><br></div><br>在JNI_OnLoad()函数中可以调用任意的JNI函数。<span style="color: #ff0000;">JNI_OnLoad()函数最常使用的功能是把JavaVM指针、类引用、方法ID和成员ID缓存到全局变量中</span>：<br><div class="page" title="Page 116"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">//三个全局变量，用于缓存<br>JavaVM <em>cached_jvm;<br>jclass Class_C;<br>jmethodID MID_C_g;<br>JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM </em>jvm, void <em>reserved)<br>{<br>       JNIEnv </em>env;<br>       jclass cls;<br>       cached_jvm = jvm;  /<em> 缓存JavaVM指针到全局变量 </em>/<br>       if ((<em>jvm)-&gt;GetEnv(jvm, (void **)&amp;env, JNI_VERSION_1_2)) {<br>           return JNI_ERR; /</em> 不支持这个JNI版本 <em>/<br>       }<br>       cls = (</em>env)-&gt;FindClass(env, “C”);<br>       if (cls == NULL) {<br>           return JNI_ERR;<br>       }<br>       //使用弱全局引用缓存类C的引用，可以让类C在需要时被卸载<br>       Class_C = (<em>env)-&gt;NewWeakGlobalRef(env, cls);<br>       if (Class_C == NULL) {<br>           return JNI_ERR;<br>       }<br>       //计算并缓存void C.g()方法的ID<br>       MID_C_g = (</em>env)-&gt;GetMethodID(env, cls, “g”, “()V”);<br>       if (MID_C_g == NULL) {<br>           return JNI_ERR;<br>       }<br>       return JNI_VERSION_1_2;<br>}</pre><br></div><br></div><br></div><br></div><br><span style="color: #ff0000;">JNI_Onload()函数要么返回JNI_ERR给原生库表示出错，要么返回JNI_VERSION_1_2给原生库表示成功</span>。<br><br>下一小节我们会解释为什么要把类C的引用缓存在弱全局引用中，而不是全局引用中。<br><br>使用缓存的JavaVM指针，可以使用下面的工具函数获得当前线程的JNIEnv指针：<br><div class="page" title="Page 117"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">JNIEnv <em>JNU_GetEnv()<br>{<br>       JNIEnv </em>env;<br>       <span style="color: #ff0000;">(*cached_jvm)-&gt;GetEnv(cached_jvm, (void **)&amp;env, JNI_VERSION_1_2);</span>          return env;<br>}<br><br>下面的部分于05/29/15完成。</pre><br></div><br></div><br></div><br></div>
+
+<h2 id="8-4-2-JNI-OnUnload-句柄"><a href="#8-4-2-JNI-OnUnload-句柄" class="headerlink" title="8.4.2 JNI_OnUnload()句柄"></a>8.4.2 JNI_OnUnload()句柄</h2><p>在虚拟机卸载原生库的时候会调用这个句柄。然而，这句话并不准确。虚拟机什么时候决定卸载一个函数库呢？哪个线程执行这个句柄呢？</p>
+<p>卸载原生库的规则如下：</p>
+<p><span style="color: #ff0000;">1.类C调用了System.loadLibrary()加载一个或多个原生库，Java虚拟机则根据类C的类加载器L绑定类C加载的原生库。</span></p>
+<p><span style="color: #ff0000;">2.当Java虚拟机认为类C的类加载器L不再被使用时(no longer a live object)，就是调用JNI_OnUnload()函数并卸载与类加载器L绑定的一个或多个原生库。</span></p>
+<p><span style="color: #ff0000;">3.JNI_OnUnload()函数运行在finalizer中，要么是java.lang.System.runFinalization异步调用，要么被虚拟机异步调用。</span></p>
+<p>下面的JNI_OnUnload()的例子清除掉8.4.1中JNI_OnLoad()函数申请的各种资源：</p>
+<p><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL JNI_OnUnload(JavaVM <em>jvm, void </em>reserved)<br>{<br>    JNIEnv <em>env;<br>    if((</em>jvm)-&gt;GetEnv(jam, (void *<em>)&amp;env, JNI_VERSION_1_2)) {<br>        return;<br>    }<br>    (</em>env)-&gt;DeleteWeakGlobalRef(env, Class_c);<br>    return;<br>}</pre><br>在JNI_OnUnload()函数中不必清除掉MID_C_g这个方法ID，因为在虚拟机卸载类C的时候就会自动回收资源。</p>
+<p>下面解释一下为什么要把类C的引用放入若全局引用而不是全局引用。在讲解引用的时候提到过，全局引用会一直保持其指向的对象，使得垃圾回收机制无法自动回收，除非手动的调用DeleteGLobalRef()函数。而弱全局引用指向的对象在必要时允许垃圾回收机制回收。因此，<span style="color: #ff0000;">如果使用全局引用指向类C，那么类C会一直保持活跃，那么类C的类加载器也会一直保持活跃，因此与类C的类加载器绑定的原生库就不会被卸载，那么JNI_OnUnload()函数永远不会被执行</span>。</p>
+<p>JNI_OnUnload()函数运行在finalizer中，与之相反，JNI_OnLoad()函数运行在执行System.loadLibrary()方法的线程中。因为<span style="color: #ff0000;">JNI_OnUnload()运行在一个未知的上下文环境中，为了避免死锁，在这个函数中应该避免使用复杂的同步机制和互斥锁的操作，JNI_OnUnload()函数的典型应用就是释放掉JNI_OnLoad()函数中申请的各种资源</span>。</p>
+<p><span style="color: #ff0000;">JNI_OnUnload()函数是在类的类加载器不再使用时被调用，因此在这个函数中不应该使用这些类</span>。比如在上面的JNI_OnUnload()例子中，不能假定Class_c指向的对象还存在。我们只是调用DeleteWeakGlobalRef()函数释放了Class_c弱全局引用，只是对引用本身进行操作，而没有对引用指向的对象做操作。</p>
+<h1 id="8-5-反射支持"><a href="#8-5-反射支持" class="headerlink" title="8.5 反射支持"></a>8.5 反射支持</h1><p>反射指的是在运行时管理语言级的创建。比如说，反射允许代码在运行时发现任意类的对象的名称和这个类定义的成员变量和成员方法。Java语言的java.lang.reflect包和java.lang.Object与java.lang.Class类的某些方法提供了反射支持。虽然可以在原生代码中调用相应的方法执行反射操作，但是JNI提供了一些函数能更有效方便的完成这些功能。</p>
+<p><span style="color: #ff0000;">1.GetSuperClass()函数返回给定类引用的父类。</span></p>
+<p><span style="color: #ff0000;">2.IsAssignableFrom()函数检查两个类之间是否支持相互转换，即类A能不能转换为类B。</span></p>
+<p><span style="color: #ff0000;">3.GetObjectClass()函数返回jobject对象的类引用。</span></p>
+<p><span style="color: #ff0000;">4.IsInstanceOf()判断一个jobject对象是否是某个类的实例。</span></p>
+<p><span style="color: #ff0000;">5.FromReflectedField() 和 ToReflectedField()函数允许原生代码在类成员变量ID和java.lang.reflect.Field对象之间进行转换。这两个函数在Java 2 SDK 1.2中提供。</span></p>
+<p><span style="color: #ff0000;">6.FromReflectedMethod()和ToReflectedMethod()允许原生代码在类成员方法ID和java.lang.reflect.Method对象之间进行转换。这两个函数在Java 2 SDK 1.2中提供。</span></p>
+<h1 id="8-6-JNI对C-的支持"><a href="#8-6-JNI对C-的支持" class="headerlink" title="8.6 JNI对C++的支持"></a>8.6 JNI对C++的支持</h1><p>JNI提供了与C类似的C++接口。jni.h头文件中定义了一系列的函数可供C++程序员调用。</p>
+<p>对同一个JNI函数，C++与C的区别如下：</p>
+<p><div class="page" title="Page 120"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">C++：jclass cls = env-&gt;FindClass(“java/lang/String”);<br>C：  jclass cls = (*env)-&gt;FindClass(env, “java/lang/String”);</pre><br><br><br><br><br><span style="color: #ff0000;">C++编译器会把C中的JNI函数看做JNI类的成员方法进行inline调用，JNI函数的返回码都一样。JNI函数在C和C++中的性能没有任何区别</span>。</p>
+<p>另外，<span style="color: #ff0000;">JNI在jni.h中定义了一系列的虚设的类用于在jobject的不同子类之间形成子类关系</span>：</p>
+<p><div class="page" title="Page 120"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true">// 定义C++版本的JNI引用类型<br>class _jobject {};<br>class _jclass : public _jobject {};<br>class _jstring : public _jobject {};<br>…<br>typedef _jobject<em> jobject;<br>typedef _jclass</em>  jclass;<br>typedef _jstring* jstring;<br>…<br></pre><br><br><br><br><br>有了上面的子类定义，C++编译器会在编译时识别出一些错误：当参数需要jclass时，如果传递jobject会出错：</p>
+<p><div class="page" title="Page 120"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true">// ERROR: 把jobject当做jclass<br>jobject obj = env-&gt;NewObject(…);<br>jmethodID mid =  env-&gt;GetMethodID(obj, “foo”, “()V”);<br></pre><br><br><br><br><br>GetMethodID()函数需要一个jclass类型，而不是jobject类型。</p>
+<p>然而，在C版本的JNI定义中，jclass与jobject类型是相同的：</p>
+<p><div class="page" title="Page 120"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true">typedef jobject jclass;<br></pre><br><br><br><br><br>因此C编译器不会检测到上面的错误。</p>
+<p><span style="color: #ff0000;">C++的这种类型等级定义在调用JNI函数的一些情况下需要做必要的强制转换</span>。比如，在C的版本中，可以使用如下的语句从字符串数组中得到字符串并赋值给jstring类型变量：</p>
+<p><div class="page" title="Page 121"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true">jstring jstr = (*env)-&gt;GetObjectArrayElement(env, arr, i);<br></pre><br><br><br><br><br>然而在C++中，则需要在赋值前进行强制转换：</p>
+<p><pre escaped="true" lang="php" line="1">jstring jstr = <span style="color: #ff0000;">(jstring)</span>env-&gt;GetObjectArrayElement(arr, i);</pre><br>&nbsp;</p>
+<p>本章的主要内容是介绍JNI提供的其他特性：线程模型，国际化字符串，手动注册原生函数，加载和卸载句柄，反射支持和C++支持。</p>
+<p>&nbsp;</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/27/jni7th-the-invoke-interface/" rel="next" title="JNI技术解析第七章 Java虚拟机的调用接口">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第七章 Java虚拟机的调用接口
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/02/jni9th-leveraging-existing-native-libraries/" rel="prev" title="JNI技术解析第九章 使用存在的原生库">
+                JNI技术解析第九章 使用存在的原生库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#8-1-JNI和线程"><span class="nav-number">1.</span> <span class="nav-text">8.1  JNI和线程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#8-1-1-多线程的约束"><span class="nav-number">1.1.</span> <span class="nav-text">8.1.1 多线程的约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-1-2-使用Java同步监视器"><span class="nav-number">1.2.</span> <span class="nav-text">8.1.2  使用Java同步监视器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-3-注册原生函数"><span class="nav-number">1.3.</span> <span class="nav-text">8.3 注册原生函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-4-2-JNI-OnUnload-句柄"><span class="nav-number">1.4.</span> <span class="nav-text">8.4.2 JNI_OnUnload()句柄</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-5-反射支持"><span class="nav-number">2.</span> <span class="nav-text">8.5 反射支持</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-6-JNI对C-的支持"><span class="nav-number">3.</span> <span class="nav-text">8.6 JNI对C++的支持</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

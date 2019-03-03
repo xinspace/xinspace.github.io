@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="由于本章篇幅太长，需要花费几天的时间才能介绍完。下面部分是05/18/15完成的。 JNI使用不透明引用来使用对象、数组(jobject、jclass、jstring、jarray等)。不透明引用屏蔽了JNI内部数据结构的实现细节，让程序员无需了解Java虚拟机中JNI的实现细节。原生代码不能直接通过不透明引用访问引用指向的内容，必须通过JNI函数来访问。 在JNI中，有三种不同的不透明引用： 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第五章 局部引用和全局引用">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/24/jni-5th-local-global-reference/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="由于本章篇幅太长，需要花费几天的时间才能介绍完。下面部分是05/18/15完成的。 JNI使用不透明引用来使用对象、数组(jobject、jclass、jstring、jarray等)。不透明引用屏蔽了JNI内部数据结构的实现细节，让程序员无需了解Java虚拟机中JNI的实现细节。原生代码不能直接通过不透明引用访问引用指向的内容，必须通过JNI函数来访问。 在JNI中，有三种不同的不透明引用： 1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/05/jni_reference.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/05/jmethodID.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第五章 局部引用和全局引用">
+<meta name="twitter:description" content="由于本章篇幅太长，需要花费几天的时间才能介绍完。下面部分是05/18/15完成的。 JNI使用不透明引用来使用对象、数组(jobject、jclass、jstring、jarray等)。不透明引用屏蔽了JNI内部数据结构的实现细节，让程序员无需了解Java虚拟机中JNI的实现细节。原生代码不能直接通过不透明引用访问引用指向的内容，必须通过JNI函数来访问。 在JNI中，有三种不同的不透明引用： 1">
+<meta name="twitter:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/05/jni_reference.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/24/jni-5th-local-global-reference/">
+
+
+
+
+
+  <title>JNI技术解析第五章 局部引用和全局引用 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/24/jni-5th-local-global-reference/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第五章 局部引用和全局引用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-24T19:56:24+07:00">
+                2015-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>由于本章篇幅太长，需要花费几天的时间才能介绍完。下面部分是05/18/15完成的。</p>
+<p>JNI使用不透明引用来使用对象、数组(jobject、jclass、jstring、jarray等)。不透明引用屏蔽了JNI内部数据结构的实现细节，让程序员无需了解Java虚拟机中JNI的实现细节。原生代码不能直接通过不透明引用访问引用指向的内容，必须通过JNI函数来访问。</p>
+<p>在JNI中，有三种不同的不透明引用：</p>
+<p>1.<span style="color: #ff0000;">局部引用、全局引用和弱全局引用</span>。</p>
+<p>2.<span style="color: #ff0000;">局部引用在原生代码离开其作用于后被自动释放(很像C/C++中的局部变量，离开其作用域后自动销毁)，全局引用和弱全局引用必须由程序员手动显式释放(很像C中的malloc与free，C++中的new与delete)</span>。</p>
+<p>3.<span style="color: #ff0000;">局部引用和全局引用在其有效期间，其指向的对象可以不被垃圾回收机制回收。而弱全局引用在其有效期间则允许垃圾回收机制回收其指向的对象</span>。</p>
+<p>4.<span style="color: #ff0000;">并不是所有的引用都能在任何上下文中被使用。比如当创建一个局部引用的原生代码返回值后，该局部引用就不能继续被使用了，否则不合法。</span></p>
+<p>本章对这三种引用着重介绍。</p>
+<a id="more"></a>
+<h1 id="5-1-局部引用"><a href="#5-1-局部引用" class="headerlink" title="5.1 局部引用"></a>5.1 局部引用</h1><p><span style="color: #ff0000;">绝大多数</span>(注意是绝大多数)JNI函数返回局部引用。比如第四章提到的NewObject()函数就创建一个未初始化的对象并把这个对象的引用当做局部引用返回。局部引用只在创建它的动态上下文中有效，一旦这个原生函数返回，局部引用就被Java虚拟机自动释放，不再有效。因此，不能在原生函数中使用静态变量缓存局部引用的值(第四章提到的缓存ID的第一种方法)，并想在接下来的调用中继续使用。比如，下面这个程序是对第四章中实现的MyNewString原生函数的部分修改，经过修改过后，这个程序就不对了。</p>
+<p><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv <em>env, jchar </em>chars, jint len)<br>{<br>    <span style="color: #ff0000;">/<em>注意，原来的定义为jclass stringClass;修改为静态变量，
+     </em>用来保存FindClass()函数返回的局部引用，这是错误的。<em>/</em></span><br>    static jclass stringClass = NULL;<br>    <span style="color: #ff0000;">/注意，原来定义为static jmethodID cid = NULL，将其修改为非静态变量。<em>/</em></span><br>    jmethodID <span style="font-family: Consolas, Monaco, monospace; line-height: 1.5;">cid;<br></span>    jcharArray elemArr;<br>    jstring result;<br>    if (stringClass == NULL) {<br>        <span style="color: #ff0000;">/用静态变量保存局部引用是非法的。<em>/</em></span><br><span style="color: #ff0000;">        stringClass = (env)-&gt;FindClass(env, “java/lang/String”);</span><br>        if (stringClass == NULL) {<br>            return NULL; /<em> exception thrown </em>/<br>        }<br>    }<br>    <span style="color: #ff0000;">/<em>在这里使用缓存的局部引用可能会出错。</em>/<br>    cid = (<em>env)-&gt;GetMethodID(env, stringClass, “”, “([C)V”);</em></span><br>    …//省略<br>    elemArr = (env)-&gt;NewCharArray(env, len);<br>    …//省略<br>    result = (<em>env)-&gt;NewObject(env, stringClass, cid, elemArr);<br>    (</em>env)-&gt;DeleteLocalRef(env, elemArr);<br>    return result;<br>}</pre></p>
+<p><div class="page" title="Page 76"></div><br>将stringClass设置为静态变量保存FindClass()函数的返回值，以期望减少FindClass()函数的调用次数，这种做法是非法的。因为FindClass()函数返回局部引用，在MyNewString()函数返回时，会自动释放在这期间创建的局部引用，当然包括stringClass。此时stringClass指向的对象会被释放，使得stringClass的值无效。如果再次调用MyNewString()函数的话，很可能会引用这个无效的值，造成程序崩溃。</p>
+<h2 id="5-1-1-与第四章的MyNewString-函数对比"><a href="#5-1-1-与第四章的MyNewString-函数对比" class="headerlink" title="5.1.1 与第四章的MyNewString()函数对比"></a>5.1.1 与第四章的MyNewString()函数对比</h2><p>对比一下第四章的MyNewString()函数，会发现仅仅将static jmethodID cid = NULL;改为static jclass stringClass = NULL;即把methodID静态变量改变为非静态的，而将stringClass由非静态改为了静态。<span style="color: #ff0000;">同样为静态局部变量，既然jmethodID都可以使用静态变量缓存，那为什么jclass不能被缓存呢</span>？注意，<span style="color: #ff0000;">我们这里限定的不能使用静态变量缓存引用类型，jclass是引用类型，但jmethodID不是</span>。为了解决这个问题，我专门到Oracle的JNI介绍网站上查了，网址为：<a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp9502" target="_blank" rel="noopener">JNI类型介绍</a>。</p>
+<p>JNI中引用类型间下图：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/05/jni_reference.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/05/jni_reference.png" alt="jni_reference"></a></p>
+<p>其中jclass、jstring、jarray等均继承了jobject，是引用类型。</p>
+<p>而jmethodID得说明如下图：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/05/jmethodID.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/05/jmethodID.png" alt="jmethodID"></a></p>
+<p>说的很清楚，方法和成员变量ID均为普通的C指针类型。</p>
+<p>因此，第四章的MyNewString()函数将指针值存储在静态变量中，Java虚拟机的垃圾回收机制不会管理C指针类型的数据。这些指针指向的对象只有在整个Java程序运行完退出进程时才被撤销。而JNI得引用类型与之不同，会被Java垃圾回收机制根据情况自动回收，所以不允许缓存局部引用到静态变量中。</p>
+<h2 id="5-1-2-释放局部引用"><a href="#5-1-2-释放局部引用" class="headerlink" title="5.1.2 释放局部引用"></a>5.1.2 释放局部引用</h2><p>有两种方法可以释放局部引用，使其无效。<span style="color: #ff0000;">第一种方法就是创建该局部引用的原生函数返回时系统自动释放所有的局部引用，第二种方法是显式调用JNI的DeleteLocalRef()函数释放局部引用。既然系统能够自动释放局部引用</span>，那第二种方法有存在的必要吗？有！首先，我们可以自主控制局部引用的生存周期。其次，在我们不再需要局部引用的时候，可以让Java虚拟机的垃圾回收机制及时的回收该局部引用指向的对象所占用的内存空间。</p>
+<p>下面用一个例子来说明局部引用的细节：</p>
+<p>javaClass是Java类，类中调用了原生函数javaClass.f(),在javaClass.f()中调用了原生函数MyNewString()，而MyNewString()函数又调用了NewObject()函数产生一个jstring对象。调用关系简单描述为javaClass-&gt;f()-&gt;MyNewString()-&gt;NewObject()。经过调用并返回后，javaClass获得了一个java.lang.String类型的对象。具体的返回过程描述如下：</p>
+<p>1.NewObject()函数是这次调用的最底层函数，它创建一个未初始化的jstring对象，并将其引用作为局部引用返回给MyNewString()。</p>
+<p>2.MyNewString()函数将得到的局部引用又返回给javaClass.f()。</p>
+<p>3.javaClass.f()将得到的局部引用返回给Java虚拟机。</p>
+<p>4.Java虚拟机收到原生代码返回的局部引用后，把该引用指向的底层的java.lang.String类型对象(即NewObject()创建的jstring对象)传递给javaClass类，并释放掉这个局部引用。</p>
+<p>直到第4步，NewObject()返回的局部引用才被虚拟机自动释放掉。可以看出，<span style="color: #ff0000;">局部引用可以在同一个线程的多个原生函数之间传递，从这个函数传递到那个函数期间，局部引用并不失效，垃圾回收机制也不会回收它。直到它不再被使用的时候，垃圾回收机制才主动释放它</span>。</p>
+<p>需要注意的是，<span style="color: #ff0000;">局部引用必须在同一个线程中使用</span>，不能够将局部引用的值保存在全局变量中，期望在其他线程中可以正确使用这个局部引用。</p>
+<h1 id="5-2-全局引用"><a href="#5-2-全局引用" class="headerlink" title="5.2 全局引用"></a>5.2 全局引用</h1><p><span style="color: #ff0000;">全局引用可以在一个原生函数多次调用期间一直保持有效，且在多个线程之间保持有效</span>，与局部引用一样，<span style="color: #ff0000;">在它有效期间，不允许垃圾回收机制回收它，除非程序员显式调用DeleteGlobalRef()释放它。</span>绝大多数的JNI函数返回局部引用，但只有一个JNI函数返回全局引用——<span style="color: #ff0000;">NewGlobalRef()</span>。下面我们把上一小节提到的错误的MyNewString()版本做一下修改，就能使其变得正确：</p>
+<p><div class="page" title="Page 78"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv <em>env, jchar </em>chars, jint len)<br>{<br>    static jclass stringClass = NULL;<br>    …//省略<br>    if (stringClass == NULL) {<br>        jclass localRefCls =(<em>env)-&gt;FindClass(env, “java/lang/String”);<br>        if (localRefCls == NULL) {<br>            return NULL;//抛出异常，立即返回。<br>        }<br>        <span style="color: #ff0000;">/</span></em>创建一个全局引用，保存局部引用的值，使其全局有效<em>/<br>        stringClass = (</em>env)-&gt;NewGlobalRef(env, localRefCls);<br>        /<em>不再需要局部引用了，显式释放掉它</em>/<br>        (<em>env)-&gt;DeleteLocalRef(env, localRefCls);<br>        /</em>判断全局引用是否创建成功<em>/<br>        if (stringClass == NULL) {<br>            return NULL; /</em>全局引用创建失败，抛出out of memory异常*/<br>        }<br>    }<br>    …//省略<br>}</pre><br><br><br><br><br>在这个修改版本中，我们把jclass局部引用转换为全局引用，并把不再使用的局部引用显式释放掉，及时让垃圾回收机制回收局部引用的内存。这样一来，jclass的值全局有效，Java虚拟机不再主动的释放它，必须由程序员调用JNI函数DeleteGlobalRef()函数释放它。</p>
+<h1 id="5-3-弱全局引用"><a href="#5-3-弱全局引用" class="headerlink" title="5.3 弱全局引用"></a>5.3 弱全局引用</h1><p>弱全局引用是Java 2 SDK 发行版1.2新推出的引用。使用<span style="color: #ff0000;">NewGlobalWeakRef()</span>函数创建它，使用<span style="color: #ff0000;">DeleteGlobalWeakRef()</span>函数释放它。<span style="color: #ff0000;">弱全局引用也可以在多次原生函数的调用期间保持有效，且在多线程之间保持有效，但它不保证它所指向的对象不会被垃圾回收机制回收</span>。</p>
+<p>在上一版本的MyNewString()函数中，我们使用了全局引用。也可以用弱全局引用替换它，对于java.lang.String类来说，全局引用与弱全局引用没有区别，因为String类是系统类，垃圾回收机制永远不会回收它。</p>
+<p>那弱全局引用有什么用处呢？<span style="color: #ff0000;">它主要用于在原生函数中被缓存的引用所指向的对象在需要的时候能够被垃圾回收机制回收(即使这个弱全局引用的对象还在被使用，也能够被回收。而局部引用和全局引用则是无论什么情况，只要引用还被使用，其对象就不能被回收)</span>。听起来很绕，我们举一个例子说明一下。</p>
+<p>有一个Java包为mypkg,保重包含了两个Java类:javaClass和javaClass2。javaClass调用了原生函数javaClass.f()，在f()中保存了javaClass2类的引用为弱全局引用，这种情况下，javaClass2类仍然可以被卸载(unload):</p>
+<p><div class="page" title="Page 79"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_mypkg_javaClass_f(JNIEnv <em>env, jobject self)<br>{<br>    static jclass myCls2 = NULL;<br>    if (myCls2 == NULL) {<br>       <span style="color: #ff0000;"> jclass myCls2Local =(</span></em>env)-&gt;FindClass(env, “mypkg/javaClass2”);<br>        if (myCls2Local == NULL) {<br>            return; /<em> 找不到相应的类 </em>/<br>        }<br>        <span style="color: #ff0000;">myCls2 = NewWeakGlobalRef(env, myCls2Local);</span><br>        if (myCls2 == NULL) {<br>            return; /<em> out of memory异常 </em>/<br>        }<br>    }<br>    … /<em> 使用javaClass2类的弱全局引用myCls2的代码 </em>/<br>}</pre><br><br><br><br><br>假定javaClass与javaClass2有相同的生存周期(比如它们被同一个类加载器加载)，此时我们不会考虑下面的情况：javaClass2被卸载并在稍后被重新加载，与此同时javaClass和javaClass.f()却仍然在使用。如果这种情况发生了，我们可以使用下一小节介绍的JNI函数来检查弱全局引用到底是指向一个仍然活动的类对象还是指向已经被垃圾回收了的类对象。</p>
+<h1 id="5-4-比较引用"><a href="#5-4-比较引用" class="headerlink" title="5.4 比较引用"></a>5.4 比较引用</h1><p>对任意的两个引用(局部引用、全局引用和弱全局引用)，调用JNI的<span style="color: #ff0000;">IsSameObject()</span>函数来判断这两个引用是否指向同一个对象：</p>
+<p><div class="page" title="Page 80"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">(*env)-&gt;IsSameObject(env, obj1, obj2);</pre><br><br><br><br><br>如果引用obj1和obj2指向同一个对象，该函数返回JNI_TRUE(或1)，否则返回JNI_FALSE(或0)。</p>
+<p>在JNI中，NULL引用指向Java虚拟机中的null对象，如果obj是局部引用或全局引用，那么可以使用</p>
+<p><div class="page" title="Page 80"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1"><span style="color: #ff0000;"> (*env)-&gt;IsSameObject(env, obj, NULL)</span></pre><br><br><br><br><br>或</p>
+<p><div class="page" title="Page 80"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1"><span style="color: #ff0000;">obj == NULL</span></pre><br><br><br><br><br>其中任意一个来判断obj是否指向null对象。</p>
+<p>但是这两种方法对于弱全局引用的作用有些不同。NULL弱全局引用仍然指向null对象，但IsSameObject()函数对弱全局引用有特殊作用。假定wobj是一个非NULL的弱全局引用，那么如下调用：</p>
+<p><div class="page" title="Page 80"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1"><span style="color: #ff0000;">(*env)-&gt;IsSameObject(env, wobj, NULL)</span></pre><br><br><br><br><br><span style="color: #ff0000;">如果wobj指向了一个已经被回收了的无效的对象时，返回JNI_TRUE，如果wobj指向一个仍然活动的对象时返回JNI_FALSE</span>。也就是说，可以使用IsSameObject()函数判断非NULL的弱全局引用是否指向一个仍然活动的对象。上一小节中的代码就可以使用这个函数进行判断，如果弱全局引用myCls2仍然指向一个活动的对象，那么首先释放掉这个对象，再卸载javaClass2。如果myCls2指向的对象已经被回收了，那么就可以直接卸载javaClass2了。</p>
+<h1 id="5-5-释放引用"><a href="#5-5-释放引用" class="headerlink" title="5.5 释放引用"></a>5.5 释放引用</h1><p>除了被引用的对象外，每个JNI函数本身也占据了一定的内存空间。作为一个JNI程序员，要始终清除你得原生代码在一个给定时间使用的引用数量。特别需要注意，虽然局部引用在原生代码返回时会自动被回收，但你仍<span style="color: #ff0000;">必须清楚原生代码在其运行期间最多能够创建和使用的局部引用的数量。不管局部引用使用有多么短暂，创建过多的局部引用肯定会导致内存耗尽</span>。</p>
+<h2 id="5-5-1-释放局部引用"><a href="#5-5-1-释放局部引用" class="headerlink" title="5.5.1 释放局部引用"></a>5.5.1 释放局部引用</h2><p>多数情况下，你不必考虑显式释放局部引用，因为系统会在合适的时候主动释放它。但某些特殊情况下，就必须要程序员显式释放了：</p>
+<p>1.<span style="color: #ff0000;">在一个原生函数中创建了大量的局部引用，多见于在循环中一直创建引用</span>。此时，释放掉不再需要的引用就显得非常的重要，否则会导致JNI内部的局部引用表溢出。如下面的例子所示，在原生代码段中的循环里，每一次循环都会创建局部引用，为了避免过多的内存占用，可以在每一次循环结束时显式的释放掉不再需要的局部引用：</p>
+<p><div class="page" title="Page 81"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">for (i = 0; i &lt; len; i++) {<br>    jstring jstr = (<em>env)-&gt;GetObjectArrayElement(env, arr, i);<br>    … /</em> 对jstr进行处理的代码 <em>/<br>    <span style="color: #ff0000;">(</span></em>env)-&gt;DeleteLocalRef(env, jstr);//及时释放掉不再使用的局部引用<br>}</pre><br><br><br><br><br>2.<span style="color: #ff0000;">你写的原生函数是作为公用的工具函数</span>，这类工具函数可以被任何其他函数调用，因此调用它的上下文环境往往各不相同，比如第四章实现了的MyNewString()代码如下：</p>
+<p><div class="page" title="Page 65"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv <em>env, jchar </em>chars, jint len)<br>{<br>       jclass stringClass; //局部引用<br>       jmethodID cid;<br>       jcharArray elemArr;//局部引用<br>       jstring result;//局部引用<br>       stringClass = (<em>env)-&gt;FindClass(env, “java/lang/String”);<br>       if (stringClass == NULL) {<br>           return NULL; /</em> exception thrown <em>/<br>       }<br>       /</em> 获得String(char[])的构造函数的ID <em>/<br>       cid = (</em>env)-&gt;GetMethodID(env, stringClass,”&lt;init&gt;”, “([C)V”);<br>       if (cid == NULL) {<br>           return NULL; /<em> 抛出异常 </em>/<br>       }</pre></p>
+<pre><code> /* 创建包含字符串元素的数组 */
+ elemArr = (*env)-&amp;gt;NewCharArray(env, len);
+ if (elemArr == NULL) {
+     return NULL; /* 抛出异常 */
+ }
+ (*env)-&amp;gt;SetCharArrayRegion(env, elemArr, 0, len, chars);
+ /* 创建java.lang.String对象 */
+ result = (*env)-&amp;gt;NewObject(env, stringClass, cid, elemArr);
+ /* 显式释放局部引用 */
+&lt;span style=&quot;color: #ff0000;&quot;&gt; (*env)-&amp;gt;DeleteLocalRef(env, elemArr);
+ (*env)-&amp;gt;DeleteLocalRef(env, stringClass);&lt;/span&gt;
+ return result;
+</code></pre><p>}<br><br><br><br><br><br>在这个函数中，定义了3个局部引用：jclass、jcharArray和jstring。其中，函数把jstring作为返回值，因此jstring这个局部引用不能被释放(如果被释放了，那底层的对象就被回收了，这个函数的功能就丧失了)。而另外两个局部引用是为了获得jstring才创建的中间变量。如果对<span style="color: #ff0000;">MyNewString()函数的定位是一般的原生函数，那么最后的显式释放两个局部引用是可以省略的，因为系统会在这个函数返回时自动释放局部引用</span>。然而，<span style="color: #ff0000;">如果该函数是作为公用的工具函数，那么最后的显式释放语句就显得格外重要</span>。如果没有释放这两个无用的局部引用，那么<span style="color: #ff0000;">任何其他函数在调用MyNewString()函数期望获得一个jstring类对象的引用，同时他们也会获得两个无用的中间局部引用jclass和jcharArray。直到MyNewString的调用者返回后，jclass、jcharArray和jstring这三个局部引用才会被释放</span>。如果调用MyNewString()的上下文非常多(假如在很短的一段时间内有十万次调用)，那么虚拟机就要在这段时间内同时保存30万个局部引用，内存肯定会被消耗完。</p>
+<p>所以，<span style="color: #ff0000;">在公用的工具函数中，调用它的上下文未知，就必须显式的删除掉所有的无用的局部引用</span>。</p>
+<p>3.<span style="color: #ff0000;">如果你写的原生代码本来就不打算返回</span>(比如想要其作为一种后台服务，无限循环等待事件并处理事件)，那么就必须显式的删除循环内的所有无用的局部引用，以免浪费内存资源。</p>
+<p>4.<span style="color: #ff0000;">你的原生函数首先对一个非常庞大的对象创建了局部引用，在使用完这个引用后，又做了其他的一些处理</span>。在做其他处理的时候，虽然这个庞大对象的局部引用不再需要，但系统并不会自动回收，直到这个原生函数返回。因此，程序员需要手动显式的释放局部引用。</p>
+<h2 id="5-5-2-在Java-2-SDK-发行版1-2中管理局部引用"><a href="#5-5-2-在Java-2-SDK-发行版1-2中管理局部引用" class="headerlink" title="5.5.2 在Java 2 SDK 发行版1.2中管理局部引用"></a>5.5.2 在Java 2 SDK 发行版1.2中管理局部引用</h2><p>Java SDK 1.2 为管理局部引用的生存周期提供了额外的JNI函数：E<span style="color: #ff0000;">nsureLocalCapacity(), New- LocalRef(), PushLocalFrame()和 PopLocalFrame()</span>。</p>
+<p>通常情况下，<span style="color: #ff0000;">Java虚拟机允许每个原生函数至少创建16个局部引用</span>，而且根据经验，16个局部引用足够绝大多数的情况。然而，<span style="color: #ff0000;">如果需要使用更多的局部引用，就必须调用EnsureLocalCapacity()函数确保空间足够</span>。比如说，对5.5.1节中1的代码做如下修改：</p>
+<p><div class="page" title="Page 82"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">/<em> 允许创建的局部引用数量与数组的长度(len)一致 </em>/<br><span style="color: #ff0000;">if ((<em>env)-&gt;EnsureLocalCapacity(env, len)) &lt; 0) {</em></span><br>    … / 空间不足，抛出异常 <em>/<br>}<br>/</em>向Java虚拟机申请了足够的局部引用的数量<em>/<br>for (i = 0; i &lt; len; i++) {<br>    jstring jstr = (</em>env)-&gt;GetObjectArrayElement(env, arr, i);<br>    … /<em> 对jstr处理的代码 </em>/<br>    <span style="color: #ff0000;">/<em> 此时在循环中就不需要调用DeleteLocalRef()函数了 </em>/</span><br>}</pre><br><br><br><br><br>当然，这个版本比修改前的版本占用更多的内存。</p>
+<p>可以使用<span style="color: #ff0000;">PushLocalFrame()和 PopLocalFrame()</span>函数重写上一版本的循环：</p>
+<p><div class="page" title="Page 83"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">#define N_REFS … /<em> 定义每次循环最多可以创建多少个局部引用 </em>/<br>   for (i = 0; i &lt; len; i++) {<br>       /<em>在一次循环中申请N_REFS个局部引用的数量</em>/<br>       <span style="color: #ff0000;">if ((<em>env)-&gt;PushLocalFrame(env, N_REFS) &lt; 0) {<br>           … /</em> out of memory异常 <em>/<br>       }<br>       jstr = (</em>env)-&gt;GetObjectArrayElement(env, arr, i);<br>       … /<em> 处理jstr的代码 </em>/</span><br><span style="color: #ff0000;">       /<em>循环结束，在这一次的循环中创建的所有局部引用都会被释放掉。</em>/<br>       (*env)-&gt;PopLocalFrame(env, NULL);</span><br>}</pre><br><br><br><br><br>PushLocalFrame()和 PopLocalFrame()函数确定了一个范围，<span style="color: #ff0000;">使用PushLocalFrame()函数申请在这个范围内可以创建的局部引用数量N，如果成功，则在该范围内可以创建最多N个局部引用，使用PopLocalFrame()函数释放掉这个范围内创建的所有的局部引用</span>。使用这一对函数的好处是，我们可以批量的释放局部引用。</p>
+<p>NewLocalRef()函数的使用会在后面的小节中提到。</p>
+<p>使用EnsureLocalCapacity()、PushLocalFrame()和 PopLocalFrame()函数对可以申请超出16个局部引用数量。<span style="color: #ff0000;">Java虚拟机尽量根据你申请的数量分配内存，但不一定会分配成功，一旦分配失败，虚拟机就会退出</span>。所以，程序员应该保证有足够的内存空间，并且及时释放不再需要的局部引用以保证这种情况不会发生。</p>
+<p>Java SDK 1.2提供了命令行参数：-verbose:jni。如果这个命令行参数被启动，那么虚拟机就会对超出16个局部引用的函数给出相关的报告。</p>
+<h2 id="5-5-3-释放全局引用"><a href="#5-5-3-释放全局引用" class="headerlink" title="5.5.3 释放全局引用"></a>5.5.3 释放全局引用</h2><p>使用<span style="color: #ff0000;">DeleteGlobalRef()函数显式释放全局引用</span>，<span style="color: #ff0000;">如果释放失败，那么这个引用的对象永远不会被回收，会造成内存泄露</span>。<span style="color: #ff0000;">使用DeleteGlobalWeakRef()函数显式释放弱全局引用，如果释放失败，虚拟机仍然会回收其对象，但弱全局引用本身占用的内存就不能再使用了</span>，也会造成内存泄露，不过没有全局引用造成的内存泄露那么严重。</p>
+<p>下面的部分是05/23/2015完成的。</p>
+<h1 id="5-6-管理引用的规则"><a href="#5-6-管理引用的规则" class="headerlink" title="5.6 管理引用的规则"></a>5.6 管理引用的规则</h1><p>在原生代码中管理引用可以减少不必要的内存浪费，这一小节就介绍在原生代码中管理引用的规则。</p>
+<p>通常，有两类原生代码：使用原生代码实现的函数或共享共用的工具函数。</p>
+<p>本章的前面也简单提到过这两类原生代码在管理引用时的区别。首先要搞清楚这两类原生代码分别是什么。</p>
+<p>第一类函数是使用原生代码实现的函数：这类函数使用原生代码完成项目中Java不能完成或完成起来很困难的任务，它是跟项目有关系的，是项目的一部分。</p>
+<p>第二类函数是共享共用的工具函数：这类函数是用原生代码编写一些工具函数，不属于任何的项目。它可以在其他任何地方被调用，类似于操作系统的API，可以在任何地方被调用。比如我们对Linux的write()函数做一些错误处理和封装操作，形成了我们自己的工具函数my_write()。</p>
+<p>在第一类函数中，要注意的是不能在循环中一直创建局部引用而在循环结束时不释放局部引用，在根本不返回的原生函数中(例如该函数作为一个服务一直运行在后台，不会返回，直到杀死其进程才会退出)也要注意及时释放局部引用。如果函数中的局部引用少于16个，那么可以不必手动释放，在函数返回时由Java虚拟机自动释放。对于全局引用和弱全局引用，必须手动释放，不能依靠虚拟机，否则会造成内存泄露或/和不必要的内存浪费。</p>
+<p><span style="color: #ff0000;">在第二类函数中，必须注意局部引用要及时释放，同样的，少于16个可以交由虚拟机，但最好是自己手动释放。</span>这是因为工具函数会在不确定的上下文中调用，编写工具函数时根本不知道调用它的上下文是什么，调用规则是什么，有可能这个工具函数会在一个循环中被重复调用很多次，因此，及时释放局部引用是有好处的。</p>
+<ul>
+<li>当一个返回基本数据类型的工具函数被调用时，除了返回基本类型外，这个函数不应该保留其他任何局部引用、全局引用和弱全局引用。</li>
+<li>当一个返回引用的工具函数被调用时，除了它返回的引用外，这个函数不应该保留其他任何引用。<br>在第二类函数中，可以创建少量的全局引用或弱全局引用用于缓存，但要保证创建这些缓存的代码只在第一次调用该函数时被执行，后续的调用不再执行，减少执行时间。</li>
+</ul>
+<p>当一个工具函数返回引用的时候，调用者必须要知道这个函数返回的是局部引用、全局引用还是弱全局引用，否则调用者无法对引用进行管理——局部引用可以交由虚拟机或使用DeleteLocalRef()函数，全局引用可以使用DeleteGlobalRef()，弱全局引用可以使用DeleteWeakGlobalRef()。因此，在Java 2 SDK 1.2中有了一个新的函数<span style="color: #ff0000;">NewLocalRef()</span>，有了这个函数，可以保证所有的工具函数均返回局部引用。下面我们修改一下MyNewString()这个欧诺个局函数，使用NewLocalRef()使其一直返回局部引用。</p>
+<p>下面的MyNewString()函数版本中使用全局引用缓存了一个jstring变量，其内容为”CommonString”：</p>
+<p><div class="page" title="Page 85"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv <em>env, jchar </em>chars, jint len)<br>{<br>    static jstring result;<br>    /<em> wstrncmp()函数比较两个Unicode字符串，相等返回0 </em>/<br>    if (wstrncmp(“CommonString”, chars, len) == 0) {<br>        /<em> cachedString用于指向”CommandString” </em>/<br>        static jstring cachedString = NULL;<br>        if (cachedString == NULL) {<br>            /<em> 如果引用为空，那么在第一次的时候创建这个引用 </em>/<br>            jstring cachedStringLocal = … ;<br>            /<em> 把上面的引用转换为全局引用缓存起来，后续调用可以直接使用 </em>/<br>            cachedString = (<em>env)-&gt;NewGlobalRef(env, cachedStringLocal);<br>        }<br>        <span style="color: #ff0000;">return (</span></em>env)-&gt;NewLocalRef(env, cachedString);<br>    }<br>       … /<em> 把chars创建为jstring(局部引用)，返回这个局部引用 </em>/<br>    return result;<br>}</pre><br><br><br><br><br>上面的代码中可以看到，调用MyNewString()时，传递了一个字符串chars和这个字符串的长度len。如果chars与”CommonString”相等的话，只需要在第一次调用这个函数时创建”CommonString”的全局引用，后续的调用可以直接使用这个全局引用而不需要再创建。如果chars与”CommonString”不相等的话，就必须创建chars的局部引用并返回。在返回”CommonString”的引用时，我们必须把用于缓存的全局引用转换为要返回的局部引用，因此使用了NewLocalRef()函数，这样，不管chars与”CommonString”是否相等，MyNewString()函数始终返回局部引用。这样，MyNewString()函数的调用者就可以用管理局部引用的方式管理这个函数返回的引用。</p>
+<p>前面提到的Push/PopLocalFrame()函数对在管理局部引用时非常的高效便捷，只需要在原生函数的开始调用PushLocalFrame()，在原生代码返回前调用PopLocalFrame()，那么这对函数间创建的所有局部引用都会被释放，<span style="color: #ff0000;">因此强烈推荐使用Push/PopLocalFrame()</span>。请注意一点，<span style="color: #ff0000;">如果在原生函数开始时使用了PushLocalFrame()，那么必须在原生函数可能的返回地点前调用PopLocalFrame()</span>，比如：</p>
+<p><div class="page" title="Page 86"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">jobject f(JNIEnv <em>env, …)<br>{<br>    jobject result;<br>    if ((</em>env)-&gt;PushLocalFrame(env, 10) &lt; 0) {<br>        /<em> 如果出错，那么无需调用PopLocalFrame()，因为还没有创建任何的局部引用 </em>/<br>        return NULL;<br>    }<br>    …//其他原生代码<br>    result = …;//创建局部引用<br>    if (…) {<br>        /<em> 在返回之前必须使用PopLocalFrame() </em>/<br>        result = (<em>env)-&gt;PopLocalFrame(env, result);<br>        return result;<br>    }<br>    …//其他原生代码<br>    /</em> 在正常返回的时候也要调用PopLocalFrame() <em>/<br>    result = (</em>env)-&gt;PopLocalFrame(env, result);<br>    return result;<br>}</pre><br><br><br><br><br>如果在函数返回前忘记了使用PopLocalFrame()，这种后果是未定义的，可能会造成虚拟机崩溃。</p>
+<p>在上述代码中也证实了给PopLocalFrame()函数传递第二个参数有时是非常有用的。在PushLocalFrame()函数调用成功后产生了一个新的frame，在这个frame中创建了局部引用result。调用PopLocalFrame()则会把最顶层的frame销毁(这个frame中的局部引用也就会被释放)。如果result不作为PopLocalFrame()的第二个参数传入，那么result就会被销毁，那return result;这条语句返回的引用是空的，结果是未知的。然而，如果把result作为PopLocalFrame()的第二个参数，那么在销毁最顶层的frame之前，PopLocalFrame()函数会把这个frame中的result局部引用转换为一个新的局部引用，这个新的局部引用不在要销毁的frame中，因此就可以安全的返回result了。</p>
+<p>本章的内容是关于引用的管理的，到此就讲完了，有问题可以留言或发邮件：<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/17/jni-4th-files-methods/" rel="next" title="JNI技术解析第四章 访问类成员变量和成员方法">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第四章 访问类成员变量和成员方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/26/jni-6th-exceptions/" rel="prev" title="JNI技术解析第六章 异常">
+                JNI技术解析第六章 异常 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#5-1-局部引用"><span class="nav-number">1.</span> <span class="nav-text">5.1 局部引用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-1-与第四章的MyNewString-函数对比"><span class="nav-number">1.1.</span> <span class="nav-text">5.1.1 与第四章的MyNewString()函数对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-2-释放局部引用"><span class="nav-number">1.2.</span> <span class="nav-text">5.1.2 释放局部引用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-2-全局引用"><span class="nav-number">2.</span> <span class="nav-text">5.2 全局引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-3-弱全局引用"><span class="nav-number">3.</span> <span class="nav-text">5.3 弱全局引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-4-比较引用"><span class="nav-number">4.</span> <span class="nav-text">5.4 比较引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-5-释放引用"><span class="nav-number">5.</span> <span class="nav-text">5.5 释放引用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-1-释放局部引用"><span class="nav-number">5.1.</span> <span class="nav-text">5.5.1 释放局部引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-2-在Java-2-SDK-发行版1-2中管理局部引用"><span class="nav-number">5.2.</span> <span class="nav-text">5.5.2 在Java 2 SDK 发行版1.2中管理局部引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-3-释放全局引用"><span class="nav-number">5.3.</span> <span class="nav-text">5.5.3 释放全局引用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-6-管理引用的规则"><span class="nav-number">6.</span> <span class="nav-text">5.6 管理引用的规则</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

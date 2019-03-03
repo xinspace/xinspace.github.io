@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="搭建Android开发环境原本是很简单的事情，但是因为GFW把谷歌墙了之后，很多的网站都上不去，因此我花费了1天的时间才搞定。下面说说我搭建的过程。 搭建步骤如下： 1.下载JDK、eclipse、Android SDK和eclipse的ADT插件。 2.安装、配置JDK，安装ADT插件，安装和配置Android SDK。在安装ADT插件的时候可能出问题，后面会说。 3.使用Android SDK">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fedora20搭建Android开发环境 离线安装ADT">
+<meta property="og:url" content="http://blog.xinspace.xin/2014/09/20/android-develope-tool-fedora/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="搭建Android开发环境原本是很简单的事情，但是因为GFW把谷歌墙了之后，很多的网站都上不去，因此我花费了1天的时间才搞定。下面说说我搭建的过程。 搭建步骤如下： 1.下载JDK、eclipse、Android SDK和eclipse的ADT插件。 2.安装、配置JDK，安装ADT插件，安装和配置Android SDK。在安装ADT插件的时候可能出问题，后面会说。 3.使用Android SDK">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fedora20搭建Android开发环境 离线安装ADT">
+<meta name="twitter:description" content="搭建Android开发环境原本是很简单的事情，但是因为GFW把谷歌墙了之后，很多的网站都上不去，因此我花费了1天的时间才搞定。下面说说我搭建的过程。 搭建步骤如下： 1.下载JDK、eclipse、Android SDK和eclipse的ADT插件。 2.安装、配置JDK，安装ADT插件，安装和配置Android SDK。在安装ADT插件的时候可能出问题，后面会说。 3.使用Android SDK">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2014/09/20/android-develope-tool-fedora/">
+
+
+
+
+
+  <title>Fedora20搭建Android开发环境 离线安装ADT | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2014/09/20/android-develope-tool-fedora/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Fedora20搭建Android开发环境 离线安装ADT</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-20T16:04:33+07:00">
+                2014-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>搭建Android开发环境原本是很简单的事情，但是因为GFW把谷歌墙了之后，很多的网站都上不去，因此我花费了1天的时间才搞定。下面说说我搭建的过程。</p>
+<p>搭建步骤如下：</p>
+<p>1.下载JDK、eclipse、Android SDK和eclipse的ADT插件。</p>
+<p>2.安装、配置JDK，安装ADT插件，安装和配置Android SDK。在安装ADT插件的时候可能出问题，后面会说。</p>
+<p>3.使用Android SDK Manager 下载安装相应的包，这里可能需要翻墙或代理。</p>
+<p>4.创建AVD，并开始编程。创建AVD的时候也可能出问题。</p>
+<p>5.Android开发教程推荐</p>
+<a id="more"></a>
+<p>&nbsp;</p>
+<p>接下来详细讲解4个步骤和问题的解决方法。</p>
+<p>1.下载地址：</p>
+<p>（可能需要翻墙）。</p>
+<p>官网下载：</p>
+<p><pre>JDK：<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+</a>eclipse：<a href="https://www.eclipse.org/downloads/" target="_blank" rel="noopener">https://www.eclipse.org/downloads/</a><br>下载Eclipse Standard版本就好了，我下载的是4.4<br>Android SDK：<a href="http://www.android-doc.com/sdk/index.html#download" target="_blank" rel="noopener">http://www.android-doc.com/sdk/index.html#download</a> 打开这个页面下面<br>        的“DOWNLOAD FOR OTHER PLATFORM”，一个是“ADT bundle”，一个是“仅使用SDK tools”。<br>        如果你能下载ADT bundle，那是最好不过的。如果你下载不了(我就是遇到了404错误)，那就<br>        只能下载SDK Tools中的相应版本了。<br>ADT插件：在被墙了的情况下，如果使用eclipse在线安装ADT，总会出错，而且就算能够使用在线安<br>        装，速度奇慢。因此下载离线包就有必要了。离线包的地址格式如下：<br>        <a href="http://dl.google.com/android/ADT-xx.x.x.zip.ADT-xx.x.x.zip就是ADT的版本，" target="_blank" rel="noopener">http://dl.google.com/android/ADT-xx.x.x.zip.ADT-xx.x.x.zip就是ADT的版本，</a><br>        比如我下载的是eclipse standard 4.4,当时最新的ADT版本是ADT-23.0.3.zip，所以我的<br>        下载地址就是<a href="http://dl.google.com/android/ADT-xx.x.x.zip" target="_blank" rel="noopener">http://dl.google.com/android/ADT-xx.x.x.zip</a></pre><br>&nbsp;</p>
+<p>2.安装</p>
+<p>2.1一般情况下，linux发行版都安装了jdk的，比如我的是fedora20,KDE，默认就安装了jdk，所以我们就不需要安装了。执行下面的令名，若有类似输出，则表明系统已安装了jdk：</p>
+<p><pre>         $java -version<br>         java -version<br>         java version “1.8.0_20”<br>         Java(TM) SE Runtime Environment (build 1.8.0_20-b26)<br>         Java HotSpot(TM) Server VM (build 25.20-b23, mixed mode)</pre></p>
+<p></p>
+<p><pre>$javac<br>javac<br>Usage: javac &lt;options&gt; &lt;source files&gt;<br>where possible options include:<br>  -g                         Generate all debugging info<br>  -g:none                    Generate no debugging info<br>  -g:{lines,vars,source}     Generate only some debugging info<br>  -nowarn                    Generate no warnings<br>  ………………………………………………….此处略去n行</pre></p>
+<p>否则，说明系统没有安装jdk，需要自己安装和配置。<br>安装jdk：</p>
+<p>如果下载的是rpm包（fedora、centos或redhat系列），执行下面这条命令：</p>
+<p><pre>$sudo rpm -ivh jdk-8u20-linux-i586.rpm</pre></p>
+<p>如果下载的是tar.gz包的话，执行下买的这条命令：<br>$sudo tar -xf jdk-8u31-linux-i586.tar.gz -C your_workspace_path<br>配置：</p>
+<p><pre>$vim ~/.bashrc</pre></p>
+<p>#加入下面的语句到该文件</p>
+<p>#JAVA_HOME变量是安装JDK的目录，如果是使用的第一种命令安装JDK的话，就添加下面的语句<br>`export JAVA_HOME=/usr/lib/jvm/jdk7</p>
+<p>#如果使用第二条命令安装JDK的话，就添加下面的语句：<br>export JAVA_HOME=your_workspace_path_full_path<br>export JRE_HOME=$JAVA_HOME/jre<br>export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib<br>export PATH=$JAVA_HOME/bin:$PATH<br>文件添加完成，执行下面的命令：<br>$source ~/.bashrc     /<em>这是刷新配置文件，使得配置文件立刻生效</em><br>配置完成后，再使用上面的命令查看是否安装配置成功。<br>`<br>2.2安装eclipse</p>
+<p><pre>直接解压文件，并把eclipse目录移动到安装目录(安装目录自己定)<br>$tar -xf eclipse-standard-luna-R-linux-gtk.tar.gz<br>$sudo mv eclispe /opt          /<em>我的安装目录放在/opt/目录下</em>/</pre><br>2.3安装Eclipse的ADT插件</p>
+<p><pre>$/opt/eclipse/ecplise &amp;             /<em>后台打开eclipse</em>/<br>依次打开Help-&gt;Install New Software-&gt;Add<br>Name：任意定，我这里填写ADT<br>Location:点击右边的Archive，选择ADT-23.0.3.zip<br>点击确定。<br>在对话框的下面，展开Developer Tools，选择前两个，你也可以全选，然后以此点击next和确认就可以了。<br>不过当点击finish之后，会出错，导致ADT安装不成功，看一下这篇文章：<a href="http://blog.xinspace.name/2014/09/20/faile_eclipse_adt/" target="_blank" rel="noopener">解决方法</a></pre><br>2.4安装配置Android SDK</p>
+<p><pre>$tar -xf android-sdk_r21.0.1-linux.tgz<br>$mv android-sdk-linux /opt<br>$/opt/eclipse/eclipse &amp;    /<em>打开eclipse</em>/<br>依次点击Windows-&gt;Preference,点击左边的Android，选择SDK Location，比如我的就是/opt/android-sdk-l解决方法inux</pre><br>3.使用Android SDK Manager安装SDK</p>
+<p><pre>$/opt/eclipse/ecplise &amp;  /<em>打开eclipse</em>/<br>依次点击Windows-&gt;Android SDK Manager<br>这时，在被墙的情况下，是无法加载各种SDK的，因此需要我们使用HTTP代理或翻墙。我这里为大家推荐免费<br>HTTP代理站点，网址：<a href="http://www.xici.net.co/wt/" target="_blank" rel="noopener">http://www.xici.net.co/wt/</a> 一般使用日本、韩国的，复制下ip地址和端口号。<br>回到SDK Manager，依次点击Tools-&gt;Options,在HTTP Proxy Server处填写刚刚复制的ip地址，在HTTP<br>Proxy Port处填写复制的端口号，然后勾选下面的Force https://…选项，点击close，再点击<br>Packages-&gt;Reload,就可以看到加载的包了。<br>加载出来的包，一般选择Tools下的Android SDK Tools,Android SDK Platform-tools,Android SDK Build-tools<br>选择最新的Android包，如Android4.4.2,Android4.4w等下的所有包<br>选择Extras下的Android Support Libraries，然后点击Install安装即可。安装过程可能很慢，耐心等待。</pre><br>4.创建AVD</p>
+<p><pre>$/opt/eclipse/eclipse &amp;<br>Windows-&gt;Android Virtual Device Manager<br>点击Create，填写选择相应的选项，这时可能提示CPU/ABI不可用，解决方法如下：<br>打开Android SDK Manager，查看Android包中是否全部安装了，比如Android4.4.2中是否安装了全部的包，<br>出现这个问题很可能是某些包你没安装上，比如ARM System Image，可以参考下面的链接：<a href="http://stackoverflow.com/questions/18600974/android-4-3-virtual-device-cpu-abi-no-system-images-installed-eclipse" target="_blank" rel="noopener">解决CPU/ABI不可用</a><br>创建完成后，就可以开始编写Android程序了。</pre><br>5.Android开发教程</p>
+<p><pre>5.1<a href="http://study.163.com/course/courseLearn.htm?courseId=207001#/learn/video?lessonId=324087&amp;courseId=207001" target="_blank" rel="noopener">网易公开课
+</a>5.2<a href="http://www.51zxw.net/list.aspx?cid=445" target="_blank" rel="noopener">我要自学网</a></pre><br>好了，上面就是搭建Android开发教程的过程。如果有任何问题，请发邮件到邮箱:<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/08/17/boa-port-to-arm/" rel="next" title="boa服务器移植到ARM平台并测试成功">
+                <i class="fa fa-chevron-left"></i> boa服务器移植到ARM平台并测试成功
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/09/20/faile-eclipse-adt/" rel="prev" title="安装Eclipse的ADT插件出错">
+                安装Eclipse的ADT插件出错 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

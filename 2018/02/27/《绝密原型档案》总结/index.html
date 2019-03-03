@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="============================ 这周读了Gara的《绝密原型档案》这本书，现在总结一下。其实这本书的脉络比较清晰，书的目录写的比较清晰，而且书比较薄，容易读完。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《绝密原型档案》总结">
+<meta property="og:url" content="http://blog.xinspace.xin/2018/02/27/《绝密原型档案》总结/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="============================ 这周读了Gara的《绝密原型档案》这本书，现在总结一下。其实这本书的脉络比较清晰，书的目录写的比较清晰，而且书比较薄，容易读完。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-27T16:10:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《绝密原型档案》总结">
+<meta name="twitter:description" content="============================ 这周读了Gara的《绝密原型档案》这本书，现在总结一下。其实这本书的脉络比较清晰，书的目录写的比较清晰，而且书比较薄，容易读完。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2018/02/27/《绝密原型档案》总结/">
+
+
+
+
+
+  <title>《绝密原型档案》总结 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2018/02/27/《绝密原型档案》总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《绝密原型档案》总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-27T23:10:32+07:00">
+                2018-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Product/" itemprop="url" rel="index">
+                    <span itemprop="name">Product</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>============================</p>
+<p>这周读了Gara的《绝密原型档案》这本书，现在总结一下。其实这本书的脉络比较清晰，书的目录写的比较清晰，而且书比较薄，容易读完。</p>
+<a id="more"></a>
+<p>下面从这几个方面总结一下这本书的内容。不完全是按照目录，有些我现在认为不重要的，就没有总结到下面，比如控件和风格指南。在下面的内容里，我最关心的是产品流程，其次关心的是原型文档。所以现在我的阶段还是处于产品经理的初级阶段，还在学习产品的套路。而用户画像、创意收集等方面则是微观体感，等套路熟了，再进阶学习。</p>
+<h1 id="创意收集"><a href="#创意收集" class="headerlink" title="创意收集"></a>创意收集</h1><p>创意的来源，作者提到的下面几点我认为是重点：</p>
+<ol>
+<li>用户痛点。</li>
+<li>借鉴其他行业做法。</li>
+<li>颠覆性思维。<br>另外还提到了2个：个性化（拟人化）和科学推论。现在我还没看到这2个创意来源的通用性和成功性。</li>
+</ol>
+<p>作者在书中对创意的收集讲的并不是很多，也不透彻，所以下面写的基本是梁宁的《产品思维30讲》的总结。这节课我听了很多遍，没听一遍都能领悟到新的东西，等我觉得时机成熟了，要为这门课程写一篇单独的总结。</p>
+<h2 id="用户痛点"><a href="#用户痛点" class="headerlink" title="用户痛点"></a>用户痛点</h2><p>用户痛点，我非常赞同梁宁的《产品经理30讲》课程里给的定义：恐惧是痛点，痛苦、不爽并不是。</p>
+<p>在这门课程里，梁宁提到的两个非常重要的词：满足与恐惧。用户要么会为了持续的满足或者爽花费时间和金钱，要么为了解决恐惧花时间和钱。比如玩《王者荣耀》，为了持续的爽，比如杀更多的人，或者炫耀更酷的技能等就会去买英雄、皮肤、装备（我没玩儿过这款游戏，其他游戏也会存在这种情况）。比如对前途的焦虑，就会逼迫人去读书、报课程，因为焦虑也是恐惧，是一种持续的想象的恐惧，内化为了焦虑情绪，而且焦虑始终无法被消除，因为这种焦虑并不会因为达到了之前的目标而消失，会一直存在。</p>
+<p>我不玩游戏，也没有持续满足而使用一款产品的经历（或者有这种经历，但现在没想到）。不过我有因为焦虑而使用一款产品的经历。比如现在每天都在用的得到App，梁宁的《产品经理30讲》课程我是花钱买的，还买过《好好说话》，学习如何表达自己。同时我也买了Kindle，在Amazon上买了100多本电子书，有产品的、零售的、投资理财的、历史的、科幻小说、人物传记、时间精力管理等等，这些书都是比较功利性的，没有文学小说，没有散文诗集，这也是因为焦虑。</p>
+<p>所以在我身上就验证了，我会因为恐惧而原因花钱，我会因为恐惧而忍受产品的不足。比如得到App，我现在用着就觉得不爽，特别是播放列表，在不下载的情况下无法自动播放到下一个音频，这个让我不爽，但是得到App满足了解决恐惧的核心需求，我能在上面买到大牛的各种课程，能让我了解到更多的思路，所以我能忍受产品的不爽。</p>
+<p><strong>所以恐惧与满足才是用户痛点。</strong></p>
+<h2 id="借鉴其他行业做法"><a href="#借鉴其他行业做法" class="headerlink" title="借鉴其他行业做法"></a>借鉴其他行业做法</h2><p>还是用梁宁的《产品思维30讲》里的一句话：<strong>未来已来，只是分布的不均匀</strong>。有一节课讲了一个医生借鉴了动物园的小鸡孵化箱的思路，制作了育婴器，让婴儿存活率提升到了很高的水平（忘了具体数据了，从20%左右提升到了80%左右，具体参考这门课程）。同时另一个医生，了解到育婴器生产与维护太高端，在发展中国家坏了无法维修的问题，使用了汽车零配件重新做了一款育婴器，方便发展中国家维护，因为发展中国家不缺汽车维修和零件，育婴器坏了直接拿汽车零件换好就好。这两个举动改变了整个世界，让无数本来会夭折的婴儿存活下来。这就是借鉴其他行业做法的好处，未来已来，只是分布的不均匀。</p>
+<p>要想借鉴其他行业的做法，首先我们自己要有想解决的问题，而且是专注的解决这个问题。如看到婴儿死亡率极高，医生非常想挽救生命。如看到能救命的机器无法工作，内心的波澜。只有心心念念的想解决一个问题，才能“手里是锤子，看什么都是钉子”，才会从其他地方看到解决问题的思路，也就是找到灵感。所以做产品，要有同理心，要有想做的事情。</p>
+<h2 id="颠覆性思维"><a href="#颠覆性思维" class="headerlink" title="颠覆性思维"></a>颠覆性思维</h2><p><strong>颠覆性思维，并不是突然冒出来的新想法，而是比现有的思维高了一个维度。</strong>读《三体》的时候，里面提到降维打击是非常可怕的，三维能看穿二维的任何事情，思维就能看穿三维的任何事情，这种压制性的优势，根本是两个级别的对抗，低维度根本没有胜算。</p>
+<p><strong>随着思维的升级，产品或企业所依赖的价值网也随之升级变化。</strong>比如小米与OPPO和vivo就是典型的例子。OPPO和vivo是传统的手机厂商，以卖手机赚取利润，还是一锤子买卖，他们依赖的价值网就是渠道接触更多用户，高效的销售，渠道快速回款，降低生产成本等，企业内的部门也是按照这个价值网的特点设立的，企业的思维也是朝着与这个价值网更加契合的方向发展和强化。但是小米不同，小米手机价格便宜而且性能好，再配合营销手段，获得了大量用户，小米并不靠卖手机赚钱，基本是成本价，而是靠其他场景如小米之家，小米小店等赚钱，小米依赖的价值网是给用户带来更好体验，在用户容易花钱的地方抢夺用户的品牌意识——小米质量好也便宜，手机只是服务用户的入口，并不是一锤子买卖。小米对于OPPO来说，就是思维升级，价值网也升级了，所以OPPO始终无法对抗小米，公司潜力不如小米。</p>
+<p>颠覆性思维是新的玩儿法，原则就是效率越来越高，成本越来越低。颠覆性思维需要观察、宏观视野、思考，并不是一闪而过的创意。颠覆性思维，必须要先懂得现在的玩儿法，才能升级思维，发现更高维度的价值网。</p>
+<h2 id="思维要活跃"><a href="#思维要活跃" class="headerlink" title="思维要活跃"></a>思维要活跃</h2><p>思维要锻炼才能活跃，避免思维定式。书里提到了两个方法，可以尝试一下。一是关系联想，比如马桶和宇宙飞船有什么关系？都是一家公司生产的，宇宙飞船上有马桶，都是白色的等等，多想。二是联想的维度，时间和空间。一个苹果在昨天和明天有什么区别？一个苹果在咖啡馆和宇宙飞船有什么区别？</p>
+<p>思维要活跃，晨阳给我的感觉就是思维活跃。虽然有些想法说出来之后，现在感觉不靠谱，不过这种不靠谱的想法多了，总有一个会给人灵光一现的感觉。要开拓思路，不要局限自己，不要否定自己。别刚想到，就马上否定自己，说不定真有可能性呢。</p>
+<h1 id="用户画像"><a href="#用户画像" class="headerlink" title="用户画像"></a>用户画像</h1><p>用户画像的介绍，我有启发。以前认为用户研究是要靠心理学、细心的观察这种现在看起来比较虚的方法，这本书里给出了其他的方法，实打实的能够落地执行的。</p>
+<h2 id="划定用户群"><a href="#划定用户群" class="headerlink" title="划定用户群"></a>划定用户群</h2><p>根据产品的战略定位（给用户提供什么，我要获取什么），能大致划分出用户群。书中说到，给任何一个人做的功能，都能找到对应的群体也需要这个功能。这跟《小数据》这本书里的观点有点相似，即想要了解到用户需求，不用非得大数据分析，了解很多人的很多信息，然后综合判断。只研究好一个人，服务好一个人，就能把这种服务推广到特定的群体。</p>
+<p>在产品的初级阶段，方向不明确，用户画像肯定特别宽泛。比如书中的例子就是“会议App”，帮助人们顺畅的远程会议。<code>定义的用户画像的用户群特征是：男、中年、短发、公司中层管理。</code>而在描述具体的用户画像的时候，一定要具体到相近的人，不管这个人是真实存在的，还是虚拟的，越具体越好，比如用户画像描述是：<code>Roger，36岁，金牛座，A型血，身高178厘米，体重75千克，平头、短发、双眼皮，已婚并有一个2岁的女儿，互联网教育行业，Web产品经理等。</code>此时的画像可能是非常不准确的，但是总比没有要好。在后面产品不断的迭代完善过程中，我们对目标用户越来越清晰，画像就会越来越准确。</p>
+<p>书中提到，在研究用户群的时候，要考虑几个要素：<br>`</p>
+<ol>
+<li>用户所在的时间与空间。</li>
+<li>用户和他接触的人群。</li>
+<li>用户所在的环境。</li>
+<li>用户完成什么任务。</li>
+<li>用户使用什么工具完成了任务。<br>`<br>时间与空间，定义了年龄段、阶层、思维方式、生活习惯等。比如上世纪80年代的人与00后的观念肯定不一样，思维方式、习惯都不一样，这是影响用户最大的因素。书中说到，时间与空间决定了25岁之后人际关系大换血（从同学到同事），决定了智能手机的普及，决定了移动互联网的普及，从而造就了现在的中国互联网。</li>
+</ol>
+<p>用户接触的人群，小孩儿就是父母，上学了就是同学，工作了就是同行或同事。这些人群决定了用户的视野和思维，影响用户的兴趣爱好和关注点。</p>
+<p>环境代表的是用户所在的位置和场所，比如家庭情况，公司情况，经济收入，兴趣爱好等等，这些决定了用户经常出入哪些场所，会在哪些方面消费等。</p>
+<p>用户要完成的任务就是产品要解决的问题，比如“会议App”就是帮助用户完成远程开会的任务。</p>
+<p>在没有这款产品之前，用户如何完成这项任务？除非需求是凭空创造出来的，否则肯定能找到用户原来的解决方案。原来的解决方案参考意义特别大，我们能知道这个解决方案的流程中，哪些可以优化，哪些对用户来说是至关重要的。</p>
+<h2 id="线索收集与多维度关联分析"><a href="#线索收集与多维度关联分析" class="headerlink" title="线索收集与多维度关联分析"></a>线索收集与多维度关联分析</h2><p>用户特征有了，那就要从用户群里挑选几个真实的用户，做深度调研。因为我们相信，只要我深入的了解了这几个用户，那整个用户群就有大致一样的需求。所谓深度调研，是要了解这个用户的方方面面，这个阶段的调研，千万不能觉得什么不重要，什么重要。现在的阶段只是收集信息，不对信息做判断。如实的记录用户的生活，包括个人信息、家庭情况、公司情况、经济收入、兴趣爱好、作息时间表、使用的设备等，如果涉及到隐私，需要委婉的获取这些信息，不要透露给其他人。如果能得到用户的配合，我们可以持续一周不定期的询问用户：</p>
+<ol>
+<li>你在哪里？能拍张周围环境的照片吗？</li>
+<li>你在做什么？能把正在做的事情拍张照吗？</li>
+</ol>
+<p>以这几份深入的调查问卷，我们可以交叉关联。比如从时间来看，每个用户的时间安排是怎样的？以兴趣爱好的精力分配来看情况如何？从多个维度分析，就能得到不同的结论，也能发现不同的需求。</p>
+<p>等总结出了一定的规律，我们就可以缩小画像的范围，与产品相关的信息我们多关注一些。比如我们发现用户群的大部分用户都是公司中层领导或职员，那我们就可以先不考虑自由职业者了。</p>
+<h1 id="产品流程"><a href="#产品流程" class="headerlink" title="产品流程"></a>产品流程</h1><p>产品流程，现在我认为是我必须要搞清楚的一环，也就是我说的套路。怎么把一个需求落实到产品的功能中？思考框架是怎么样的？</p>
+<h2 id="先线下，再线上"><a href="#先线下，再线上" class="headerlink" title="先线下，再线上"></a>先线下，再线上</h2><p>把用户通过使用什么工具，用什么流程，解决了现在的这个问题搞明白，再去想怎么通过产品改进流程。这就是先把线下的搞明白，才能知道线上应该怎么做。</p>
+<p>我也是在这里栽过跟头。第一次接需求的时候，只是听别人说，然后如实的把需求翻译成文档，开发辛苦做完后，基本是不能使用的，因为距离业务流程差太多。中间有反复沟通了3次，每次都是新的业务流程，每次都进入到开发环节，完成之后都不满意。</p>
+<p>上面我自己的经历，就是没有搞清楚产品的基本流程，那就是线下是如何解决这个问题的？我们的产品能在现在流程中扮演什么角色，如何帮助用户提高效率，缩短时间。只有搞明白了线下的流程，我们才能知道如何改进，才能理解用户为什么痛苦，以及发现用户的痛点。</p>
+<h2 id="思路要先复杂，再简单"><a href="#思路要先复杂，再简单" class="headerlink" title="思路要先复杂，再简单"></a>思路要先复杂，再简单</h2><p>都说产品要做简单，不过作者说的这个观点也有道理。刚上来把所有能想到的都想到，把功能做完整，情况想的全面一些。在评审阶段，可以综合时间、需求量、需求优先级、困难程度等因素，删减一些功能。删减功能是能达成共识的，大家都理解因为各种因素或者需求本身不重要，可以删除。但是添加需求就会影响开发的情绪，所以先把原型文档做复杂，然后再删减不重要的功能，最终留下的功能就是重要的且已经达成了共识的。</p>
+<h2 id="制定异常流程"><a href="#制定异常流程" class="headerlink" title="制定异常流程"></a>制定异常流程</h2><p>异常流程是描述分支流程的，分支流程肯定是依附在主流程上的。所以必须先把主流程画出来，主流程上的关键步骤都要有。</p>
+<p>异常流程，就是在需要前置条件的步骤，需要判断前置条件。前置条件也称为必要条件。比如登录流程中，点击登录按钮这个关键步骤的前置条件包含：</p>
+<ol>
+<li>登录名不能为空、不能小于2个字符、不能多于25个字符。</li>
+<li>密码不能为空、不能小于5个字符，不能多于15个字符。<br>所以这个步骤就要判断前置条件，进而有了异常流程。</li>
+</ol>
+<p>不仅仅是主流程的有前置条件的步骤需要判断条件，在异常流程中也需要判断有前置条件的步骤，形成新的异常流程。这就能逐步的把所有异常流程制定完成，并且做到了不疏漏。</p>
+<h2 id="流程图和页面表现"><a href="#流程图和页面表现" class="headerlink" title="流程图和页面表现"></a>流程图和页面表现</h2><p>之前说到，设计产品的时候需要先把线下的解决方案搞清楚。在做流程图的时候，也是要把线下流程图做出来。流程中涉及到哪些角色，每个角色的动作按照时间顺序排列出来。整理完成后，需要不断的问：删除这个步骤会如何？调换这两个步骤会如何？合并这些步骤可以吗？直到线下流程中的步骤不能再删减（在删减就无法完成整个流程了），顺序也不能再调整了为止。</p>
+<p>当最核心的线下流程梳理出来后，就到了使用产品替代部分角色的时候了。我们的产品到底能替代哪些角色，执行哪些步骤？把线下流程加入产品之后的新流程梳理出来。当然新的流程必然要比旧的流程效率高、时间少、成本低，否则切换到新流程就没有任何意义了。</p>
+<p>当产品的新流程图梳理出来后，就需要把低保真原型图列在旁边，辅助说明产品如何实现这个流程。设计、开发和测试都可以清晰的理解产品的流程。</p>
+<p>梳理流程的过程，就是把自己的视野抬高。就像看地图一样，如果不把地图比例尺放大，就无法看到整个布局，也就不清楚自己处于布局中的什么位置。在设计产品流程的时候，一定是先把自己放大，把用户的所有路径都搞明白，然后根据用户画像的特征，筛选出用户经常使用的路径。这样从大局到细节都能把握的很清楚，我们在聚焦重点的时候也就非常的有信心了。</p>
+<p>拿“会议App”举例，我们把用户开会的流程梳理完成之后，根据用户画像，我们了解到用户开会有2中常见场景：</p>
+<ol>
+<li>提前线下预约好，线上开会。</li>
+<li>临时会议。<br>第1种场景是比较正式的情况，是会议App的完整流程。但是第2种场景发生的更加频繁，所以我们需要把第2种场景提升到与第1种同样的重要地位，为用户提供快速进入会议的路径。这就是了解了用户所有路径之后聚焦的一个例子。</li>
+</ol>
+<h1 id="内容设计"><a href="#内容设计" class="headerlink" title="内容设计"></a>内容设计</h1><p>一切是内容为基础，就算是工具产品，内容也是非常重要的。一眼让用户知道重要信息在哪里，让用户知道如何使用产品完成任务，这些都是内容的体现。</p>
+<h2 id="设计页面的目的"><a href="#设计页面的目的" class="headerlink" title="设计页面的目的"></a>设计页面的目的</h2><p>设计页面的时候，必须要问：</p>
+<ol>
+<li>这个页面的目的是什么？</li>
+<li>这个页面为谁而做？</li>
+</ol>
+<p>只有明确了目的，才能安排内容，设计好合理的功能。只有明确了页面的使用人群，才能把内容和功能设计的合理，符合目标人群的喜好和习惯。切记一点，设计页面时，不能仅仅因为设计出来好看，就随意的添加或删减内容。<strong>对页面做的任何一个动作和决策，都要问这样做能否达成页面的目标。</strong></p>
+<h2 id="我是谁？我在哪里？我做什么？"><a href="#我是谁？我在哪里？我做什么？" class="headerlink" title="我是谁？我在哪里？我做什么？"></a>我是谁？我在哪里？我做什么？</h2><p>我是谁，这是产品给用户的角色定义。此时要慎之又慎，不要给用户带来压力。例如当给用户的角色是老师的时候，用户就不会去问问题，保持自己的高深莫测。当给用户的角色是学生的时候，用户可能不会去分享教授。产品给用户什么角色，用户就趋向于做出角色化的行为。如果这种角色化行为不符合产品的目标，那角色定义就出问题了。</p>
+<p>相对于给用户一种头衔或称呼，更好的方式是标的用户的状态。让用户能在接收东西的同时，也可以把东西卖出去。比如在产品中，用户可能现在是乘客，但明天就可以变成司机。</p>
+<p>我在哪里，这是产品告知用户位置信息，不让用户在产品中迷失。这就要求产品的流程明确且自然，用户看到当前页面，就能知道这个页面的上一步是什么，下一步应该是什么。同时需要提供一个完整的导航，让用户方便快捷的回到首页。这就是一种确定感，让用户确保自己掌控了局面。</p>
+<p>我做什么，这是产品在每个页面需要传达给用户的最重要的信息。每个页面的目的想清楚了，做什么就知道了，需要页面设计好内容传达给用户。</p>
+<h2 id="为情绪设计，为错误设计"><a href="#为情绪设计，为错误设计" class="headerlink" title="为情绪设计，为错误设计"></a>为情绪设计，为错误设计</h2><p>产品是给人设计和使用的，人避免不了犯错，而且人在使用产品的过程中，避免不了情绪波动。所以产品在设计过程中，就必须把人的不确定性考虑进去。</p>
+<p>为情绪设计是保证用户使用产品是产生积极情绪。如</p>
+<ol>
+<li>增加成就感，用户完成任务的每个步骤都会有成就感，不费太大力气就能完成。</li>
+<li>避免很多选择，避免让用户产生选择恐惧症。</li>
+</ol>
+<p>为错误设计是尽量保证用户不犯错，或者很难犯错，并且在犯错的情况下能提示用户纠正错误。如</p>
+<ol>
+<li>前置条件不满足，要及时提醒。</li>
+<li>保存页面信息，避免再次进入页面后还需要再输入。</li>
+<li>让用户可以后悔，删除的内容可以再次找回。</li>
+<li>如果操作确实不可逆，则需要警告用户，比如弹窗两次确认。</li>
+<li>产品设计要遵循习惯，比如返回按钮不要放在右边等等。</li>
+<li>用户的交互要有明确的反馈，比如按下按钮后按钮要有颜色变化，打开新页面要有明确的过渡。</li>
+</ol>
+<h1 id="原型文档"><a href="#原型文档" class="headerlink" title="原型文档"></a>原型文档</h1><p>原型文档是非常重要的，它的目的是为了提高沟通效率，让团队能够清晰的知道产品的思路和规范。文档的规范有很多，但是要提及的内容必须有：</p>
+<ol>
+<li>文档修改记录，包括修改时间、修改的内容、修改人、版本号等重要信息。</li>
+<li>页面结构，使用思维导图把产品的页面结构画出来，细分到功能即可，不需要划分每个功能的某个小步骤。</li>
+<li>全局说明，包含了产品的全局规范，比如标题字体大小和颜色等等，在页面中如果用到了标题，就可以直接参考全局说明，不需要每个页面都提。</li>
+<li>字符限制，把每个输入的内容字符要求写明白，比如字符的多少，内容要求不能为空等。</li>
+<li>核心任务流程，描述产品核心任务流程，配合流程图和页面展示。</li>
+<li>核心外任务流程。</li>
+<li>页面与注释，页面先划分到具体模块中，罗列页面的数据，列举页面的操作，罗列页面的规则，特别需要标注的地方一定要明显标注。这个内容可以参考Gara放出的原型档案RP文件。</li>
+<li>异常情况说明，比如网络断了流程与页面如何显示等。</li>
+</ol>
+<p>原型文档是非常重要的，需要与团队不断的磨合，因为原型只是手段，只要提高了沟通效率，团队都认可就行，不需要特别遵从格式。但是上面提到的8点是一个非常好的参考依据。</p>
+<p>原型文档是一个迭代版本，多个版本就需要使用多个迭代原型文档。每个版本使用版本号记录和保存，永远不要编辑之前版本的原型文档，留作档案保存起来。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>最后，做一个总结。</p>
+<p>这篇文章不仅仅是《绝密原型档案》的总结，也混合了我之前读或听其他产品书籍和课程的感悟，用的最多的就是梁宁的《产品思维30讲》。产品要先学会套路，再进阶学习其他内容，而《绝密原型档案》这本书就是在讲套路，而且是以一个产品为例拆开讲套路，这是我非常需要的一本书。虽然书中的内容可能写的不全面，但是入门是够了。还有一本介绍产品套路的书《用户体验要素》，也是非常重要的产品书籍，配合这两本书，再加上实践，尽量总结出自己的行之有效的套路。</p>
+<p>转型产品经理以来，一直在不断的摸索和学习，过程非常的迷茫。到底一个需求应该如何转换成产品功能呢？怎么评估这个需求的作用呢？怎么安排迭代？甚至怎么画原型图？在不懈努力下，还是找到了方向。</p>
+<p>我深刻感受到读书是最好最系统的方法，也是最快速的方法。所以我定下了每周读一本书，每周总结一本书的目标。所以前段时间一直在找如何快速阅读的方法，这又是另一个主题了。最终想要表达的是，<strong>读书先读广，再读精。</strong></p>
+<p>============================<br>原创，转载请指明出处(<a href="http://blog.xinspace.xin">http://blog.xinspace.xin</a>)。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/18/指数基金投资总结/" rel="next" title="指数基金投资总结">
+                <i class="fa fa-chevron-left"></i> 指数基金投资总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/04/《用户体验要素》总结/" rel="prev" title="《用户体验要素》总结">
+                《用户体验要素》总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#创意收集"><span class="nav-number">1.</span> <span class="nav-text">创意收集</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用户痛点"><span class="nav-number">1.1.</span> <span class="nav-text">用户痛点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#借鉴其他行业做法"><span class="nav-number">1.2.</span> <span class="nav-text">借鉴其他行业做法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#颠覆性思维"><span class="nav-number">1.3.</span> <span class="nav-text">颠覆性思维</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思维要活跃"><span class="nav-number">1.4.</span> <span class="nav-text">思维要活跃</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用户画像"><span class="nav-number">2.</span> <span class="nav-text">用户画像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#划定用户群"><span class="nav-number">2.1.</span> <span class="nav-text">划定用户群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线索收集与多维度关联分析"><span class="nav-number">2.2.</span> <span class="nav-text">线索收集与多维度关联分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#产品流程"><span class="nav-number">3.</span> <span class="nav-text">产品流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#先线下，再线上"><span class="nav-number">3.1.</span> <span class="nav-text">先线下，再线上</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路要先复杂，再简单"><span class="nav-number">3.2.</span> <span class="nav-text">思路要先复杂，再简单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#制定异常流程"><span class="nav-number">3.3.</span> <span class="nav-text">制定异常流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流程图和页面表现"><span class="nav-number">3.4.</span> <span class="nav-text">流程图和页面表现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内容设计"><span class="nav-number">4.</span> <span class="nav-text">内容设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#设计页面的目的"><span class="nav-number">4.1.</span> <span class="nav-text">设计页面的目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我是谁？我在哪里？我做什么？"><span class="nav-number">4.2.</span> <span class="nav-text">我是谁？我在哪里？我做什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为情绪设计，为错误设计"><span class="nav-number">4.3.</span> <span class="nav-text">为情绪设计，为错误设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原型文档"><span class="nav-number">5.</span> <span class="nav-text">原型文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="JNI的其中一种应用就是使用已经存在的原生库编写适合项目的原生函数。现代的操作系统都自带了很多的原生库，比如标准C库、POSIX库等，在编写项目的时候，有一部分的原生代码需要使用某些功能，而这些功能已经在系统的原生库中存在，那我们就可以直接使用这些已经存在的库中的功能了，比如项目的原生代码需要在终端输出信息(需要使用标准C库的printf系列函数)。 本章中将介绍一种典型的方法：创建一个类，在类中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第九章 使用存在的原生库">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/06/02/jni9th-leveraging-existing-native-libraries/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="JNI的其中一种应用就是使用已经存在的原生库编写适合项目的原生函数。现代的操作系统都自带了很多的原生库，比如标准C库、POSIX库等，在编写项目的时候，有一部分的原生代码需要使用某些功能，而这些功能已经在系统的原生库中存在，那我们就可以直接使用这些已经存在的库中的功能了，比如项目的原生代码需要在终端输出信息(需要使用标准C库的printf系列函数)。 本章中将介绍一种典型的方法：创建一个类，在类中">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/share_stub.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/key_input.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/link.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第九章 使用存在的原生库">
+<meta name="twitter:description" content="JNI的其中一种应用就是使用已经存在的原生库编写适合项目的原生函数。现代的操作系统都自带了很多的原生库，比如标准C库、POSIX库等，在编写项目的时候，有一部分的原生代码需要使用某些功能，而这些功能已经在系统的原生库中存在，那我们就可以直接使用这些已经存在的库中的功能了，比如项目的原生代码需要在终端输出信息(需要使用标准C库的printf系列函数)。 本章中将介绍一种典型的方法：创建一个类，在类中">
+<meta name="twitter:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/share_stub.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/06/02/jni9th-leveraging-existing-native-libraries/">
+
+
+
+
+
+  <title>JNI技术解析第九章 使用存在的原生库 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/06/02/jni9th-leveraging-existing-native-libraries/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第九章 使用存在的原生库</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-06-02T16:03:24+07:00">
+                2015-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>JNI的其中一种应用就是使用已经存在的原生库编写适合项目的原生函数。现代的操作系统都自带了很多的原生库，比如标准C库、POSIX库等，在编写项目的时候，有一部分的原生代码需要使用某些功能，而这些功能已经在系统的原生库中存在，那我们就可以直接使用这些已经存在的库中的功能了，比如项目的原生代码需要在终端输出信息(需要使用标准C库的printf系列函数)。</p>
+<p>本章中将介绍一种典型的方法：创建一个类，在类中封装一系列的已经存在的原生库中的函数。比如，我们创建类C，在C中定义一个函数void f()映射到printf()函数，f()函数的功能就是把从Java传来的参数转换为printf()能够接受的参数。</p>
+<p>本章首先讨论了编写封装类最直接的方式：一对一映射。然后再讨论共享桩，简化编写封装类的过程。在本章的最后会讨论如何使用peer classes封装已经存在的原生函数。</p>
+<a id="more"></a>
+<h1 id="9-1-一对一映射"><a href="#9-1-一对一映射" class="headerlink" title="9.1 一对一映射"></a>9.1 一对一映射</h1><p>我们用简单的例子来说明。假如要编写一个封装类，这个类封装标准C库的atol函数：</p>
+<div class="page" title="Page 123"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">long atol(const char <em>str);<br></em></pre><br></div><br></div><br></div><br></div><br>atol()函数分析传入的字符串(如字符串为”1234”)，返回这个字符串代表的整数(long类型的1234)。封装类定义如下：<br><pre escaped="true" lang="php" line="1">public class C {<br>    public static native int atol(String str);<br>    …<br>}</pre><br>本章使用C++来实现原生方法。C.atol()的C++实现版本如下：<br><div class="page" title="Page 124"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jint JNICALL Java_C_atol(JNIEnv env, jclass cls, jstring str)<br>{<br>    const char <em>cstr = env-&gt;GetStringUTFChars(str, 0);<br>    if (cstr == NULL) {<br>        return 0; /</em> 内存耗尽 <em>/<br>    }<br>    int result = atol(cstr);//调用系统的atop()函数完成核心功能<br>    env-&gt;ReleaseStringUTFChars(str, cstr);<br>    return result;<br>}</em></pre><br></div><br></div><br></div><br></div><br>上述实现非常直接，使用GetStringUTFChars()函数获取字符串内容，然后使用C库的函数atol()获取字符串代表的整数，最后返回整数。<br><br>在这个例子中，<br><pre escaped="true" lang="php" line="1">public static native int atol(String str);</pre><br>这个函数的参数为String类型，被映射成为了系统函数atol()所需的const char 类型。<br><pre escaped="true" lang="php" line="1">int result = atol(cstr); //cstr是const char <em>类型</em></pre><br><span style="color: #ff0000;">String类型映射成了const char 类型</span>。而Java平台的String类型是平台无关的类型，const char <em>类型却是与特定的操作系统有关的类型(如Linux与Windows中的char定义不相同)。<span style="color: #ff0000;">在需要代码移植的时候，只需要移植JNIEXPORT jint JNICALL Java_C_atol()函数，而不需要移植使用C.atol()的应用代码</span>。<br><br>下面再举一个更加复杂一点的例子。这次传递的参数是结构体指针。假如想要编写一个封装类封装Win32 API中的CreateFile()函数，CreateFile()函数原型如下：<br><div class="page" title="Page 124"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">typedef void </pre></div></div></div></div></em> HANDLE;<br>typedef long DWORD;<br>typedef struct {…} SECURITY_ATTRIBUTES;<br>HANDLE CreateFile(<br>       const char <em>fileName,<br>       DWORD desiredAccess,<br>       DWORD shareMode,<br>       SECURITY_ATTRIBUTES </em>attrs, // 安全属性<br>       DWORD creationDistribution, // 如何创建<br>       DWORD flagsAndAttributes,   // 文件属性<br>       HANDLE templateFile<br>);<br><br><br><br><br>CreateFile()函数支持很多Win32平台特有的属性，而平台无关的Java API不支持这些属性。比如，CreateFile()函数可以被用于指定特定的文件属性和访问属性，用于打开Win32的命名管道和处理串口通信等。<br><br>下面介绍如何把CreateFile()函数封装在Win32这个类中：<br><div class="page" title="Page 125"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">public class Win32 {<br>    public static native int CreateFile(<br>        String fileName, //String映射为const char <em><br>        int desiredAccess, //int映射为DWORD<br>        int shareMode, //int映射为DWORD<br>        int[] secAttrs,           // 安全属性 int[]映射为SECURITY_ATTRIBUTES </em><br>        int creationDistribution, // 如何创建 int映射为DWORD<br>        int flagsAndAttributes,   // 文件属性 int映射为DWORD<br>        int templateFile); //int映射为HANDLE<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br>可以看到，const char <em>fileName一对一映射为String fileName，DWORD一对一映射为int类型，SECURITY_ATTRIBUTES结构体类型映射为int[]类型，void</em>类型也映射为int类型。之所以把结构体映射为数组，是因为结构体与Java平台的类在底层布局方面可能存在不同。<br><br>C++实现上面的被封装的原生函数：<br><pre escaped="true" lang="php" line="1">JNIEXPORT jint JNICALL Java_Win32_CreateFile( JNIEnv <em>env,<br>    jclass cls,<br>    jstring fileName,<br>    jint desiredAccess,<br>    jint shareMode,<br>    jintArray secAttrs,<br>    jint creationDistribution,<br>    jint flagsAndAttributes,<br>    jint templateFile)<br>{<br>    jint result = 0;<br>    jint </em>cSecAttrs = NULL;<br>    if (secAttrs) {<br>        cSecAttrs = env-&gt;GetIntArrayElements(secAttrs, 0);<br>        if (cSecAttrs == NULL) {<br>            return 0; /<em> 内存耗尽 </em>/<br>        }<br>    }<br>    //使用工具函数获取文件名，而不是使用JNI的GetStringUTFChars()<br>    char <em>cFileName = JNU_GetStringNativeChars(env, fileName);<br>    if (cFileName) {<br>        /</em> 调用真正的Win32 API CreateFile()函数 <em>/<br>        result = (jint)CreateFile(cFileName,<br>            desiredAccess,<br>            shareMode,<br>            (SECURITY_ATTRIBUTES </em>)cSecAttrs,<br>            creationDistribution,<br>            flagsAndAttributes,<br>            (HANDLE)templateFile);<br>        free(cFileName);<br>    }<br>    /<em> 抛出异常 </em>/<br>    if (secAttrs) {<br>       env-&gt;ReleaseIntArrayElements(secAttrs, cSecAttrs, 0);<br>    }<br>    return result;<br>}</pre><br>上述程序中的工具函数JNU_GetStringNativeChars()在第八章的国际化编码部分编写的，用于把Unicode编码的字符串转换为本地编码的字符串。其他的内容无需多说，无非就是把Java传入的参数一对一的映射成JNI支持的类型，然后再调用真正的函数处理核心问题。<br><br>C.atol()和Win32.CreateFile()两个例子演示了编写封装类封装已经存在的原生函数(注意，这里的原生函数指的是已经存在的别人写的或系统自带的，不要与项目相关的我们自己编写的原生函数相混淆。在提到后一种时，我会说“与项目相关的原生函数”)的通常做法。每一个原生函数(如Win32系统的API CreateFile())映射为单一的”桩函数”(Java_Win32_CreateFile())，这个”桩函数”又映射到单一的项目相关的原生函数定义(Win32.CreateFile())。在这种一对一映射中，”桩函数”有两方面的作用：<br><br>1.桩函数向原生函数(注意，是已经存在的原生函数)传递参数时，必须符合Java虚拟机的命名规范，而且Java虚拟机还会向桩函数传递两个额外的参数JNIEnv指针和this指针，桩函数可以使用这两个参数做一些处理。<br><br>2.桩函数在Java类型与原生函数类型之间做转换，如jstring转换为const char <em>。<br><br># 9.2 共享桩<br><br>一对一映射是单个桩函数在Java和原生函数之间起到桥接的作用，对每一个想要封装起来的原生函数要编写单独的单个桩函数。如果想要调用大量的系统调用的话，就必须要为每一个系统调用编写一对一映射的桩函数，这个工作量很大且没有效率。这一节介绍一个提高效率的封装原生函数的技术，称为共享桩。<br><br>共享桩就是一个我们自己编写的原生函数，它主要负责接受调用者的参数，对参数的类型做必要的转换，用转换后的参数调用其他的原生函数，对其返回值类型再做必要的转换，将转换后的返回值返回给其调用者。<br><br>首先，我们演示一下使用共享桩如何简化上一节的C.atol()的编写。<br><div class="page" title="Page 127"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class C {<br>    private static CFunction c_atol =<br>        new CFunction(“msvcrt.dll”, // 原生库的名称<br>                      “atol”,       // 库中C函数的名称<br>                      “C”);         // 符合标准C的调用规范<br>    public static int atol(String str) {<br>        return c_atol.callInt(new Object[] {str});<br>    }<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br>上一节的C.atol()是我们编写的单个原生函数完成一对一映射。这一节的共享桩中，C.atol()定义为CFunction类，在这个类的内部实现了共享桩。在类C中的静态变量C.c_atol指向一个CFunction对象，这个CFunction对象则指向msvcrt.dll库(Win32中的多线程库)中的C函数atol()。CFunction对象的构造函数调用表明atol()函数的调用符合标准C的调用规范。一旦c_atol变量被初始化，调用C.atol()函数会调用c_atol.callInt()函数，c_atol.callInt()函数就是所谓的共享桩函数。<br><br>在后面的小节中要实现CFunction类的继承层次如下：<br><br><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/share_stub.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/share_stub.png" alt="share_stub"></a><br><br>从上面的继承层次中可以看出，CPointer类是Java平台的java.lang.Object的子类，CPointer类的对象用于指向任意的C指针。CFunction类是CPointer类的子类，CFunction类的对象更细化一些，指向任意的C函数指针：<br><div class="page" title="Page 128"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class CFunction extends CPointer {<br>    public CFunction(String lib,     // 原生库名称<br>                     String fname,   // 库中C函数的名称<br>                     String conv) {  // 要遵守的函数调用规范<br>        …<br>    }<br>    public native int callInt(Object[] args);<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br>callInt()函数的参数是包含java.lang.Object对象的数组，它检查数组元素的类型，根据需要做必要的转换(如jstring转换为const char </em>)，再用转换后的参数调用底层的库函数。callInt()函数把底层库函数的返回值当做int类型返回。CFunction类也可以定义callFloat()、callDouble()等函数用于返回其他类型。<br><br>CPointer类定义如下：<br><div class="page" title="Page 128"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public abstract class CPointer {<br>    public native void copyIn(<br>        int bOff,  //C指针的偏移量<br>        int[] buf, //原始数据<br>        int off, //原始数据的偏移量<br>        int len); //要复制的元素个数<br>    public native void copyOut(…);<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br>CPointer类是一个支持访问任意C指针的抽象类。如copyIn()方法就会从一个int类型数组中复制指定的元素到本地C指针指向的位置。在使用这个方法的时候要额外注意，本地C指针指向的内存区域必须足够大能够放下复制过来的元素，否则就会导致内存容量不够而覆盖了后面内存中的内容。使用CPointer.copyIn()函数同样像直接使用C指针那样不安全，需要额外的给予关注。<br><br>CMalloc类是CPointer类的子类，它用于表示使用malloc()函数在堆上分配的一块内存区域，其定义如下：<br><div class="page" title="Page 128"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class CMalloc extends CPointer {<br>       public CMalloc(int size) throws OutOfMemoryError { … }<br>       public native void free();<br>       …<br>}</pre><br></div><br></div><br></div><br></div><br>CMalloc类的构造函数在堆上分配指定大小的内存区域。CMalloc.free()函数则用于释放这块内存区域。<br><br>下面，我们使用CFunction类和CMalloc类重新实现Win32.CreateFile()函数：<br><div class="page" title="Page 129"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class Win32 {<br>    private static CFunction c_CreateFile =<br>        new CFunction (“kernel32.dll”, //原生库名称<br>                       “CreateFileA”,  //原生库中函数名称<br>                       “JNI”);         //函数调用符合JNI规范<br>    public static int CreateFile(<br>         String fileName,  //要创建的文件名称<br>         int desiredAccess, //访问权限(读写)<br>         int shareMode, //共享权限<br>         int[] secAttrs,           // 安全属性<br>         int creationDistribution, // 如何创建这个文件<br>         int flagsAndAttributes,   // 文件属性<br>         int templateFile)<br>    {<br>         CMalloc cSecAttr = null;<br>         if(cSecAttr != null) {<br>             cSecAttrs = new CMalloc(secAttrs.length <em> 4);<br>             cSecAttrs.copyIn(0, secAttrs, 0, secAttrs.length);<br>         }<br>         try {<br>             return c_CreateFile.callInt(new Object[] {<br>                              fileName,<br>                              new Integer(desiredAccess),<br>                              new Integer(shareMode),<br>                              cSecAttrs,<br>                              new Integer(creationDistribution),<br>                              new Integer(flagsAndAttributes),<br>                              new Integer(templateFile)});<br></em></pre><br><div class="page" title="Page 129"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">         } finally {<br>             if (secAttrs != null) {<br>                 cSecAttrs.free();<br>             }<br>    }<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br>同样，将CFunction类的对象缓存在静态变量中，供后面使用。kernle32.dll库中Win32 API CreateFile()函数被封装为CreateFileA()函数。函数调用符合JNI调用规范，也就是符合Win32的标准调用规范(stdcall)。<br><br>Win32.CreateFile()函数首先在C的堆上分配了足够装下安全参数的临时的内存区域，然后把所有的参数放入数组中，并通过共享桩函数c_CreateFile.callInt()调用底层的CreateFileA()函数，最后将临时分配的内存区域释放掉。记住，我们在finally语句块中也要释放分配的内存空间，这样保证当callInt()函数抛出异常时也能不产生内存泄露。<br><br># 9.3 一对一映射与共享桩的比较<br><br>一对一映射和共享桩是两种封装原生库的方法，它们有各自的优缺点。<br><br>共享桩最大的优势就是程序员不用在项目中为每一个要封装的原生函数编写对应的桩函数(当要封装的原生函数很多时，对应的桩函数也很多，工作量大且效率低)。当然，使用共享桩的时候也要注意，这是在Java平台上编写C代码，因此Java平台不能保证类型安全。如果使用共享桩函数时疏忽犯了错误，则可能导致程序崩溃或内存溢出。<br><br>使用一对一映射的好处是在Java类型与原生类型之间进行转换是非常高效的。而共享桩则是能够处理一系列预先定义好的参数类型，但对这些参数不能实现性能优化。比如调用共享桩CFunction.callInt()方法，总是需要为int类型的参数创建一个对应的Integer对象，增加了额外的空间和时间消耗。<br><br>在实际项目中，要衡量性能、可移植性和短期生产效率等更方面因素。共享桩最好用于使用现成的不用移植的原生代码中，此时对性能要求不能太高。而一对一映射则可以用在要求可移植和高性能的情况。<br><br># 9.4 实现共享桩<br><br>到目前为止，我们仅仅给出了CFunction、CPointer和CMalloc类的部分定义，对于其内部的方法如何实现的则没有提及。本小节讨论如何使用基本的JNI特性实现这些方法和类。<br><br>## 9.4.1 CPointer类<br><br>CPointer类是CFunction和CMalloc类的父类，首先实现它。抽象类CPointer拥有一个64比特的成员变量peer，用于指向底层的C指针：<br><div class="page" title="Page 131"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public abstract class CPointer {<br>       protected long peer;<br>       public native void copyIn(int bOff, int[] buf,int off,int len);<br>       public native void copyOut(…);<br>       …<br>}</pre><br></div><br></div><br></div><br></div><br>其中copyIn()函数使用C++实现如下：<br><div class="page" title="Page 131"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_CPointer_copyIn__I_3III(JNIEnv env, jobject self, jint boff, jintArray arr, jint off, jint len)<br>{<br>       //获取类CPointer的成员变量peer<br>       long peer = env-&gt;GetLongField(self, FID_CPointer_peer);<br>       //调用JNI函数复制数组内容到peer指向的位置<br>       env-&gt;GetIntArrayRegion(arr, off, len, (jint <em>)peer + boff);<br>}</em></pre><br></div><br></div><br></div><br></div><br>上述实现非常直接，其中FID_CPointer_peer是提前计算并缓存起来的CPointer.peer的ID。函数名称使用了长名称编码机制，该机制用于避免使用不同类型的参数对copyIn()的重载导致的命名冲突。<br><br>## 9.4.2 CMalloc类<br><br>CMalloc类使用两个原生方法来分配和释放内存：<br><div class="page" title="Page 131"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class CMalloc extends CPointer {<br>       private static native long malloc(int size);<br>       public CMalloc(int size) throws OutOfMemoryError {<br>           peer = malloc(size);<br>           if (peer == 0) {<br>               throw new OutOfMemoryError();<br>           }<br>       }<br>       public native void free();<br>       …<br>}</pre><br></div><br></div><br></div><br></div><br>CMalloc类的构造函数调用CMalloc.malloc()函数在C堆上创建给定大小的内存区域，如果分配失败，则抛出OutOfMemoryError异常。CMalloc.malloc()和CMalloc.free()函数实现如下：<br><div class="page" title="Page 132"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">JNIEXPORT jlong JNICALL  Java_CMalloc_malloc(JNIEnv env, jclass cls, jint size)<br>{<br>    return (jlong)malloc(size);<br>}<br></pre><br><pre escaped="true">JNIEXPORT void JNICALL Java_CMalloc_free(JNIEnv <em>env, jobject self)<br>{<br>    long peer = env-&gt;GetLongField(self, FID_CPointer_peer);<br>    free((void </em>)peer);<br>}<br></pre><br></div><br></div><br></div><br></div>
+
+<h2 id="9-4-3-CFunction类"><a href="#9-4-3-CFunction类" class="headerlink" title="9.4.3 CFunction类"></a>9.4.3 CFunction类</h2><p>实现CFunction类需要操作系统支持运行时动态链接的功能，也需要CPU相关的汇编代码。下面实现的版本是与Win32平台相关的，一旦你懂得了核心思想，就可以自己移植到其他平台。</p>
+<p>CFunction类定义如下：</p>
+<div class="page" title="Page 132"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">public class CFunction extends CPointer {<br>    private static final int CONV_C = 0;//函数调用符合C调用规范<br>    private static final int CONV_JNI = 1;//函数调用符合JNI调用规范<br>    private int conv;<br>    private native long find(String lib, String fname);//在原生库中查找函数<br>    public CFunction(String lib,<br>                     String fname,<br>                     String conv) {<br>        if (conv.equals(“C”)) {//使用C调用规范<br>            conv = CONV_C;<br>        } else if (conv.equals(“JNI”)) {//使用JNI调用规范<br>            conv = CONV_JNI;<br>        } else {//抛出异常<br>            throw new IllegalArgumentException(“bad calling convention”);<br>        }<br>        peer = find(lib, fname);//按照调用规范调用find函数，peer是从CPointer继承来的<br>    }<br>    public native int callInt(Object[] args);//共享桩函数<br>    …<br>}</pre><br></div><br></div><br></div><br></div><br>CFunction.find()函数的实现如下：<br><div class="page" title="Page 133"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><div class="page" title="Page 133"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jlong JNICALL Java_CFunction_find(JNIEnv <em>env, jobject self, jstring lib, jstring fun)<br>{<br>    void </em>handle;<br>    void <em>func;<br>    char </em>libname;<br>    char <em>funname;<br>    if ((libname = JNU_GetStringNativeChars(env, lib))) {//获取原生库名称<br>        if ((funname = JNU_GetStringNativeChars(env, fun))) {//获取函数名<br>            if ((handle = LoadLibrary(libname))) {//动态加载链接原生库<br>                //如果从库中查找原生函数失败，则抛出异常<br>                if (!(func = GetProcAddress(handle, funname))) {<br>                    JNU_ThrowByName(env, “java/lang/UnsatisfiedLinkError”, funname);<br>                }<br>            } else {//加载链接原生库出错，抛出异常<br>                JNU_ThrowByName(env, “java/lang/UnsatisfiedLinkError”, libname);<br>            }<br>            free(funname);//释放不再使用的资源<br>        }<br>        free(lib name);//释放不再使用的资源<br>    }<br>    return (jlong)func;//返回找到的函数的指针(在原生库中的地址)。<br>}</em></pre><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br></div><br>CFunction.callInt()函数负责调用真正的底层原生函数，其实现如下：<br><div class="page" title="Page 134"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jint JNICALL Java_CFunction_callInt(JNIEnv env, jobject self, jobjectArray arr)//第三个参数是调用底层原生函数所需的参数，可能需要进行类型转换<br>{<br>#define MAX_NARGS 32<br>    jint ires;<br>    int nargs, nwords;<br>    jboolean is_string[MAX_NARGS];//记录在参数列表args中，哪些是String类型<br>    word_t args[MAX_NARGS];//转换后的参数列表<br>    nargs = env-&gt;GetArrayLength(arr);//确定参数的个数<br>    if (nargs &gt; MAX_NARGS) {//参数太多<br>        JNU_ThrowByName(env, “java/lang/IllegalArgumentException”, “too many arguments”);<br>        return 0;<br>    }<br>    // 下面的循环是在转换参数类型<br>    for (nwords = 0; nwords &lt; nargs; nwords++) {<br>        is_string[nwords] = JNI_FALSE;<br>        jobject arg = env-&gt;GetObjectArrayElement(arr, nwords);//获取第nwords参数<br>        if (arg == NULL) {//没有参数<br>            args[nwords].p = NULL;<br>        } else if (env-&gt;IsInstanceOf(arg, Class_Integer)) {//参数是Integer类对象<br>            //获取Integer对象的整型值，FID_Integer_value是提前计算好的变量ID<br>            args[nwords].i = env-&gt;GetIntField(arg, FID_Integer_value);<br>        } else if (env-&gt;IsInstanceOf(arg, Class_Float)) {//参数是Float对象<br>            //获取Float对象的浮点值，同样FID_Float_value也是提前计算好的变量ID<br>            args[nwords].f = env-&gt;GetFloatField(arg, FID_Float_value);<br>        } else if (env-&gt;IsInstanceOf(arg, Class_CPointer)) {//参数是C指针<br>            //把C指针转换为long类型，获取其值<br>            args[nwords].p = (void <em>) env-&gt;GetLongField(arg, FID_CPointer_peer);<br>        } else if (env-&gt;IsInstanceOf(arg, Class_String)) {//参数是String类型<br>            //把String类型转换为本地编码字符串<br>            char </em> cstr = JNU_GetStringNativeChars(env, (jstring)arg);<br>            if ((args[nwords].p = cstr) == NULL) {<br>                goto cleanup; // 抛出异常<br>            }<br>            is_string[nwords] = JNI_TRUE;//第nwords是String类型<br>        } else {//位置类型，抛出异常<br>            JNU_ThrowByName(env, “java/lang/IllegalArgumentException”, “unrecognized argument type”);<br>            goto cleanup;<br>        }<br>        env-&gt;DeleteLocalRef(arg);//及时删除不再使用的局部引用<br>    }//arr中所有的参数类型均转换完毕，转换后存放在args数组中<br><br>    //FID_CPointer_peer是CPointer.peer的ID，已经提前计算并缓存<br>    void <em>func =  (void </em>)env-&gt;GetLongField(self, FID_CPointer_peer);<br>    int conv = env-&gt;GetIntField(self, FID_CFunction_conv);//得到调用规范<br>    // 现在调用func函数，并获取其返回值<br>    ires = asm_dispatch(func, nwords, args, conv);<br>cleanup:<br>    // 释放上面创建的所有字符串<br>    for (int i = 0; i &lt; nwords; i++) {<br>        if (is_string[i]) {<br>            free(args[i].p);<br>        }<br>    }<br>    return ires;<br>}</pre><br></div><br></div><br></div><br></div><br>上述实现中，我们假定提前计算并缓存了成员变量的ID，比如FID_CPointer_peer是CPointer.peer的ID，FID_CFunction_conv是CFunction.conv的ID，Class_String是java.lang.String类对象的全局引用等等。word_t类型是一个联合体，用于表示一个机器字，定义如下：<br><div class="page" title="Page 135"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">typedef union {<br>       jint i;<br>       jfloat f;<br>       void <em>p;<br>} word_t;</em></pre><br></div><br></div><br></div><br></div><br><div class="page" title="Page 126">Java_CFunction_callInt()函数遍历传入的参数数组arr ，并且检查每个参数的类型：</div><br><div class="page" title="Page 126">1.如果元素是null，那就向底层的原生函数传递NULL指针。</div><br><div class="page" title="Page 126">2.如果元素是java.lang.Integer类型，就获取这个类对象的整型值，并传递给底层的原生函数。</div><br><div class="page" title="Page 126">3.如果元素是java.lang.Float类型，就获取这个类对象的浮点值，并传递给底层的原生函数。</div><br><div class="page" title="Page 126">4.如果元素是java.lang.String类型，就字符串转换为本地编码字符串，并传递给底层的原生函数。</div><br><div class="page" title="Page 126">5.否则，抛出IllegalArgumentException异常。</div><br><div class="page" title="Page 126">在转换参数类型的时候特别要注意出错处理，在函数返回之前释放掉创建的临时资源。</div><br><div class="page" title="Page 126">CFunction.asm_dispatch()函数用于把参数数组args直接转换为底层原生函数可用的参数调用，这也就意味着，这个函数需要直接管理底层原生函数的调用栈，我们使用CPU相关的汇编来实现它：</div><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">int asm_dispatch(void func,   // 底层原生函数指针<br>                 int nwords,   // 参数数组中的参数个数<br>                 word_t *args, // 参数数组地址<br>                 int conv)     //调用规范，0-标准C规范，1-JNI规范<br>    __asm {<br>        mov esi, args<br>        mov edx, nwords<br>        // word address -&gt; byte address<br>        shl edx, 2<br>        sub edx, 4<br>        jc  args_done<br>        // 首先将最后一个参数压入调用栈(函数从右至左压入参数)<br>        args_loop:<br>            mov eax, DWORD PTR [esi+edx]<br>            push eax<br>            sub edx, 4<br>            jge SHORT args_loop<br></pre><br></div><br></div><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">        args_done:<br>            call func<br></pre><br><pre escaped="true">            // 检查调用规范<br>            mov edx, conv<br>            or edx, edx<br>            jnz jni_call<br></pre><br><pre escaped="true">            // 弹出参数<br>            mov edx, nwords<br>            shl edx, 2<br>            add esp, edx<br></pre><br><pre escaped="true">         jni_call:<br>            // done, return value in eax<br>    }<br>}</pre><br></div><br></div>
+
+<p>上面的汇编代码首先把传入的参数数组中的元素复制到底层原生函数func()的栈中，然后调用func()，等func()返回后，再检查func()的调用规范。如果func()遵守标准C调用规范，asm_dispatch()函数把参数从func()的栈中弹出；如果func()遵守JNI调用规范，则不用弹出参数，func()函数会在返回之前自动把参数弹出栈。</p>
+<h1 id="9-5-Peer类"><a href="#9-5-Peer类" class="headerlink" title="9.5 Peer类"></a>9.5 Peer类</h1><p>一对一映射和共享桩都是用来处理封装底层原生函数的问题的。而我们在创建共享桩的时候也遇到了封装原生数据结构的问题。再来看一下CPointer类的定义：</p>
+<pre escaped="true" lang="php" line="1">public abstract class CPointer {
+       protected long peer;
+       public native void copyIn(int bOff, int[] buf,int off,int len);
+       public native void copyOut(...);
+       ... 
+}</pre>
+CPointer类有一个64比特的成员变量peer，用于指向原生数据结构(在本章的例子中，peer指向一片内存区域)。peer变量的具体含义由CPointer类的子类决定。比如，CMalloc类中的peer变量指向C堆中的内存区域。
+
+直接与原生数据结构相关的类称为Peer类，如CPointer、CMalloc。可以为大量的原生数据结构创建Peer类，包括：
+
+1.文件描述符
+
+2.套接字描述符
+
+3.windows或其他图形界面的组件
+
+## 9.5.1 Java平台的Peer类
+
+当前的JDK和Java 2 SDK(1.1或1.2)在内部使用Peer类实现java.io,java.net和java.awt等包。一个java.io.FileDescriptor类对象有一个指向本地文件描述符的私有成员变量fd：
+<div class="page" title="Page 138">
+<div class="section">
+<div class="layoutArea">
+<div class="column">
+<pre escaped="true" lang="php" line="1">// java.io.FileDescriptor类定义
+public final class FileDescriptor {
+    private int fd;
+    ... 
+}</pre>
+</div>
+</div>
+</div>
+</div>
+
+如果你想要的文件操作在Java API中不支持，那么就可以使用JNI找出java.io.FileDescritpor类对象中包含的本地文件描述符。只要你知道成员变量的类型和名称，哪怕它是私有成员，你也可以通过JNI来访问。如果你直接在这个文件描述符上进行文件操作的话，可能会有下面的几个问题：
+
+1.首先，你依赖java.io.FileDescriptior对象的实现，它拥有一个私有成员变量fd用于表示本地文件描述符。然而，一旦Oracle或实现java.io.FileDescriptor类的第三方修改了其实现，如表示本地文件描述符的私有变量名称改为了fileDescriptor而不再是fd，你的代码就会受影响。
+
+2.其次，直接在文件描述符上进行文件操作可能打乱Peer类内部的一致性。比如，java.io.FileDescriptor类对象有一个内部状态，用于指示本地文件描述符是否被关闭了。如果你在原生代码中直接关闭了本地文件描述符，那么Peer类中用于指示本地文件描述符状态的变量就与真实的文件描述符状态不一致。因此，Peer类会假定它拥有唯一的访问本地数据结构的权限，所有对本地数据结构的操作均要通过Peer类进行。
+
+解决上面问题的办法就是定义自己的Peer类来封装本地数据结构。比如，定义一个Peer类封装对本地文件描述符和在其上的一系列文件操作。然而，这种方法也有弊端，比如你不能把自定义的Peer类文件描述符成员变量传递给需要java.io.FileDescriptor类文件描述符成员变量的函数。
+
+## 9.5.2 释放本地数据结构
+
+Peer类是在Java平台定义的，因此垃圾回收机制会自动回收它的对象，然而你必须确保底层的本地数据结构也同时被回收释放了。
+
+比如一定要记得在CMalloc类对象中调用CMallo.free()函数，否则CMalloc对象被垃圾回收机制回收了，但是它指向的C堆中的内存块却一直无法被释放，导致内存泄露。
+
+很多程序员喜欢在Peer类中放入finalizer，以CMalloc类举例：
+<div class="page" title="Page 139">
+<div class="section">
+<div class="layoutArea">
+<div class="column">
+<pre escaped="true" lang="php" line="1">public class CMalloc extends CPointer {
+       public native synchronized void free();
+       protected void finalize() {
+           free(); 
+       }
+       ... 
+}</pre>
+</div>
+</div>
+</div>
+</div>
+
+在虚拟机回收CMalloc类对象之前，会调用该类的finalize方法，这样即使你忘记了手动调用free()方法，虚拟机也会自动调用。
+
+CMalloc.free()方法可能会被重复调用多次，因此我们必须要对其进行小修改，同时也必须在free()方法中使用同步机制，以免引起多线程竞争：
+
+<div class="page" title="Page 140">
+<div class="section">
+<div class="layoutArea">
+<div class="column">
+<pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_CMalloc_free(JNIEnv *env, jobject self)
+{
+    long peer = env-&gt;GetLongField(self, FID_CPointer_peer);
+    if (peer == 0) {
+        return; /* peer在之前已经被释放了，直接返回 */
+    }
+    free((void *)peer);
+    peer = 0;
+    env-&gt;SetLongField(self, FID_CPointer_peer, peer);
+}</pre>
+</div>
+</div>
+</div>
+</div>
+
+注意，上述程序中使用两条语句设定peer的值：
+
+<pre escaped="true" lang="php" line="1">peer = 0;
+env-&gt;SetLongField(self, FID_CPointer_peer, peer);</pre>
+
+<p>而不是一条语句：</p>
+<div class="page" title="Page 140"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">env-&gt;SetLongField(self, FID_CPointer_peer, 0);<br></pre><br></div><br></div><br></div><br></div>
+
+<p>这是因为，某些C++编译器会把常量0作为32比特的整型，而不是64比特。当然，C++可以指定64比特的常量，但是这样移植性差。</p>
+<p>在Peer类中使用finalize方法是保险的做法，但是你不应该将其作为释放本地数据结构的唯一方法。因为本地数据结构很可能比它的Peer类占用更多的内存资源，Java虚拟机在回收Peer类对象时同时也要释放大量的内存资源，速度会变慢。</p>
+<p>如果手动释放本地数据结构的话，必须要保证在每一条返回路径之前都要调用free()方法，否则可能会造成内存泄露。特别注意在Peer类执行期间会抛出异常，在异常处理中也要记得调用free()方法。</p>
+<h2 id="9-5-3-Peer类的回调指针"><a href="#9-5-3-Peer类的回调指针" class="headerlink" title="9.5.3 Peer类的回调指针"></a>9.5.3 Peer类的回调指针</h2><p>上面的几节提到过，Peer类中拥有指向本地数据结构的私有变量。但有时候，在本地数据结构中也包含指向其对应的Peer类对象的引用。比如，在原生代码中需要初始化Peer类对象的成员方法。</p>
+<p>比如，我们创建一个虚拟的用户界面组件KeyInput，它的原生C++组件称为key_input。当用户按下按键之后，操作系统就会回调key_input组件的key_pressed()函数作为对这一事件的响应，而key_input组件通过在key_pressed()函数中回调KeyInput组件的KeyPressed()方法，向KeyInput组件传达这个事件的响应。下图的箭头指示了用户按键的响应是如何从操作系统传达到KeyInput组件的。<a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/key_input.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/key_input.png" alt="key_input"></a></p>
+<p>Peer类KeyInput定义如下：</p>
+<div class="page" title="Page 141"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">class KeyInput {<br>       private long peer;<br>       private native long create();<br>       private native void destroy(long peer);<br>       public KeyInput() {<br>           peer = create();<br>       }<br>       public destroy() {<br>           destroy(peer);<br>       }<br>       private void keyPressed(int key) {<br></pre><br><pre escaped="true">           … /<em> 处理按键事件 </em>/<br>       }<br>}</pre><br></div><br></div><br></div><br></div>
+
+<p>上述定义中，原生函数create()用于为C++结构体key_input的对象分配内存空间。下面是结构体key_input、create()和destroy()函数的定义：</p>
+<div class="page" title="Page 142"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">struct key_input {<br>    jobject back_ptr;         // Peer类对象的回调指针<br>    int key_pressed(int key); // 被操作系统调用<br>};<br>JNIEXPORT jlong JNICALL Java_KeyInput_create(JNIEnv <em>env, jobject self)<br>{<br>    key_input </em>cpp_obj = new key_input();<br>    cpp_obj-&gt;back_ptr = env-&gt;NewGlobalRef(self);<br>    return (jlong)cpp_obj;<br>}<br>JNIEXPORT void JNICALL Java_KeyInput_destroy(JNIEnv <em>env, jobject self, jlong peer)<br>{<br>    key_input </em>cpp_obj = (key_input*)peer;<br>    env-&gt;DeleteGlobalRef(cpp_obj-&gt;back_ptr);<br>    delete cpp_obj;<br>    return;<br>}</pre><br></div><br></div><br></div><br></div>
+
+<p>原生函数create()用于为结构体分配内存空间，并用KeyInput类对象的全局引用初始化其回调指针back_ptr。free()函数则相反，释放掉back_ptr和C++结构体。KeyInput类的构造函数会调用create()函数在它和它对应的原生部分建立联系：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/link.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/link.png" alt="link"></a></p>
+<p>当用户按下按键，操作系统回调C++成员方法key_input::key_pressed()，这个成员方法通过回调KeyInput::KeyPressed()方法来响应这个事件。key_input::key_pressed()方法定义如下：</p>
+<div class="page" title="Page 143"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">// 返回0表示成功，返回-1表示失败<br>int key_input::key_pressed(int key)<br>{<br>       jboolean has_exception;<br>       JNIEnv *env = JNU_GetEnv();//工具函数，在第8章实现过<br>       //下面的工具函数在第6章实现过，根据方法名字调用方法<br>       JNU_CallMethodByName(env,<br>                            &amp;has_exception,<br>                            java_peer,<br>                            “keyPressed”,<br>                            “()V”,<br>                            key);<br>       if (has_exception) {//如果发生了异常，就清除挂起的异常，立即返回<br>           env-&gt;ExceptionClear();<br>           return -1;<br>       } else { //否则，返回成功<br>           return 0;<br>       }<br>}</pre><br></div><br></div><br></div><br></div>
+
+<p>在结束本小节之前，再讨论一个小问题。假如，为了避免潜在的内存泄露问题，你再KeyInput类中假如了finalize方法：</p>
+<div class="page" title="Page 143"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">class KeyInput {<br>       …<br>       public synchronized destroy() {<br>           if (peer != 0) {<br>               destroy(peer);<br>               peer = 0;<br>           }<br>       }<br>       protect void finalize() {<br>           destroy();<br>       }<br>}</pre><br></div><br></div><br></div><br></div>
+
+<p>其中，destroy()方法被定义为同步方法，避免多线程竞争。在destroy()方法内首先检查peer变量是否为0，然后调用其重载的destroy()方法释放peer变量指向的资源，并将其值赋为0.</p>
+<p>然而，上述代码并不会达到预期目的。除非你显式的调用destroy()方法，否则虚拟机永远都不会回收任何的KeyInput类对象。</p>
+<p>在前面的实现代码中可以看到，KeyInput类构造函数会调用原生函数KeyInput::create()，而create()函数创建了KeyInput对象的JNI全局引用，用于初始化C++结构体key_input的回调指针。这样一来，这个全局引用就会阻止虚拟机回收任何的KeyInput对象。解决的办法就是用弱全局引用替代全局引用：</p>
+<div class="page" title="Page 144"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true">JNIEXPORT jlong JNICALL Java_KeyInput_create(JNIEnv <em>env, jobject self)<br>{<br>    key_input </em>cpp_obj = new key_input();<br>    cpp_obj-&gt;back_ptr = env-&gt;NewWeakGlobalRef(self);<br>    return (jlong)cpp_obj;<br>}<br><br>JNIEXPORT void JNICALL Java_KeyInput_destroy(JNIEnv <em>env, jobject self, jlong peer)<br>{<br>    key_input </em>cpp_obj = (key_input*)peer;<br>    env-&gt;DeleteWeakGlobalRef(cpp_obj-&gt;back_ptr);<br>    delete cpp_obj;<br>    return;<br>}</pre><br></div><br></div><br></div><br></div>
+
+<p>好了，本章的内容到此结束。在本章中，介绍了封装已经存在的原生库中的原生函数的两种方法：一对一映射和使用共享桩；也介绍了封装本地数据结构的Peer类。</p>
+<div class="page" title="Page 126"></div>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/27/jni8th-additional-features/" rel="next" title="JNI技术解析第八章 JNI的其他特性">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第八章 JNI的其他特性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/13/jni10th-traps-pitfalls/" rel="prev" title="JNI技术解析第10章 JNI中陷阱和常犯的错误">
+                JNI技术解析第10章 JNI中陷阱和常犯的错误 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#9-1-一对一映射"><span class="nav-number">1.</span> <span class="nav-text">9.1 一对一映射</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#9-4-3-CFunction类"><span class="nav-number">1.1.</span> <span class="nav-text">9.4.3 CFunction类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9-5-Peer类"><span class="nav-number">2.</span> <span class="nav-text">9.5 Peer类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#9-5-3-Peer类的回调指针"><span class="nav-number">2.1.</span> <span class="nav-text">9.5.3 Peer类的回调指针</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

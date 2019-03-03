@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="第二章以一个非常简单的HelloWorld示例演示了使用JNI技术Java调用C，Java程序只是单纯的调用了C程序，C程序不接受任何参数（除了必须的JNIEnv和jobject外），也不提供返回值。但是，真实项目中很少有机会碰到这么简单的使用JNI的情况，大部分情况是C代码接受参数，也有返回值。这样就涉及到了两种语言之间不同类型的转换。如Java中int与C的int可能定义不同，String与c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第三章 Java与C的基本类型、字符串和数组">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/12/jni-tech3/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="第二章以一个非常简单的HelloWorld示例演示了使用JNI技术Java调用C，Java程序只是单纯的调用了C程序，C程序不接受任何参数（除了必须的JNIEnv和jobject外），也不提供返回值。但是，真实项目中很少有机会碰到这么简单的使用JNI的情况，大部分情况是C代码接受参数，也有返回值。这样就涉及到了两种语言之间不同类型的转换。如Java中int与C的int可能定义不同，String与c">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.24.17.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-22.38.39.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第三章 Java与C的基本类型、字符串和数组">
+<meta name="twitter:description" content="第二章以一个非常简单的HelloWorld示例演示了使用JNI技术Java调用C，Java程序只是单纯的调用了C程序，C程序不接受任何参数（除了必须的JNIEnv和jobject外），也不提供返回值。但是，真实项目中很少有机会碰到这么简单的使用JNI的情况，大部分情况是C代码接受参数，也有返回值。这样就涉及到了两种语言之间不同类型的转换。如Java中int与C的int可能定义不同，String与c">
+<meta name="twitter:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.24.17.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/12/jni-tech3/">
+
+
+
+
+
+  <title>JNI技术解析第三章 Java与C的基本类型、字符串和数组 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/12/jni-tech3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第三章 Java与C的基本类型、字符串和数组</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-12T01:54:18+07:00">
+                2015-05-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>第二章以一个非常简单的HelloWorld示例演示了使用JNI技术Java调用C，Java程序只是单纯的调用了C程序，C程序不接受任何参数（除了必须的JNIEnv<em>和jobject外），也不提供返回值。但是，真实项目中很少有机会碰到这么简单的使用JNI的情况，大部分情况是C代码接受参数，也有返回值。这样就涉及到了两种语言之间不同类型的转换。如Java中int与C的int可能定义不同，String与char</em>不同，数组也不同，因此，下面仍然结合示例程序，讲一下两种语言如何类型转换。在下面的讲解中，不会重复出现第二章中已经讲过的命令使用方法和配置环境变量等，如果需要请看第二章内容。本章只会贴出Java和C的源代码，并讲解其中的知识点，javac，javah，gcc等命令的用法不再出现。</p>
+<p>本章使用到的函数可以在<a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html" target="_blank" rel="noopener">JNI函数列表</a>页面详细了解函数原型、参数解释、返回值及注意事项等。本章只对函数的使用方法和重要的地方做介绍。</p>
+<h2 id="一、调用带参数和返回值的原生方法"><a href="#一、调用带参数和返回值的原生方法" class="headerlink" title="一、调用带参数和返回值的原生方法"></a>一、调用带参数和返回值的原生方法</h2><p>这个示例程序中，原生方法的原型为：String getLine(String prompt);。Java提供一个字符串，调用getLine函数，该函数打印这个字符串，并从终端获取用户输入，返回给Java程序。结合这个例子，可以讲解Java与C转换字符串类型和基本类型。</p>
+<a id="more"></a>
+<h3 id="1-Java程序"><a href="#1-Java程序" class="headerlink" title="1.Java程序"></a>1.Java程序</h3><pre escaped="true" lang="java" line="1">class Prompt {
+    //原生函数原型
+    private native String getLine(String prompt);
+    public static void main(String argv[]) {
+        Prompt p = new Prompt();
+        //提供参数调用原生函数，接受返回值并打印。
+        String input = p.getLine("Type a line: ");
+        System.out.println("In Java: " + input);
+    }   
+    static{
+        System.loadLibrary("Prompt");
+    }
+}</pre>
+除了调用带参数和返回值的函数外，这个Java程序没有任何新知识，有不明白的地方可以看第二章。
+
+### 2.C语言原生程序
+
+<pre escaped="true" lang="java" line="0">#include &lt;jni.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include "Prompt.h"
+//该函数出了接受必须的JNIEnv*和jobject参数外，还接受了jstring参数。
+//jstring参数就是Java中提供的字符串，也就是String prompt。
+JNIEXPORT jstring JNICALL Java_Prompt_getLine(JNIEnv *env, jobject obj, jstring p) 
+{
+    //获取Java String中的内容，即完成Java字符串到C语言char*的转换。
+    const char *prompt = (*env)-&gt;GetStringUTFChars(env, p, NULL);
+    if(NULL == prompt)
+        return NULL;
+    printf("In C: %s", prompt);
+    //打印之后，不再使用该字符串了，可以释放，以便Java的GC回收内存。
+    (*env)-&gt;ReleaseStringUTFChars(env, p, prompt);
+    //获取用户输入，并将C语言的char*转换为Java的String。
+    char buf[256];
+    memset(buf, 0, sizeof buf);
+    scanf("%s", buf);
+    return (*env)-&gt;NewStringUTF(env, buf);
+}</pre>
+<pre escaped="true" lang></pre>
+
+<p>编译运行这个项目，如下图所示：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.24.17.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.24.17.png" alt="Screen Shot 2015-04-26 at 23.24.17"></a></p>
+<p>下面说一下原生函数必须接受的两个参数。</p>
+<h4 id="2-1JNIEnv-："><a href="#2-1JNIEnv-：" class="headerlink" title="2.1JNIEnv*："></a>2.1JNIEnv*：</h4><p>它是一个指针，指向一个列表的某个元素，这个元素也是一个指针，指向JNI定义的函数功能列表，这个列表的每一个元素都是一个JNI函数指针，原生方法通过调用这些函数指针完成相应的JNI功能，如读取Java中的数组，访问Java类中的成员变量等等。说着有点儿绕，看下图： <a href="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-22.38.39.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-22.38.39.png" alt="Screen Shot 2015-04-26 at 22.38.39"></a>   在JNIEnv*指向的列表中，除了Pointer，还有Java虚拟机定义的内部数据结构，这些数据结构包括Java String、数组和类在内存中如何布局等等，用户无法直接访问这些底层的数据结构，只能通过JNI函数来获取数据结构中的值。</p>
+<h4 id="2-2jobject或jclass"><a href="#2-2jobject或jclass" class="headerlink" title="2.2jobject或jclass"></a>2.2jobject或jclass</h4><p>这是原生方法接受的第二个参数，这个参数有两种可能的类型，一种是jobject，另一种是jclass。当原生函数在Java类中声明为非static，如本例中的原型private native String getLine(String prompt);此时，经过javah转换后的原生函数原型的第二个参数就为jobject；如果在Java类中声明为static，如private native static String getLine(String prompt);此时，第二个参数就为jclass。这很好理解，每个类的实例(也叫对象)都有用一份非static类成员的副本，而类的所有实例都共享一个static类成员。所以，如果是非static的原生方法，则需要用jobjcet来确定该方法所属的实例，而如果是static，则通过jclass来确定该方法所属的类即可。</p>
+<h3 id="3-类型映射"><a href="#3-类型映射" class="headerlink" title="3.类型映射"></a>3.类型映射</h3><p>根据Java中的不同类型，JNI定义了相关的C和C++类型与之对应。Java中有两种类型分类，一种是基本类型，如int、float等；另一种是引用类型，如类、对象、数组等。Java中的String就是java.lang.String类，所以它属于引用类型。对这两种分类，JNI映射机制不同。对于基本类型，JNI直接映射。对于引用类型，对程序员来讲是不透明的，它们指向Java虚拟机中的内部数据结构，对程序员隐藏了这些数据结构的具体布局和存储细节。在原生代码中，必须通过JNIEnv接口指针调用JNI函数使用和管理内部对象。比如，前面代码中提到使用JNI函数GetStringUTFChars()获取jstring引用的数据。JNI引用的父类型是jobject，为了方便和提高类型安全，JNI也定义了一系列jobject的子类型，这些子类型是Java中经常用到的引用类型。如jstring对应String，jobjectArray指向对象数组。</p>
+<h4 id="3-1基本类型"><a href="#3-1基本类型" class="headerlink" title="3.1基本类型"></a>3.1基本类型</h4><p><span style="color: #ff0000;">对于基本类型，JNI直接映射。</span>如int对应jint（有符号32位整型），float对应jfloat（32位浮点型），double对应jdouble，Boolean对应jboolean等等。直接映射就说明可以在原生函数中直接读取Java中基本类型变量的值。下面的对上面的示例程序稍作修改，代码如下：</p>
+<h5 id="3-1-1-Java代码"><a href="#3-1-1-Java代码" class="headerlink" title="3.1.1 Java代码"></a>3.1.1 Java代码</h5><pre escaped="true" lang="java" line="1">class Prompt {
+    private native int getLine(int i); 
+    public static void main(String argv[]) {   
+        Prompt p = new Prompt();
+        int i = p.getLine(3);
+        System.out.println("In Java: " + i); 
+    }   
+    static {   
+        System.loadLibrary("Prompt");
+    }   
+}</pre>
+修改了原生函数的原型，接受参数为int，返回int。
+
+##### 3.1.2 C代码
+
+<pre escaped="true" lang="java，0">JNIEXPORT jint JNICALL Java_Prompt_getLine(JNIEnv *env, jobject obj, jint i）{
+    int j = i + 2;
+    printf("In C: i = %d, j = %dn", i, j);
+    return j;
+}</pre>
+因为参数为jint类型，是C中int与Java中的int直接映射，因此可以直接访问基本类型的变量的值。
+
+编译后运行，效果如下：
+
+[![Screen Shot 2015-04-26 at 23.31.51](http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.31.51.png)](http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-26-at-23.31.51.png)
+
+#### 3.2获取字符串值
+
+字符串在Java中为引用类型，不能zhi直接被映射，需要使用JNI函数才能进行访问。所以，类似如下的原生代码肯定会引起错误：
+<pre escaped="true" lang="java" line="1"></pre>
+<pre escaped="true" lang="java" line="1">jstring prompt;//prompt是从原生函数的参数中得到的，假设不为空。
+printf("%s", prompt);//不能直接访问引用类型，会引起错误甚至虚拟机崩溃。</pre>
+
+<h5 id="3-2-1-转换为原生字符串"><a href="#3-2-1-转换为原生字符串" class="headerlink" title="3.2.1 转换为原生字符串"></a>3.2.1 转换为原生字符串</h5><p>把jstring对象转换为C/C++字符串，这种转换支持到/从Unicode和UTF-8字符串。可以使用JNI函数<span style="color: #ff0000;">GetStringUTFChars()</span>获取jstring的内容。这个函数把Unicode编码的Java jstring对象转换为UTF-8编码的C/C++原生字符串。转换后，就可以调用printf()等函数对其进行操作。代码片段如下：</p>
+<pre escaped="true" lang="php" line="1">//获取Java String中的内容，即完成Java字符串到C语言char*的转换。
+    const char *prompt = (*env)-&gt;GetStringUTFChars(env, p, NULL);
+    if(NULL == prompt)
+        return NULL;
+    printf("In C: %s", prompt);</pre>
+千万不要忘记<span style="color: #ff0000;">检查GetStringUTFChars()函数的返回值是否有效</span>。因为转换为UTF-8编码的字符串是需要分配一定空间的，这就存在分配不成功的问题。一旦分配失败，该函数返回NULL，并且抛出OutOfMemoryError异常。后面章节会详细介绍原生代码抛出异常的相关知识，这里简单说一下。在JNI中抛出异常与在Java中不同，抛出的异常不会自动改变原生代码的执行流，因此这里需要显式的使用return NULL;语句立刻从原生代码中返回。返回后，抛出的异常就可以被原生函数的调用者捕获，从而进行一场处理。
+
+##### 3.2.2 及时释放不再使用的字符串资源
+
+当原生代码中不再使用字符串引用时，在本章的例子中就是使用GetStringUTFChars()函数转换后的字符串，必须要及时释放掉。<span style="color: #ff0000;">释放字符串资源可以使用JNI函数ReleaseStringUTFChars()。</span>调用这个方法就表示从GetStringUTFChars()函数返回的字符串不再使用，为它分配的内存空间可以被释放。如果调用这个函数失败，会造成内存泄漏，甚至耗光内存。代码片段如下：
+<pre escaped="true" lang="java" line="0">//打印之后，不再使用该字符串了，可以释放，以便Java的GC回收内存。
+    (*env)-&gt;ReleaseStringUTFChars(env, p, prompt);</pre>
+
+<h5 id="3-2-3-创建新的字符串"><a href="#3-2-3-创建新的字符串" class="headerlink" title="3.2.3 创建新的字符串"></a>3.2.3 创建新的字符串</h5><p>可以调用JNI函数<span style="color: #ff0000;">NewStringUTF()创建新的Java String字符串对象</span>。改函数把UTF-8编码的C/C++字符串转换为UniCode编码的Java String对象，并返回改对象的引用。同样的，如果内存不足导致分配失败，该函数返回NULL并抛出OutOfMemory异常。但与GetStringUTFChars()函数不同的是，我们不需要检查其返回值，因为在本章中改函数是原生代码中最后一条语句，直接返回其值即可。如果分配成功，就可以把转换后的Java String返回给原生函数的调用者，如果分配失败，就把NULL返回原生函数的调用者，调用者捕获异常并处理异常。代码片段如下：</p>
+<pre escaped="true" lang="java" line="0">//获取用户输入，并将C语言的char*转换为Java的String。
+    char buf[256];
+    memset(buf, 0, sizeof buf);
+    scanf("%s", buf);
+    return (*env)-&gt;NewStringUTF(env, buf);</pre>
+
+<h5 id="3-2-4-其他JNI字符串函数介绍"><a href="#3-2-4-其他JNI字符串函数介绍" class="headerlink" title="3.2.4 其他JNI字符串函数介绍"></a>3.2.4 其他JNI字符串函数介绍</h5><p>除了前面提到的GetStringUTFChars()、ReleaseStringUTFChars()和NewStringUTF()以外，JNI还包括了大量的字符串相关的函数。</p>
+<p><span style="color: #ff0000;">GetStringChars与ReleaseStringChars()读取jstring的字符串，将其保存为Unicode编码格式。</span>Unicode编码的字符串不像C字符串那样以’ ’结尾，所以不能使用strlen()等函数计算其长度，要使用JNI函数GetStringLength()方法获取Unicode编码的字符串。而UTF-8编码的字符串是以’ ’结尾，所以既可以使用strlen()函数，也可以使用JNI函数GetStringUTFLength()计算其长度。</p>
+<p>GetStringChars()与GetStringUTFChars()函数接受第三个参数，原型如下：</p>
+<pre escaped="true" lang="php" line="1">const jchar *GetStringChars(JNIEnv *env, jstring str, jboolean *isCopy);
+const jchar *GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy);</pre>
+isCopy参数用于向程序员表明这两个函数返回值的情况。如果返回的值是str的副本的指针，也就是说原生代码重新为转换后的字符串分配内存空间，拷贝src的数据，把这个内存空间的地址作为返回值返回，那么isCopy就为JNI_TRUE。如果返回值为src的指针，即不拷贝数据，则isCopy为JNI_FALSE，在这种情况下，<span style="color: #ff0000;">原生代码就不能修改src的数据</span>，否则Java程序中相关的String参数的值也会跟着变。通常情况下，我们并不关心返回值是副本还是直接指针，因为我们不去修改，所以isCopy这个参数一般传递NULL作为实参。
+
+通常无法预测虚拟机是返回副本还是返回直接指针。程序员必须假设虚拟机会花费时间分配内存，拷贝数据，返回副本。虚拟机会把对象分配到堆中，一旦返回直接指针，虚拟机就不能再将对象分配到堆中，而是“钉住”(pin)Java String对象。由于过度使用“钉住”这种方式容易导致内存碎片化，因此虚拟机可能根据情况对每个GetString(UTF)Chars()函数返回Java String对象的副本或返回其直接指针。当不再使用GetStringChars()返回的字符串时，必须记得使用ReleaseStringChars()释放，虚拟机根据isCopy的值释放掉分配的内存或unpin对象。
+
+##### 3.2.5 Java 1.2中新的字符串函数
+
+为了提高直接返回指针的可能性(直接返回指针避免了数据拷贝)，Java 1.2推出了一对函数：<span style="color: #ff0000;">Get/ReleaseStringCritical()</span>。它们与Get/ReleaseString(UTF)Chars()函数一样，尽可能的返回直接指针，否则返回副本。但是使用前者有很重要的约束，那就是在这对函数之间的代码不能够阻塞、引起死锁或动态分配内存等，否则会导致虚拟机崩溃。这一个限制可以让虚拟机在这对函数包含的区域中禁用垃圾回收(Garbage Collection),也就是说虚拟机暂时不再管理这块代码中的内存情况(如对直接指针的pin活unpin)，但此时垃圾回收机制被禁用了，此进程的其想要使用垃圾回收机制的线程就会被阻塞，直到执行流跳出这对函数包含的区域。因此，在<span style="color: #ff0000;">这段区域中不允许阻塞调用（如等待文件IO）、动态分配对象（malloc或new）和调用任何其他的JNI函数(除了Get/ReleaseStringCritical()和Get/ReleasePrimitiveArrayCritical()函数外)，否则可能让虚拟机陷入死锁，导致程序崩溃。这个函数对可以任意嵌套</span>，示例代码如下：
+<pre escaped="true" lang="php" line="1">jchar *s1, *s2;
+s1 = (*env)-&gt;GetStringCritical(env, jstr1);
+if (s1 == NULL) {... /* error handling */}
+s2 = (*env)-&gt;GetStringCritical(env, jstr2);
+if (s2 == NULL) 
+{
+    (*env)-&gt;ReleaseStringCritical(env, jstr1, s1);
+    ... /* error handling */
+}
+/* use s1 and s2 */
+(*env)-&gt;ReleaseStringCritical(env, jstr1, s1);
+(*env)-&gt;ReleaseStringCritical(env, jstr2, s2);</pre>
+可以看到，s1与s2的函数对没有严格的先后关系，这就是说可以随意嵌套。
+
+另外两个有用的新函数是GetStringUTFRegion()和GetStringRegion()。这两个函数把jstring转换后拷贝到预先定义好了的数组/容器中。3.1.2节的代码可以作如下修改：
+<pre escaped="true" lang="php" line="1">JNIEXPORT jstring JNICALL Java_Prompt_getLine(JNIEnv *env, jobject obj, jstring prompt)
+{
+    char outbuf[128], inbuf[128];
+    int len = (*env)-&gt;GetStringLength(env, prompt);
+    (*env)-&gt;GetStringUTFRegion(env, prompt, 0, len, outbuf);
+    printf("%s", outbuf);
+    scanf("%s", inbuf);
+    return (*env)-&gt;NewStringUTF(env, inbuf);
+}</pre>
+
+<h5 id="3-2-6-使用字符串函数的建议"><a href="#3-2-6-使用字符串函数的建议" class="headerlink" title="3.2.6 使用字符串函数的建议"></a>3.2.6 使用字符串函数的建议</h5><p>最好使用GetString(UTF)Region()函数，因为它不必管理内存，内存的分配和管理交给用户，效率高，不容易出错。如果确定代码块不会造成阻塞或死锁等情况，可以使用Get/ReleaseStringCritical()函数，因为它们可以返回jstring的直接指针，免去数据拷贝。当然，最简单常用的还是Get/ReleaseString(UTF)Chars()函数。</p>
+<h4 id="3-3-访问数组"><a href="#3-3-访问数组" class="headerlink" title="3.3 访问数组"></a>3.3 访问数组</h4><p>数组包括基本数据类型数组如int[]，和对象数组如object[]。在JNI中不存在二维数组，二维数组就是数组的数组，属于对象数组，以此类推。</p>
+<h5 id="3-3-1-访问基本数据类型数组"><a href="#3-3-1-访问基本数据类型数组" class="headerlink" title="3.3.1 访问基本数据类型数组"></a>3.3.1 访问基本数据类型数组</h5><p>我们以一个例子讲解：在Java中创建int[]，调用原生函数计算int[]中所有元素的和。</p>
+<p>Java代码如下：</p>
+<p><pre escaped="true" lang="php" line="1">class IntArray {<br>    private native int sumArray(int[] arr);<br>    public static void main(String[] args) {<br>        IntArray p = new IntArray();<br>        int arr[] = new int[10];<br>        for (int i = 0; i &lt; 10; i++) {arr[i] = i; }<br>        //调用原生方法sumArray()求给定int[]的和<br>        int sum = p.sumArray(arr);<br>        System.out.println(“sum = “ + sum);<br>    }<br>    static {<br>        System.loadLibrary(“IntArray”);<br>    }<br>}</pre></p>
+<div class="page" title="Page 40">在原生代码中，使用jarray表示数组类型，它也拥有子类型，如jintArray,jbooleanArray等等。与jstring一样，它们是引用类型，不能在原生代码中直接访问，必须先调用JNI函数获取数据，再处理。sumArray()函数实现的C代码如下：</div><br><div class="page" title="Page 40"><br><div class="page" title="Page 48"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jint JNICALL Java_IntArray_sumArray(JNIEnv <em>env, jobject obj, jintArray arr)<br>{<br>    jint buf[10];<br>    jint i, sum = 0;<br>    //读取arr[0]到arr[9]共10个int型元素，并复制到buf中<br>    (</em>env)-&gt;GetIntArrayRegion(env, arr, 0, 10, buf);<br>    for (i = 0; i &lt; 10; i++)<br>        sum += buf[i];<br>    return sum;<br>}</pre><br></div><br></div><br></div><br></div><br></div><br><div class="page" title="Page 40">与GetString(UTF)Region()函数一样，<span style="color: #ff0000;">GetIntArrayRegion()函数也会把jarray的数据拷贝到预先定义好的缓冲区中</span>。该函数的第3个参数是要复制的jarray数组的开始下标，第4个参数是要读多少个元素。<span style="color: #ff0000;">SetIntArrayRegion()函数允许用户将C/C++的int数组写入到jintArray中</span>。当然，<span style="color: #ff0000;">Get/Set&lt;Primitive Type&gt;ArrayRegion()</span>函数对支持所有的基本数据类型数组的读取和写入。</div><br><div class="page" title="Page 40">JNI也提供了另一对函数用于读取和写入基本数据类型数组：<span style="color: #000000;"><span style="color: #ff0000;">Get/Release&lt;Primitive Type&gt;ArrayElements()</span>。这一对函数返回基本数据类型数组元素的直接指针，但有时虚拟机的垃圾回收机制不支持这种形式，所以也可能返回副本的指针。用这一对函数重写上面的C代码：</span></div><br><div class="page" title="Page 40"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jint JNICALL Java_IntArray_sumArray(JNIEnv <em>env, jobject obj, jintArray arr)<br>{<br>    jint </em>carr;<br>    jint i, sum = 0;<br>    carr = (<em>env)-&gt;GetIntArrayElements(env, arr, NULL);<br>    if (carr == NULL)<br>        return 0; /</em> exception occurred <em>/<br>    for (i=0; i&lt;10; i++)<br>        sum += carr[i];<br>    (</em>env)-&gt;ReleaseIntArrayElements(env, arr, carr, 0);<br>    return sum;<br>}</pre><br></div><br><div class="page" title="Page 40"><span style="color: #ff0000;">GetArrayLength()函数返回数组(基础数据类型或对象类型)的元素个数</span>。<span style="color: #ff0000;">Get/ReleasePrimitiveArrayCritical()</span>函数可以像Get/ReleaseStringCritical()函数一样，在其包含的代码块中禁止使用垃圾回收机制，可以返回数组元素的直接指针，避免数据拷贝。不过同样，也要注意在这段代码区域不能造成阻塞、死锁、调用JNI函数等。<br>对于基础数据类型数组的访问，建议使用Get/Set&lt;Primitive Type&gt;ArrayRegion()函数对读取、写入jarray函数。当确定代码块不会导致阻塞等情况时尽可能使用Get/ReleasePrimitiveArrayCritical()函数对。还可以选择Get/Release&lt;Primitive Type&gt;ArrayElements()函数对。</div>
+
+<h5 id="3-3-2-访问对象数组"><a href="#3-3-2-访问对象数组" class="headerlink" title="3.3.2 访问对象数组"></a>3.3.2 访问对象数组</h5><p>JNI为对象数组提供了单独的一对函数用于读写其元素：Get/SetObjectArrayElement()函数。不能一次性拷贝多个对象元素，只能一次获取一个。</p>
+<p>下面的例子在原生代码中创建并初始化二维整型数组int[][]，在Java中打印元素。注意，二维数组在JNI中表示为数组的数组，因此属于对象数组。</p>
+<p>Java代码：</p>
+<div class="page" title="Page 52"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">class ObjectArrayTest {<br>    private static native int[][] initInt2DArray(int size);<br>    public static void main(String[] args) {<br>        //调用原生方法initInt2DArray()函数初始化二维数组，参数是维数。<br>        //在这表示3<em>3大小的int数组<br>        int[][] i2arr = initInt2DArray(3);<br>        for (int i = 0; i &lt; 3; i++) {<br>            for (int j = 0; j &lt; 3; j++) {<br>                System.out.print(“ “ + i2arr[i][j]);<br>            }<br>            System.out.println();<br>        }<br>    }<br>    static {<br>        System.loadLibrary(“ObjectArrayTest”);<br>    }<br>}</em></pre><br></div><br></div><br></div><br></div><br><div class="page" title="Page 40">相应的C代码如下：</div><br><div class="page" title="Page 40"><br><div class="page" title="Page 53"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT jobjectArray JNICALL Java_ObjectArrayTest_initInt2DArray(JNIEnv env, jclass cls, int size)<br>{<br>    //定义对象数组。<br>    jobjectArray result;<br>    int i;<br>    //int[]类型的引用<br>    jclass intArrCls = (<em>env)-&gt;FindClass(env, “[I”);<br>    if (intArrCls == NULL)<br>        return NULL; /</em> exception thrown <em>/<br>    result = (</em>env)-&gt;NewObjectArray(env, size, intArrCls, NULL);<br>    if (result == NULL)<br>        return NULL; /<em> out of memory error thrown </em>/<br>    for (i = 0; i &lt; size; i++)<br>    {<br>        jint tmp[256];  /<em> make sure it is large enough! </em>/<br>        int j;<br>        jintArray iarr = (<em>env)-&gt;NewIntArray(env, size);<br>        if (iarr == NULL)<br>            return NULL; /</em> out of memory error thrown <em>/<br>        for (j = 0; j &lt; size; j++)<br>            tmp[j] = i + j;<br>        (</em>env)-&gt;SetIntArrayRegion(env, iarr, 0, size, tmp);<br>        (<em>env)-&gt;SetObjectArrayElement(env, result, i, iarr);<br>        (</em>env)-&gt;DeleteLocalRef(env, iarr);<br>    }<br>    return result;<br>}</pre><br></div><br></div><br></div><br></div><br></div><br><div class="page" title="Page 40">下面详细讲解一下这个C代码。</div><br><div class="page" title="Page 40">1.调用<span style="color: #ff0000;">FindClass()函数获取其第二个参数指定的类型的引用</span>。如果失败(比如找不到这种类型或内存溢出等)，就返回NULL并抛出异常(还记得吧，原生代码抛出异常之后尽快返回到Java中，让Java的异常处理机制捕获并处理异常)。它的第二个参数为”[I”，在第2章提到过，这是JNI类标志符，用于区分不同的类型。在这里表示int[]——整型数组类型。这个函数在Java类中寻找int[]类型，并返回其引用。</div><br><div class="page" title="Page 40">2.<span style="color: #ff0000;">NewObjectArray()函数使用FindClass()函数返回的类型引用创建size大小的对象数组，它只分配第一维</span>。失败就返回NULL并抛出异常。</div><br><div class="page" title="Page 40">3.<span style="color: #ff0000;">NewIntArray()函数创建int[]数组</span>，这里创建的iarr是对象数组中的一个对象元素(我们要创建并初始化二维数组，每一个对象表示一个一维数组)。失败返回NULL并抛出异常。</div><br><div class="page" title="Page 40">4.SetIntArrayRegion()函数在上一小节的基本数据类型数组访问中讲到，是写入基础数据类型数组的。</div><br><div class="page" title="Page 40">5.<span style="color: #ff0000;">SetObjectarrayElement()函数是写入对象数组的，一次性只能写入一个数组元素</span>，在这个例子中也就是一个一维数组。把iarr基础数据类型数组写入到result对象数组的下标为i的位置上。</div><br><div class="page" title="Page 40">6.<span style="color: #ff0000;">DeleteLocalRef()函数用于删除不再使用的局部引用</span>。这个例子是删除iarr。因为在这个循环中，每一次都要创建一个新的int[]数组作为对象数组的元素，如果循环次数过多，会导致原生代码创建大量的无用的局部引用，浪费了大量的内存空间。因此，JNI默认可以创建16个局部引用，如果想要更多，需要调用JNI函数申请，这个后面章节会介绍。在循环结束前，删除掉不再使用的局部变量，允许垃圾回收机制回收这部分内存。</div><br><div class="page" title="Page 40">这个例子打印的结果为：</div><br><div class="page" title="Page 40"><br><div class="page" title="Page 54"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">0 1 2<br><br>1 2 3<br><br>2 3 4</pre><br></div><br></div><br></div><br></div><br></div><br><div class="page" title="Page 40">好啦，本章的内容就全部介绍完了。比较重要的函数都用红色字体标出来了，而且贴出的代码都是本人实现过的。在看本文的介绍时，可以打开本文开始给的JNI函数列表的网页，详细了解这些函数的原型、参数、返回值和使用注意事项等。</div><br><div class="page" title="Page 40">如果有疑问，请注册留言或发邮件<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a></div><br><div class="page" title="Page 40"></div>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/04/23/jni-tech2/" rel="next" title="JNI技术解析第二章 初探JNI">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第二章 初探JNI
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/12/android-studio-javah/" rel="prev" title="在Android Studio中使用javah生成头文件">
+                在Android Studio中使用javah生成头文件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、调用带参数和返回值的原生方法"><span class="nav-number">1.</span> <span class="nav-text">一、调用带参数和返回值的原生方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Java程序"><span class="nav-number">1.1.</span> <span class="nav-text">1.Java程序</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1JNIEnv-："><span class="nav-number">1.1.1.</span> <span class="nav-text">2.1JNIEnv*：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2jobject或jclass"><span class="nav-number">1.1.2.</span> <span class="nav-text">2.2jobject或jclass</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-类型映射"><span class="nav-number">1.2.</span> <span class="nav-text">3.类型映射</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1基本类型"><span class="nav-number">1.2.1.</span> <span class="nav-text">3.1基本类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-1-Java代码"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">3.1.1 Java代码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-1-转换为原生字符串"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">3.2.1 转换为原生字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-3-创建新的字符串"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">3.2.3 创建新的字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-4-其他JNI字符串函数介绍"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">3.2.4 其他JNI字符串函数介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-6-使用字符串函数的建议"><span class="nav-number">1.2.1.5.</span> <span class="nav-text">3.2.6 使用字符串函数的建议</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-访问数组"><span class="nav-number">1.2.2.</span> <span class="nav-text">3.3 访问数组</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-1-访问基本数据类型数组"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">3.3.1 访问基本数据类型数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-2-访问对象数组"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">3.3.2 访问对象数组</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

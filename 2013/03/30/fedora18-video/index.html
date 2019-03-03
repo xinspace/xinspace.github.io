@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="装了fedora18之后，就一直努力解决自带的video视频播放器不能播放视频音频。 用video打开视频之后，总会弹出提示框说需要xxxx插件，是否搜寻（search），然后点击search之后，又说找不到。我了个去，这不是要命嘛。 在我的不懈努力下，终于还是解决了这个问题啦～ 步骤如下： 1.在命令行输入：su -c ‘yum localinstall –nogpgcheck http://m">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fedora18自带的video视频播放器不能播放视频(rmvb和avi)和音频(mp3)">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/03/30/fedora18-video/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="装了fedora18之后，就一直努力解决自带的video视频播放器不能播放视频音频。 用video打开视频之后，总会弹出提示框说需要xxxx插件，是否搜寻（search），然后点击search之后，又说找不到。我了个去，这不是要命嘛。 在我的不懈努力下，终于还是解决了这个问题啦～ 步骤如下： 1.在命令行输入：su -c ‘yum localinstall –nogpgcheck http://m">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-011923-300x62.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="fedora18自带的video视频播放器不能播放视频(rmvb和avi)和音频(mp3)">
+<meta name="twitter:description" content="装了fedora18之后，就一直努力解决自带的video视频播放器不能播放视频音频。 用video打开视频之后，总会弹出提示框说需要xxxx插件，是否搜寻（search），然后点击search之后，又说找不到。我了个去，这不是要命嘛。 在我的不懈努力下，终于还是解决了这个问题啦～ 步骤如下： 1.在命令行输入：su -c ‘yum localinstall –nogpgcheck http://m">
+<meta name="twitter:image" content="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-011923-300x62.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/03/30/fedora18-video/">
+
+
+
+
+
+  <title>fedora18自带的video视频播放器不能播放视频(rmvb和avi)和音频(mp3) | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/03/30/fedora18-video/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">fedora18自带的video视频播放器不能播放视频(rmvb和avi)和音频(mp3)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-03-30T16:22:27+07:00">
+                2013-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>装了fedora18之后，就一直努力解决自带的video视频播放器不能播放视频音频。</p>
+<p>用video打开视频之后，总会弹出提示框说需要xxxx插件，是否搜寻（search），然后点击search之后，又说找不到。我了个去，这不是要命嘛。</p>
+<p>在我的不懈努力下，终于还是解决了这个问题啦～</p>
+<p>步骤如下：</p>
+<p>1.在命令行输入：su -c ‘yum localinstall –nogpgcheck <a href="http://mirrors.163.com/rpmfusion/free/fedora/rpmfusion-free-release-stable.noarch.rpm" target="_blank" rel="noopener">http://mirrors.163.com/rpmfusion/free/fedora/rpmfusion-free-release-stable.noarch.rpm</a> <a href="http://mirrors.163.com/rpmfusion/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm%27" target="_blank" rel="noopener">http://mirrors.163.com/rpmfusion/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm</a>‘</p>
+<a id="more"></a>
+<p>你可别老老实实的一个字母一个字母的照着敲这行命令哈，直接复制粘贴就ok啦，可能复制的话引号会变成中文的，可以自己改一下，不然会出错！</p>
+<p>输入完成后，点击回车会让你输入密码，这个密码是root的密码，而不是自己的登陆密码哈！</p>
+<p>之所以我们点击搜寻（search）按钮后说搜寻失败，是因为我们本地软件源所对应的服务器上没有相应的插件而已，我们只要加入一个含有这些插件的服务器（软件源）即可，所以，上面这条命令就是在我们本地加入163这个服务器（软件源），这个服务器上有我们需要的视频和音频解码插器</p>
+<p>2.安装音频支持，在命令行输入：sudo yum install gstreamer-plugins-good gstreamer-plugins-bad gstreamer-plugins-ugly libtunepimp-extras-freeworld xine-lib-extras-freeworld</p>
+<p>3。安装视频支持，在命令行输入：sudo yum install ffmpeg ffmpeg-libs gstreamer-ffmpeg libmatroska xvidcore</p>
+<p>4.到此，我们的视频音频源的问题就解决了。当我们再用video打开视频后，再search时，能够找到相应的插件了，而且我们还能install（安装）它了，马上我们就能看视频了。但是，问题come again！（如果你此时没有出现任何问题，那你就别往下看了，直接看视频去吧～哈哈）</p>
+<p>5.这时可能会弹出另一个提示框，说让我们提交这个错误报告，什么错误呢，一大串英文看的迷迷糊糊的，错误提示如下：</p>
+<p>GPG key retrieval failed: [Errno 14] Could not open/read file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-18-i386，大概的意思是打不开这个KEY文件，这时，万能的百度…</p>
+<p>6.百度一下之后，明白了。原来，每 个 fusion源发布的稳定 RPM 软件包都配有一个 GPG 签名。默认情况下，yum 和图形更新工具在安装软件的时候会验证这些签名并拒绝安装任何没有签名或者签名损坏的软件包。</p>
+<p>如下所述能够让你更明白：您总是应该在安装软件包之前验证其签名。这些签名可确保您要安装的软件包出自 fusion仓库，且没有被提供该软件包的网页或者镜像更换（无意的或者恶意的）。</p>
+<p>但是，我们安装fusion源的时候，默认是没有添加gpg密钥的，所以就会出现说不能打开KEY这种错误。</p>
+<p>找到病根了，对症下药就ok啦，我们加入密钥就ok！</p>
+<p>7.打开fusion源官网上的密钥页面：<a href="http://rpmfusion.org/keys" target="_blank" rel="noopener">http://rpmfusion.org/keys</a></p>
+<p>往下拉滚动条，找到【RPM Fusion nonfree for Fedora 18】字样（因为本人使用的是fedora18，所以是free for fedora18），如下图所示：</p>
+<p><a href="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-011923.png" target="_blank" rel="noopener"><img src="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-011923-300x62.png" alt="Screenshot from 2013-02-23 01:19:23"></a></p>
+<p>这就是害我们不能看视频的密钥，我们终于找到了。点击【Download】，然后跳入另一个页面，努力不懈的再点击【Download】，就会下载这个密钥文件啦，我下载的文件名为：RPM-GPG-KEY-rpmfusion-free-fedora-18</p>
+<p>8.打开终端（快捷键ctrl+alt+t,如果不行的话看本博的设置打开终端快捷键博文），将刚刚下载的文件拖到终端里，就会出现该文件的路径，然后将光标调到该行的最前面，输入: sudo rpm –import 就可以了</p>
+<p>最终命令行上的命令效果是：sudo rpm –import ‘/home/xin/Downloads/RPM-GPG-KEY-rpmfusion-free-fedora-18′其中文件名可能不一样，根据自己下载的文件的不同而不同，回车之后，我们的密钥就加入成功了。</p>
+<p>9.现在用video打开视频，再search插件，再install，就不会出现任何问题啦～费尽千辛万苦终于能看视频和听音频啦～现在感觉还是linux mint用起来方便阿，装上系统就能看电影听歌的，不像fedora啊，整死人。不过fedora比较适合开发，而且我用linux mint用烦了。</p>
+<p>不罗嗦了，大家赶紧去看视频吧！</p>
+<p>参考资料：<a href="http://www.linuxidc.com/Linux/2012-06/62112.htm" target="_blank" rel="noopener">http://www.linuxidc.com/Linux/2012-06/62112.htm</a> <a href="http://blog.csdn.net/wangran51/article/details/7014325" target="_blank" rel="noopener">http://blog.csdn.net/wangran51/article/details/7014325</a></p>
+<p><a href="http://www.baidu.com（纯属搞笑，嘿嘿）" target="_blank" rel="noopener">http://www.baidu.com（纯属搞笑，嘿嘿）</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/30/virtualbox-u/" rel="next" title="virtualbox不能识别u盘等移动设备">
+                <i class="fa fa-chevron-left"></i> virtualbox不能识别u盘等移动设备
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/03/30/fedora18-install-gpg/" rel="prev" title="fedora18安装软件时出现GPG key retrieval failed: [Errno 14]的解决方案">
+                fedora18安装软件时出现GPG key retrieval failed: [Errno 14]的解决方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

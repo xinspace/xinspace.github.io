@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我买的Linode的VPS，SSD有1G，只放我的个人博客显然很浪费资源，所以把其他的我做的网站也放到这个服务器上，相当于合租，管理权在我。 既然多个网站使用同一个服务器，那么就有问题了。一般一个域名绑定一个ip地址，DNS解析后就可以访问到ip地址所在的服务器上的网站了，但是这多个网站，一个ip地址怎么办呢？ 1.可以向服务器提供商再买几个独立ip，都属于这台服务器的，然后不同的域名绑定不同ip">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache(xampp)实现一个ip地址绑定多个域名 对应多个目录的方法">
+<meta property="og:url" content="http://blog.xinspace.xin/2014/07/26/apache-singleip-multidomains-multidirectories/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="我买的Linode的VPS，SSD有1G，只放我的个人博客显然很浪费资源，所以把其他的我做的网站也放到这个服务器上，相当于合租，管理权在我。 既然多个网站使用同一个服务器，那么就有问题了。一般一个域名绑定一个ip地址，DNS解析后就可以访问到ip地址所在的服务器上的网站了，但是这多个网站，一个ip地址怎么办呢？ 1.可以向服务器提供商再买几个独立ip，都属于这台服务器的，然后不同的域名绑定不同ip">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache(xampp)实现一个ip地址绑定多个域名 对应多个目录的方法">
+<meta name="twitter:description" content="我买的Linode的VPS，SSD有1G，只放我的个人博客显然很浪费资源，所以把其他的我做的网站也放到这个服务器上，相当于合租，管理权在我。 既然多个网站使用同一个服务器，那么就有问题了。一般一个域名绑定一个ip地址，DNS解析后就可以访问到ip地址所在的服务器上的网站了，但是这多个网站，一个ip地址怎么办呢？ 1.可以向服务器提供商再买几个独立ip，都属于这台服务器的，然后不同的域名绑定不同ip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2014/07/26/apache-singleip-multidomains-multidirectories/">
+
+
+
+
+
+  <title>Apache(xampp)实现一个ip地址绑定多个域名 对应多个目录的方法 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2014/07/26/apache-singleip-multidomains-multidirectories/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Apache(xampp)实现一个ip地址绑定多个域名 对应多个目录的方法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-07-26T10:09:53+07:00">
+                2014-07-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我买的Linode的VPS，SSD有1G，只放我的个人博客显然很浪费资源，所以把其他的我做的网站也放到这个服务器上，相当于合租，管理权在我。</p>
+<p>既然多个网站使用同一个服务器，那么就有问题了。一般一个域名绑定一个ip地址，DNS解析后就可以访问到ip地址所在的服务器上的网站了，但是这多个网站，一个ip地址怎么办呢？</p>
+<p>1.可以向服务器提供商再买几个独立ip，都属于这台服务器的，然后不同的域名绑定不同ip地址。这样做的显然都是土豪，我等平民哪玩儿的起。</p>
+<p>2.Apache可以实现多个域名绑定一个ip，并通过HTTP请求中的请求头判断要访问的主机名（即客户要访问哪个域名），根据不同的主机名把客户链接（地址映射）到不同的网站目录中，从而实现了多个域名绑定一个ip，并能够访问多个网站的目的。</p>
+<p>下面我先详细说一下如何做，再解释为什么。还有，在映射到dedecms的时候，可能会碰到问题，我下面也会提到。</p>
+<p>拿我的VPS举个栗子，我图方便，直接安装了lampp(集成了Apache、MySQL、PHP的linux平台的HTTP服务器套件)，安装路径是/opt/lampp</p>
+<a id="more"></a>
+<p><strong>假设：</strong><br>假设现在你的服务器ip地址是106.187.90.237,HTTP为默认监听端口为80。<br>在你的服务器上要挂两个网站（多个网站的方法类似）<br>一个是你的博客，路径是/opt/lampp/htdocs/wordpress，用域名blog.xinspace.space访问它;<br>另一个是学校网站（我这里用dedecms举栗子），路径是/opt/lampp/htdocs/artschool，用域名<a href="http://www.zbhongli.cn来访问它。" target="_blank" rel="noopener">www.zbhongli.cn来访问它。</a></p>
+<p><strong>步骤：</strong></p>
+<p>1.如果你已经为域名做好了解析工作，直接跳到第2步。如果没有，可以看看这一步的内容。<br>进入你购买域名的服务商那里，进入服务商提供的DNS服务（推荐到比较大的服务商购买域名，如新网、万网等）。比如新网的DNS服务的链接在：登录你的新网帐号-》管理域名-》我的域名-》选择域名-》管理-》我的DNS服务（如果找不到DNS服务的链接，可以电话咨询域名服务商）。<br>假设你已经进入了DNS服务，里面有两个地方需要你设置。<br>下面先完成博客的域名与ip地址的解析工作，要添加A记录和CNAME记录，一般只指定域名其相应的ip地址即可，其他参数默认，如下：<br>1.1. A记录 域名 ip地址<br>xinspace.space 106.187.90.237</p>
+<p>1.2. CNAME记录 域名 域名<br>blog.xinspace.space xinspace.space<br>保存，博客的域名与ip解析就完成了，接着我们退出博客域名的DNS服务，进入学校域名的DNS服务，完成学校网站与ip地址的解析，如下：<br>1.3. A记录 域名 ip地址<br>zbhongli.cn 106.187.90.237</p>
+<p>1.4. CNAME记录 域名 域名<br><a href="http://www.zbhongli.cn" target="_blank" rel="noopener">www.zbhongli.cn</a> zbhongli.cn<br>保存，学校的域名与ip地址解析也完成了。<br>等一段时间（一般2个小时），ping blog.xinspace.space 和 ping <a href="http://www.zbhongli.cn" target="_blank" rel="noopener">www.zbhongli.cn</a> ，会发现这两个域名都被解析到了106.187.90.237，达到了我们要的效果。如果出现unknown host的错误的话，可能是解析还没完成，再等一段时间。但是，下面的工作不用等到解析完成之后，我们只要把解析的关系建立完成后，就可以继续第2步了。</p>
+<p>2.修改apache的配置文件，让它在同一服务器上（即同一个ip地址）能为不同的域名（apache中叫主机名）映射到不同的目录：<br>登录服务器，Apache的配置文件是/opt/lampp/etc/http.conf，打开它，在文件最底下加上下面的语句：</p>
+<p><pre class="p1"><span class="s1">&lt;VirtualHost *:80&gt;<br></span><span class="s1"><span class="Apple-converted-space">    </span>ServerName <a href="http://www.xinspace.space" target="_blank" rel="noopener">www.xinspace.space</a><br></span><span class="s1"><span class="Apple-converted-space">    </span>DocumentRoot /opt/lampp/htdocs<br></span><span class="s1">&lt;/VirtualHost&gt;</span></pre><br>这样，就已经把博客的目录与域名的映射关系建立好了。下面继续建立学校网站和学校域名，继续在本文件中最下面添加：</p>
+<p><pre class="p1"><span class="s1">&lt;VirtualHost *:80&gt;<br></span><span class="s1"><span class="Apple-converted-space">    </span>ServerName <a href="http://www.zbhongli.cn" target="_blank" rel="noopener">www.zbhongli.cn</a><br></span><span class="s1"><span class="Apple-converted-space">    </span>DocumentRoot /opt/lampp/htdocs/artschool<br></span><span class="s1">&lt;/VirtualHost&gt;</span></pre><br>好了，两个网站目录和两个域名的映射关系均搭建完成了。保存文件并退出。</p>
+<p>3.等到你的域名与ip地址的解析完成之后（ping域名的话，反馈信息能够解析到你的ip地址就表示完成了），就可以使用不同的域名访问不同的网站了，可以试一试。如果你使用的是dedecms建立的一个网站，而且是从别的服务器搬到这个服务器上来的，那么就需要注意了，可能你通过域名访问网站的时候，网站没有了效果，具体的说就是无法加载相应的css文件和js文件。我下面说一下这个问题。</p>
+<p>4.我是恰好把学校的网站从另一个服务器上搬到了这个新的服务器上，碰到了上面说的问题，我访问<a href="http://www.zbhongli.cn，首页没有任何效果，之前的图片啊、色彩啊、字体之类的完全没有了。肯定是访问路径出问题了。于是我查看了以下http.conf文件中的绝对路径，/opt/lampp/htdocs/artschool，没有任何错误啊，也就是说我在地址栏中输入www.zbhongli.cn，浏览器就会去访问106.187.90.237/artschool/index.php。为了验证一下，我在地址栏中输入106.187.90.237/artschool,网站首页是正常的，各种效果和图片都能加载。这更加肯定是路径出错了。" target="_blank" rel="noopener">www.zbhongli.cn，首页没有任何效果，之前的图片啊、色彩啊、字体之类的完全没有了。肯定是访问路径出问题了。于是我查看了以下http.conf文件中的绝对路径，/opt/lampp/htdocs/artschool，没有任何错误啊，也就是说我在地址栏中输入www.zbhongli.cn，浏览器就会去访问106.187.90.237/artschool/index.php。为了验证一下，我在地址栏中输入106.187.90.237/artschool,网站首页是正常的，各种效果和图片都能加载。这更加肯定是路径出错了。</a></p>
+<p>经过排查，我最终发现，是因为DedeCMS安装目录的原因。在dedecms后台-》系统-》系统基本参数-》核心设置-》Dedecms安装目录这里，我填的是artschool,这是没错的，因为我们确实要把网站放到这个目录。但是，在模板文件中的 标签里链接css是这么写的 ,经过dedecms解析模板之后，变为 ,乍一看，路径没错。但是仔细看看，是有问题的。</p>
+<p>在第2步的时候说了，在Apache配置文件中加入了两次，第二次的域名与网站的映射关系我再复制到这里：</p>
+<p><pre class="p1"><span class="s1">&lt;VirtualHost *:80&gt;<br></span><span class="s1"><span class="Apple-converted-space">    </span>ServerName <a href="http://www.zbhongli.cn" target="_blank" rel="noopener">www.zbhongli.cn</a><br></span><span class="s1"><span class="Apple-converted-space">    </span>DocumentRoot /opt/lampp/htdocs/artschool<br></span><span class="s1">&lt;/VirtualHost&gt;</span></pre><br>也就是说域名<a href="http://www.zbhongli.cn映射到106.187.90.237/artschool（其中106.187.90.237会被apache自动映射到/opt/lampp/htdocs/这个目录）。如果把这个映射关系再套到上面的link链接地址中，是不是发现错误了，我们把上面的link链接地址展开对比一下：" target="_blank" rel="noopener">www.zbhongli.cn映射到106.187.90.237/artschool（其中106.187.90.237会被apache自动映射到/opt/lampp/htdocs/这个目录）。如果把这个映射关系再套到上面的link链接地址中，是不是发现错误了，我们把上面的link链接地址展开对比一下：</a><br>展开前的css路径：<strong><a href="http://www.zbhongli.cn" target="_blank" rel="noopener">www.zbhongli.cn</a></strong>/artschool/templets/default/css/main.css<br>展开后的css路径：<strong>106.187.90.237/artschool/</strong>artschool/templets/default/css/main.css<br>前面加粗的部分是我们在apache配置文件中添加的映射关系。<br>因此，展开后，我们就明白错误的根源了，即{dede:global.cfg_templets_skin/}/css/main.css这个路径是错误的。也就是说{dede:global.cfg_templets_skin/}是错误的，而{dede:global.cfg_templets_skin/}是由域名/cfg_cmspath/这两部分组成的，其中cfg_cmspath就是dedecms后台-》系统-》系统基本参数-》核心设置-》Dedecms安装目录对应的全局变量。<br>我们的域名（<a href="http://www.zbhongli.cn）已经被apache根据我们的配置映射到了106.187.90.237/artschool/了，所以dedecms安装目录中填写的artschool是多余的，会使得通过域名访问网站的路径错误，**我们只要把全局变量中的值删掉，留空就可以了**。" target="_blank" rel="noopener">www.zbhongli.cn）已经被apache根据我们的配置映射到了106.187.90.237/artschool/了，所以dedecms安装目录中填写的artschool是多余的，会使得通过域名访问网站的路径错误，**我们只要把全局变量中的值删掉，留空就可以了**。</a></p>
+<p>如果你要把两个网站放到虚拟空间上，而不是服务器上的话，上面将到的修改apache的配置的方法是行不通的（因为你接触不到apache服务器，被虚拟空间提供商给屏蔽了），你要么通过子域名系统，使得两个网站成为某个域名的子域名，如主域名是xinspace.name,解析到ip地址为106.187.90.237,博客域名是blog.xinspace.name,学校域名是school.xinspace.name。这样，在虚拟空间的控制面板（cPanel）中找到子域名，添加这两个子域名，并设置好子域名对应的目录路径，保存之后就可以直接访问了。<br>如果不像使用子域名，只能购买两个ip地址了，两个域名分别绑定。</p>
+<p>啰嗦了一大堆，讲的很繁琐，主要就是想讲明白。有问题，发邮件（<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a>）联系我。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/07/26/vim-global-replace/" rel="next" title="vim 全局替换命令">
+                <i class="fa fa-chevron-left"></i> vim 全局替换命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/07/28/wp-font-google/" rel="prev" title="WordPress禁止fongs.googleapis.com,加快博客访问速度">
+                WordPress禁止fongs.googleapis.com,加快博客访问速度 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本章篇幅较长，因此分为几天完成，下面是05/27/15完成的。 &amp;nbsp; 这一章介绍如何在原生应用中嵌入Java虚拟机。一个Java虚拟机的实现通常是一个原生库，原生应用就可以链接这个库，并且使用Java虚拟机的调用接口加载Java虚拟机。事实上，Java程序的启动命令”java”就是使用一个简单的C语言程序，链接了Java虚拟机实现库。这个命令分析命令行参数，使用虚拟机的调用接口加载Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第七章 Java虚拟机的调用接口">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/27/jni7th-the-invoke-interface/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="本章篇幅较长，因此分为几天完成，下面是05/27/15完成的。 &amp;nbsp; 这一章介绍如何在原生应用中嵌入Java虚拟机。一个Java虚拟机的实现通常是一个原生库，原生应用就可以链接这个库，并且使用Java虚拟机的调用接口加载Java虚拟机。事实上，Java程序的启动命令”java”就是使用一个简单的C语言程序，链接了Java虚拟机实现库。这个命令分析命令行参数，使用虚拟机的调用接口加载Java">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第七章 Java虚拟机的调用接口">
+<meta name="twitter:description" content="本章篇幅较长，因此分为几天完成，下面是05/27/15完成的。 &amp;nbsp; 这一章介绍如何在原生应用中嵌入Java虚拟机。一个Java虚拟机的实现通常是一个原生库，原生应用就可以链接这个库，并且使用Java虚拟机的调用接口加载Java虚拟机。事实上，Java程序的启动命令”java”就是使用一个简单的C语言程序，链接了Java虚拟机实现库。这个命令分析命令行参数，使用虚拟机的调用接口加载Java">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/27/jni7th-the-invoke-interface/">
+
+
+
+
+
+  <title>JNI技术解析第七章 Java虚拟机的调用接口 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/27/jni7th-the-invoke-interface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第七章 Java虚拟机的调用接口</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-27T01:29:35+07:00">
+                2015-05-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章篇幅较长，因此分为几天完成，下面是05/27/15完成的。</p>
+<p>&nbsp;</p>
+<p>这一章介绍如何在原生应用中嵌入Java虚拟机。一个Java虚拟机的实现通常是一个原生库，原生应用就可以链接这个库，并且使用Java虚拟机的调用接口加载Java虚拟机。事实上，Java程序的启动命令”java”就是使用一个简单的C语言程序，链接了Java虚拟机实现库。这个命令分析命令行参数，使用虚拟机的调用接口加载Java虚拟机，运行Java程序。</p>
+<h1 id="7-1-创建Java虚拟机"><a href="#7-1-创建Java虚拟机" class="headerlink" title="7.1 创建Java虚拟机"></a>7.1 创建Java虚拟机</h1><a id="more"></a>
+<p>我们使用一个例子来介绍。下面的例子是C程序使用调用接口加载Java虚拟机，调用Prog.main()这个Java方法，Prog类定义如下：</p>
+<p><div class="page" title="Page 97"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<pre escaped="true" lang="php" line="1">public class Prog {
+       public static void main(String[] args) {
+            System.out.println("Hello World " + args[0]);
+       }
+}</pre>
+
+
+
+
+下面是C语言的代码：
+<div class="page" title="Page 98">
+<div class="section">
+<div class="layoutArea">
+<div class="column">
+<pre escaped="true" lang="php" line="1">#include &lt;jni.h&gt;
+#define PATH_SEPARATOR ':' /* Windows系统时修改为";" */
+#define USER_CLASSPATH "." /* Prog.class文件的路径 */
+void main() {
+              JNIEnv *env;
+              <span style="color: #ff0000;">JavaVM *jvm;</span>
+              jint res;
+              jclass cls;
+              jmethodID mid;//Prog.main()方法的ID
+              jstring jstr;
+              jclass stringClass;
+              jobjectArray args;//Prog.main()方法的参数
+              //如果是Java SDK 1.2
+          #ifdef JNI_VERSION_1_2
+              <span style="color: #ff0000;">JavaVMInitArgs vm_args;
+              JavaVMOption options[1];</span>
+              options[0].optionString = "-Djava.class.path=" USER_CLASSPATH;
+              vm_args.version = 0x00010002;
+              vm_args.options = options;
+              vm_args.nOptions = 1;
+              vm_args.ignoreUnrecognized = JNI_TRUE;
+              /* 创建Java虚拟机 */
+              <span style="color: #ff0000;">res = JNI_CreateJavaVM(&amp;jvm, (void**)&amp;env, &amp;vm_args);</span>
+          #else //是Java SDK 1.1
+              <span style="color: #ff0000;">JDK1_1InitArgs vm_args;</span>
+              char classpath[1024];
+              vm_args.version = 0x00010001;
+             <span style="color: #ff0000;"> JNI_GetDefaultJavaVMInitArgs(&amp;vm_args);</span>
+              /* 在系统默认的class文件路径变量中添加USER_CLASSPATH变量 */ 
+              sprintf(classpath, "%s%c%s", vm_args.classpath, PATH_SEPARATOR, USER_CLASSPATH);
+              vm_args.classpath = classpath;
+              /* 创建Java虚拟机 */
+              <span style="color: #ff0000;">res = JNI_CreateJavaVM(&amp;jvm, &amp;env, &amp;vm_args);</span>
+          #endif /* JNI_VERSION_1_2 */
+              if (res &lt; 0) {  //创建虚拟机失败
+                  fprintf(stderr, "Can't create Java VMn");
+                  exit(1);
+              }
+              //寻找Prog类的引用
+              cls = (*env)-&gt;FindClass(env, "Prog");
+              if (cls == NULL) {
+                  goto destroy;
+              }
+              //获取Prog.main()方法的ID
+              mid = (*env)-&gt;GetStaticMethodID(env, cls, "main", "([Ljava/lang/String;)V");
+              if (mid == NULL) {
+                  goto destroy;
+              }
+              jstr = (*env)-&gt;NewStringUTF(env, " from C!");
+              if (jstr == NULL) {
+                  goto destroy;
+              }
+              stringClass = (*env)-&gt;FindClass(env, "java/lang/String");
+              //创建一个新的String类
+              args = (*env)-&gt;NewObjectArray(env, 1, stringClass, jstr);
+              if (args == NULL) {
+                  goto destroy;
+              }
+              //调用Prog.main()
+              (*env)-&gt;CallStaticVoidMethod(env, cls, mid, args);
+       destroy:
+              if ((*env)-&gt;ExceptionOccurred(env)) {
+                  (*env)-&gt;ExceptionDescribe(env);
+              }
+              //卸载Java虚拟机
+             <span style="color: #ff0000;"> (*jvm)-&gt;DestroyJavaVM(jvm);</span>
+}</pre>
+</div>
+</div>
+</div>
+</div>
+这个C语言程序有点长，下面一点点的分析。
+
+这个原生应用使用条件编译，对Java SDK 1.1与Java SDK 1.2使用不同的创建方法。<span style="color: #ff0000;">Java SDK 1.1 使用结构体JDK1_1InitArgs来初始化Java虚拟机的启动参数</span>。虽然Java SDK 1.2也支持这种初始化方法，但是<span style="color: #ff0000;">更推荐使用结构体JavaVMInitArgs</span>。常量JNI_VERSION_1_2在Java SDK 1.2的头文件中定义，而没有在Java SDK 1.1中定义。
+
+对于Java SDK 1.1，原生应用首先调用JNI_GetDefaultJavaVMInitArgs()函数获取默认的Java虚拟机的设置，把默认值写入给定的结构体JDK1_1InitArgs变量中，默认值包括这个虚拟机的栈大小、堆大小、默认的class文件路径等。程序也把Prog的class文件路径(即当前路径)添加到了默认的class文件路径之后。
+
+对于Java SDK 1.2，原生应用创建了结构体JavaVMInitArgs。虚拟机的初始化参数存放在JavaVMOption类型的数组变量中。可以在这个数组变量中存放普通的启动命令行参数(如-Djava.class.path=.，设置Prog的class文件路径为当前路径)，也可以存放与Java虚拟机实现有关的参数(如-Xmx64m)。设置结构体JavaVMInitArgs的ignoreUnrecognized成员为JNI_TRUE，表明Java虚拟机在启动时可以忽略不识别的与实现相关的命令行参数。
+
+设置完了虚拟机初始化结构体之后，调用<span style="color: #ff0000;">JNI_CreateJavaVM()函数加载并初始化Java虚拟机</span>。这个函数更新两个值：
+
+1.更新接口指针jvm为新创建的虚拟机。
+
+2.更新当前线程的JNIEnv*变量env为有效的JNIEnv变量，后续对JNI函数的调用均使用到了这个env变量。
+
+当JNI_CreateJavaVM()函数返回成功后，这个虚拟机就被嵌入到了当前线程中。此时原生应用就像一个原生函数一样在Java虚拟机中运行，因此它就可以使用JNI函数CallStaticVoidMethod()调用Prog.main()方法。
+
+最后，原生应用<span style="color: #ff0000;">调用DestroyJavaVM()函数卸载Java虚拟机(注意：在Java SDK 1.1与Java SDK 1.2版本中，不能卸载Java虚拟机实现，DestroyJavaVM()函数总是返回错误)</span>。
+
+编译Prog.java：
+<pre escaped="true">javac Prog.java</pre>
+在当前目录产生Prog.class文件。
+
+编译invoke.c(编译时遇到了问题，见下面的描述):
+<pre escaped="true">gcc -L/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/jre/lib/server/ invoke.c -livm</pre>
+在当前目录生成了a.out文件。
+
+运行./a.out，结果如下：
+<pre escaped="true">Hello World from C!</pre>
+如果在编译invoke.c时遇到了Undefined Reference "JNI_CreateJavaVM"或者找不到libjvm.dylib库等错误的话，可以参考我的另一篇博文：[解决问题](http://blog.xinspace.name/2015/03/27/原生应用创建java虚拟机时遇到undefined-reference-to-jni_createjavavm/)。
+
+&nbsp;
+
+下面的部分是在05/27/15完成的
+
+&nbsp;
+
+# 7.2 在Java虚拟机中链接原生应用
+
+Java虚拟机调用接口需要在原生应用程序中(如invoke.c)加载Java虚拟机。如何链接是由你的原生应用是部署在特定实现版本的Java虚拟机还是被设计成能在多个版本的Java虚拟机上运行而决定的。
+
+## 7.2.1 链接特定版本的Java虚拟机
+
+如果原生应用的设计是依赖于特定实现的Java虚拟机的话，就需要链接这个Java虚拟机实现的库。比如，如果使用<span style="color: #ff0000;">JDK 1.1 </span>的<span style="color: #ff0000;">MacOS(Linux)</span>版本的虚拟机的话，可以使用下面的命令编译和链接invoke.c:
+<pre escaped="true">cc -I&lt;jni.h dir&gt; -L&lt;libjava.dylib dir&gt; -lpthread -ljava invoke.c</pre>
+在上面的命令中，要求指定jni.h头文件所在的目录路径，libjvm.dylib所在目录的路径，链接java库和posix线程库。使用线程库是为了让Java虚拟机支持线程，java库实现了Java虚拟机。
+
+当然，<span style="color: #ff0000;">对JDK1.2及以上，MacOS(Linux)版本的虚拟机</span>，命令为：
+<pre escaped="true">cc -I&lt;jni.h dir&gt; -L&lt;libjvm.dylib dir&gt; -lpthread invoke.c -ljvm</pre>
+
+<h2 id="7-2-2-运行时链接某个版本的Java虚拟机"><a href="#7-2-2-运行时链接某个版本的Java虚拟机" class="headerlink" title="7.2.2 运行时链接某个版本的Java虚拟机"></a>7.2.2 运行时链接某个版本的Java虚拟机</h2><p>有时原生应用需要链接不同版本的Java虚拟机，此时就不能像7.2.1小节中所述在编译invoke.c时指定特定的版本了，需要在代码中动态的加载共享库进行链接。比如，可以使用下面的工具函数在原生应用中动态指定共享库的名称，加载并链接：</p>
+<p><div class="page" title="Page 102"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">/<em> Solaris version </em>/<br>void <em>JNU_FindCreateJavaVM(char </em>vmlibpath)<br>{<br>    void *libVM = dlopen(vmlibpath, RTLD_LAZY);<br>    if (libVM == NULL) {<br>        return NULL;<br>    }<br>    return dlsym(libVM, “JNI_CreateJavaVM”);<br>}</pre><br><br><br><br><br>其中，<span style="color: #ff0000;">dlopen()函数是加载并链接其参数指定的动态库，dlsym是在链接好的动态库中查找指定的符号，并返回这个符号的地址</span>。dlopen()函数的参数用于指定要加载的动态库名称，可以是libjvm.dylib、jvm或absolute/path/of/libjvm.dylib。</p>
+<p>此时，这个原生应用就能够在任意的Java虚拟机上运行，只要用上述工具函数动态的加载指定虚拟机版本即可。</p>
+<p>在Windows下，<span style="color: #ff0000;">dlopen()函数对应着LoadLibrary()函数，dlsym()函数对应GetProcAddress()函数</span>。</p>
+<h1 id="7-3-绑定原生线程"><a href="#7-3-绑定原生线程" class="headerlink" title="7.3 绑定原生线程"></a>7.3 绑定原生线程</h1><p>假定有一个多线程的原生应用，比如web服务器。当HTTP请求到来时，web服务器应该创建多个线程同时处理各个请求。可能需要在web服务器中嵌入Java虚拟机，这样服务器的每个线程就能同时使用Java虚拟机完成相应的动作。</p>
+<p>一般来说，服务器产生的原生代码的生命周期比Java虚拟机的要短，因此我们就需要把运行原生代码的线程绑定到已经运行了的Java虚拟机中，然后在绑定成功的线程中执行JNI调用，最后从Java虚拟机中解绑定而不会打断其他的绑定线程。</p>
+<p>下面用一个例子来介绍如何使用Java虚拟机调用接口将原生线程绑定到已经运行了的Java虚拟机。</p>
+<p><div class="page" title="Page 104"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre escaped="true" lang="php" line="1">#include &lt;jni.h&gt;</pre></p>
+<p>#include &lt;pthread.h&gt;</p>
+<p>#include &lt;unistd.h&gt;</p>
+<p>#include &lt;stdlib.h&gt;<br>JavaVM <em>jvm; /</em> Java虚拟机对象指针 */</p>
+<p>#define PATH_SEPARATOR ‘:’</p>
+<p>#define USER_CLASSPATH “.” /<em> Prog类的class文件路径 </em>/<br>void thread_fun(void <em>arg)<br>{<br>    jint res;<br>    jclass cls;<br>    jmethodID mid;<br>    jstring jstr;<br>    jclass stringClass;<br>    jobjectArray args;<br>    JNIEnv </em>env;<br>    char buf[100];<br>    int threadNum = (int)arg;<br>    /<em> 第三个参数为NULL </em>/</p>
+<p>#ifdef JNI_VERSION_1_2 //JDK 1.2<br>    <span style="color: #ff0000;">res = (*jvm)-&gt;AttachCurrentThread(jvm, (void**)&amp;env, NULL);</span></p>
+<p>#else //JDK 1.1<br>    res = (*jvm)-&gt;AttachCurrentThread(jvm, &amp;env, NULL);</p>
+<p>#endif<br>    if (res &lt; 0) { //如果绑定失败了<br>       fprintf(stderr, “Attach failedn”);<br>       return;<br>    }</p>
+<pre><code>cls = (*env)-&amp;gt;FindClass(env, &quot;Prog&quot;);//查找Prog类
+if (cls == NULL) {
+    goto detach;
+}
+mid = (*env)-&amp;gt;GetStaticMethodID(env, cls, &quot;main&quot;,&quot;([Ljava/lang/String;)V&quot;);//在Prog类中查找main()方法
+if (mid == NULL) {
+    goto detach;
+}
+sprintf(buf, &quot; from Thread %d&quot;, threadNum);
+jstr = (*env)-&amp;gt;NewStringUTF(env, buf);
+if (jstr == NULL) {
+    goto detach;
+}
+stringClass = (*env)-&amp;gt;FindClass(env, &quot;java/lang/String&quot;);
+args = (*env)-&amp;gt;NewObjectArray(env, 1, stringClass, jstr);//Prog.main()的参数
+if (args == NULL) {
+    goto detach;
+}
+(*env)-&amp;gt;CallStaticVoidMethod(env, cls, mid, args);//调用Prog.main()
+</code></pre><p> detach:<br>    if ((<em>env)-&gt;ExceptionOccurred(env)) {<br>        (</em>env)-&gt;ExceptionDescribe(env);<br>    }<br>    <span style="color: #ff0000;">(<em>jvm)-&gt;DetachCurrentThread(jvm);</em></span>//Java虚拟机与当前线程解绑定<br>}<br>void main() {<br>    JNIEnv env;<br>    int i;<br>    jint res;<br>    pthread_t t[5];</p>
+<p>#ifdef JNI_VERSION_1_2 //JDK 1.2<br>    JavaVMInitArgs vm_args;<br>    JavaVMOption options[1];<br>    options[0].optionString = “-Djava.class.path=” USER_CLASSPATH;<br>    vm_args.version = 0x00010002;<br>    vm_args.options = options;<br>    vm_args.nOptions = 1;<br>    vm_args.ignoreUnrecognized = TRUE;<br>    res = JNI_CreateJavaVM(&amp;jvm, (void**)&amp;env, &amp;vm_args);</p>
+<p>#else<br>    JDK1_1InitArgs vm_args;<br>    char classpath[1024];<br>    vm_args.version = 0x00010001;<br>    JNI_GetDefaultJavaVMInitArgs(&amp;vm_args);<br>    sprintf(classpath, “%s%c%s”, vm_args.classpath, PATH_SEPARATOR, USER_CLASSPATH);<br>    vm_args.classpath = classpath;<br>    res = JNI_CreateJavaVM(&amp;jvm, &amp;env, &amp;vm_args);</p>
+<p>#endif /<em> JNI_VERSION_1_2 </em>/<br>    if (res &lt; 0) {<br>        fprintf(stderr, “Can’t create Java VMn”);<br>        exit(1);<br>    }<br>    for (i = 0; i &lt; 5; i++)<br>       if(pthread_create(&amp;t[i], NULL, (void <em>)thread_fun, (void </em>)i))<br>           return;<br>    sleep(1000);<br>    (*jvm)-&gt;DestroyJavaVM(jvm);<br>}<br><br><br><br><br>上述的程序中，main函数创建并加载了Java虚拟机，创建5个线程，然后调用了DestroyJavaVM()函数。5个线程分别将自己与已经加载的Java虚拟机绑定，分别在Java虚拟机中同时调用Prog.main()方法，并在返回之前与虚拟机解绑定。5个线程都执行完之后，DestroyJavaVM()函数遍返回。在JDK 1.1与JDK 1.2中，DestroyJavaVM()函数总是返回错误值，因此在这里可以忽略它。</p>
+<p>JNI_AttachCurrentThread()函数的第三个参数为NULL。在JDK 1.2中介绍了JNI_ThreadAttachArgs结构体，用于指定更加细节的线程信息，比如当前Java虚拟机要绑定到的线程的线程组。</p>
+<p>当调用DetachCurrentThread()函数时，它释放掉当前线程的所有局部引用。</p>
+<p>使用7.2.1节或7.2.2节介绍的创建加载Java虚拟机的方法，运行该程序，结果为：</p>
+<p><pre escaped="true" lang="php" line="1">Hello World from  from Thread 0<br>Hello World from  from Thread 3<br>Hello World from  from Thread 2<br>Hello World from  from Thread 4<br>Hello World from  from Thread 1</pre><br>线程执行的顺序是随机的。</p>
+<p>本章的主要内容是关于在线程中嵌入Java虚拟机，讲解了如何创建和卸载Java虚拟机，加载Java虚拟机不同版本的方法，和将Java虚拟机绑定到原生线程的方法。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/26/android-studio-ndk-c1/" rel="next" title="Android Studio NDK开发第一章：安装与配置">
+                <i class="fa fa-chevron-left"></i> Android Studio NDK开发第一章：安装与配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/27/jni8th-additional-features/" rel="prev" title="JNI技术解析第八章 JNI的其他特性">
+                JNI技术解析第八章 JNI的其他特性 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#7-1-创建Java虚拟机"><span class="nav-number">1.</span> <span class="nav-text">7.1 创建Java虚拟机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#7-2-2-运行时链接某个版本的Java虚拟机"><span class="nav-number">1.1.</span> <span class="nav-text">7.2.2 运行时链接某个版本的Java虚拟机</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-3-绑定原生线程"><span class="nav-number">2.</span> <span class="nav-text">7.3 绑定原生线程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

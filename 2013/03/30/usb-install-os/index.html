@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="自从用了linux之后，各种发行版出的时络绎不绝啊！所以，如果想要在物理机上安装个个版本尝尝鲜的话，还要刻N多的碟子（我大一的时候就刻了6张碟子，惨啊～），极为不方便。 比起刻碟子，用u盘安装操作系统方便，环保还节约（最起码不用买N张空碟子，而且刻碟子多了对本机的光驱也是有损害的）。鉴于这个特点，我决定放弃光碟，改用u盘来安装各种操作系统。 将操作系统（windows或linux发行版都可以）写入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用u盘安装操作系统">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/03/30/usb-install-os/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="自从用了linux之后，各种发行版出的时络绎不绝啊！所以，如果想要在物理机上安装个个版本尝尝鲜的话，还要刻N多的碟子（我大一的时候就刻了6张碟子，惨啊～），极为不方便。 比起刻碟子，用u盘安装操作系统方便，环保还节约（最起码不用买N张空碟子，而且刻碟子多了对本机的光驱也是有损害的）。鉴于这个特点，我决定放弃光碟，改用u盘来安装各种操作系统。 将操作系统（windows或linux发行版都可以）写入">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-204341-218x300.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用u盘安装操作系统">
+<meta name="twitter:description" content="自从用了linux之后，各种发行版出的时络绎不绝啊！所以，如果想要在物理机上安装个个版本尝尝鲜的话，还要刻N多的碟子（我大一的时候就刻了6张碟子，惨啊～），极为不方便。 比起刻碟子，用u盘安装操作系统方便，环保还节约（最起码不用买N张空碟子，而且刻碟子多了对本机的光驱也是有损害的）。鉴于这个特点，我决定放弃光碟，改用u盘来安装各种操作系统。 将操作系统（windows或linux发行版都可以）写入">
+<meta name="twitter:image" content="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-204341-218x300.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/03/30/usb-install-os/">
+
+
+
+
+
+  <title>用u盘安装操作系统 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/03/30/usb-install-os/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">用u盘安装操作系统</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-03-30T16:25:29+07:00">
+                2013-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>自从用了linux之后，各种发行版出的时络绎不绝啊！所以，如果想要在物理机上安装个个版本尝尝鲜的话，还要刻N多的碟子（我大一的时候就刻了6张碟子，惨啊～），极为不方便。</p>
+<p>比起刻碟子，用u盘安装操作系统方便，环保还节约（最起码不用买N张空碟子，而且刻碟子多了对本机的光驱也是有损害的）。鉴于这个特点，我决定放弃光碟，改用u盘来安装各种操作系统。</p>
+<p>将操作系统（windows或linux发行版都可以）写入u盘最为启动设备的步骤如下：</p>
+<p>1.下载linux live usb creator（简称lili），网址:<a href="http://www.linuxliveusb.com/" title="lili" target="_blank" rel="noopener">http://www.linuxliveusb.com/</a></p>
+<p>注意哈，这个lili现在只有windows版本的，也就是你必须再windows下才能使用这款软件，这款软件可以将操作系统写入到u盘，将u盘制作成启动设备。虽然lili的全称时linux live usb creator，但并不意味着只能写linux操作系统，windows操作系统也能识别，只不过linux操作系统（若含有live版）比windows多了live mode。</p>
+<p>2.安装lili，出现如下图所示的界面（可以说lili做的很漂亮的说）：</p>
+<p><a href="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-204341.png" target="_blank" rel="noopener"><img src="http://xinspace.web-130.com/wp-content/uploads/2013/02/Screenshot-from-2013-02-23-204341-218x300.png" alt="Screenshot from 2013-02-23 20:43:41"></a></p>
+<p>可以看到安装步骤共又5步（在虚拟机中截图的，没截完全）。</p>
+<p>3.将操作系统写入u盘：</p>
+<p><strong>第一步：选择要作为启动设备的u盘等移动设备（这个应该都会）</strong></p>
+<p>这个lili软件比较有意思，如果你每一步的选择都可行的话，它右边的红绿灯就会亮绿灯，如果不可行就亮红灯，如果有些小欠缺就会亮黄灯。</p>
+<a id="more"></a>
+<p><strong>第二步：选择镜像文件</strong></p>
+<p>在你的电脑上选择你要写入的操作系统镜像文件（iso,img等文件，如win7.iso），一般选择第一个选项即ISO/IMG/ZIP这个选项，但前提是你电脑上已经存在一个操作系统的镜像文件；当然如果你正好有一张碟子，上面已经刻上了操作系统的话，就要选第二个CD图标；同时，你也可以指定一个网站，直接从网上下载镜像安装到u盘中（当然，这仅局限于你的网速很不错）。</p>
+<p>不管你用上面三种的哪种方式选中了系统镜像文件，lili都会检查该镜像是否可用，稍微等待一下即可。</p>
+<p><strong>第三步：选择系统镜像的模式类型</strong></p>
+<p>如果你要安装的系统镜像带有live模式（如fedora18，ubuntu 12.10等linux发行版都带有live mode，即可以在不安装系统的情况下体验系统，若觉得不错就可以马上安装，若觉得不好就退出体验而不会真正安装），则这一步你可以选择往u盘里写入的模式类型为live mode还是install only。顾名思义，install only就是没有体验模式，只进行安装。一般我会第三步：选择系统镜像的模式类型选择安装live mode。</p>
+<p>如果你要安装的系统镜像没有live模式，如windows7的镜像，那么就只有isntall only 模式了。</p>
+<p><strong>第四步：一般默认会选中第一个和第三个选项，建议保持默认。至于中间那个选项，我也建议你选中。</strong></p>
+<p>为什么呢，因为只有你的u盘等移动设备时FAT32的文件系统的时候才能用作启动设备，所以你在写入操作系统之前最好把该u盘格式化成FAT32格式的。</p>
+<p>如果你的u盘有10G，但是一般用作启动设备顶多占用2G，剩下的8G又不能随便动（如果u盘已经做成了启动设备，你还往里放东西就可能破坏之前写入的操作系统和相关文件，所以一般u盘用作启动设备之后就不要再往里放东西了），那就白白浪费了吗？当然不是，你可以用分区工具将这个10G u盘分成两个分区，其中一个分区分2G左右空间，专门用这个分区来作为启动设备即可。</p>
+<p><strong>第五步：开始写入。</strong></p>
+<p>如果没有特殊需要，直接点击那个闪电按钮即可，如果有些小洁癖，可以点击options按钮来设置一些选项。设置完了，就点击闪电按钮，然后耐心等待就行了。</p>
+<p>等写入完成后，你的u盘（或者说指定的分区）就已经成为了启动引导设备了，就可以用这个u盘来安装操作系统了。快去试试吧。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/30/fedora18-install-gpg/" rel="next" title="fedora18安装软件时出现GPG key retrieval failed: [Errno 14]的解决方案">
+                <i class="fa fa-chevron-left"></i> fedora18安装软件时出现GPG key retrieval failed: [Errno 14]的解决方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/03/30/linux-man-std-function/" rel="prev" title="linux 下用 man 命令不能查阅标准库函数的解决方案">
+                linux 下用 man 命令不能查阅标准库函数的解决方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

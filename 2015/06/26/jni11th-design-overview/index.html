@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本章涉及一些JNI设计的细节问题，对JNI的设计进行概述。在必要的时候，还会提供JNI设计的技术细节。设计概览主要介绍JNI的关键概念，包括JNIEnv指针、局部引用和全局引用，成员变量和成员方法ID等。介绍技术实现细节是让读者明白JNI在设计的时候如何权衡不同因素。在某些情况下，会讨论如何实现一个具体的特点。这些讨论的目的并不是为了呈现实际的实现策略，而是为了澄清一些微妙的语义误解。 用于连接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第11章 JNI设计概览">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/06/26/jni11th-design-overview/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="本章涉及一些JNI设计的细节问题，对JNI的设计进行概述。在必要的时候，还会提供JNI设计的技术细节。设计概览主要介绍JNI的关键概念，包括JNIEnv指针、局部引用和全局引用，成员变量和成员方法ID等。介绍技术实现细节是让读者明白JNI在设计的时候如何权衡不同因素。在某些情况下，会讨论如何实现一个具体的特点。这些讨论的目的并不是为了呈现实际的实现策略，而是为了澄清一些微妙的语义误解。 用于连接">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/different_loader.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/class_loader.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/escape_character.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/JNIEnv.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/reference.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/registry.png">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/exception.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第11章 JNI设计概览">
+<meta name="twitter:description" content="本章涉及一些JNI设计的细节问题，对JNI的设计进行概述。在必要的时候，还会提供JNI设计的技术细节。设计概览主要介绍JNI的关键概念，包括JNIEnv指针、局部引用和全局引用，成员变量和成员方法ID等。介绍技术实现细节是让读者明白JNI在设计的时候如何权衡不同因素。在某些情况下，会讨论如何实现一个具体的特点。这些讨论的目的并不是为了呈现实际的实现策略，而是为了澄清一些微妙的语义误解。 用于连接">
+<meta name="twitter:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/06/different_loader.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/06/26/jni11th-design-overview/">
+
+
+
+
+
+  <title>JNI技术解析第11章 JNI设计概览 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/06/26/jni11th-design-overview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第11章 JNI设计概览</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-06-26T15:16:33+07:00">
+                2015-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/different_loader.png" target="_blank" rel="noopener">
+</a>本章涉及一些JNI设计的细节问题，对JNI的设计进行概述。在必要的时候，还会提供JNI设计的技术细节。设计概览主要介绍JNI的关键概念，包括JNIEnv指针、局部引用和全局引用，成员变量和成员方法ID等。介绍技术实现细节是让读者明白JNI在设计的时候如何权衡不同因素。在某些情况下，会讨论如何实现一个具体的特点。这些讨论的目的并不是为了呈现实际的实现策略，而是为了澄清一些微妙的语义误解。</p>
+<p>用于连接不同语言的程序编程接口并不是新概念，比如C语言就可以调用FORTRAN语言和汇编语言。JNI也是一种编程接口，用于连接Java语言和其他的原生语言。但JNI与其他的接口有一个非常重要的区别：JNI并不是为了特定的Java虚拟机设计的。所有的Java虚拟机都支持JNI。</p>
+<h1 id="11-1-设计目标"><a href="#11-1-设计目标" class="headerlink" title="11.1 设计目标"></a>11.1 设计目标</h1><p><span style="color: #ff0000;">JNI设计的一个非常重要的目标是在一个给定的宿主系统上的不同的虚拟机能够实现二进制兼容</span>，这也就是说，在同一个宿主系统上得不同的虚拟机能够运行同一个原生代码库，而不需要重新编译这个库的源文件。</p>
+<p>为了达到这个目标，JNI在设计的时候不能对Java虚拟机的内部实现细节有任何的假定和依赖。因为Java虚拟机实现技术发展非常迅速，因此我们不会讨论任何可能涉及到未来的实现技术的内容。</p>
+<a id="more"></a>
+<p><span style="color: #ff0000;">JNI设计的第二个目标是效率。</span>为了支持实时(对时间要求非常严格的)性高的代码，JNI在设计时尽最大可能减少运行时开销。然而，有时候为了实现第一个目标(二进制兼容)，JNI设计时会放弃产生极高效率的方法，在兼容与效率之间寻找一个最佳的平衡点。</p>
+<p><span style="color: #ff0000;">JNI设计的第三个目标就是功能独立。</span>JNI要提供足够多的Java虚拟机功能接口，这样原生代码和应用才能完成可用的功能。</p>
+<p>JNI并不是Java虚拟机的唯一的编程接口，它是一种标准的接口。标准接口有利于程序员在不同的虚拟机中执行同样的工作，而不需要对源文件进行修改和重编译。在某些情况下，特定的Java虚拟机实现提供的专用编程接口(非标准的底层的接口)可能会有更高的效率。</p>
+<h1 id="11-2-加载原生库"><a href="#11-2-加载原生库" class="headerlink" title="11.2 加载原生库"></a>11.2 加载原生库</h1><p>在原生应用调用原生函数之前，虚拟机需要定位并加载包含这些原生函数的原生库。</p>
+<h2 id="11-2-1-类加载器"><a href="#11-2-1-类加载器" class="headerlink" title="11.2.1 类加载器"></a>11.2.1 类加载器</h2><p><span style="color: #ff0000;">类加载器可以定位原生库的位置。在Java虚拟机中类加载器有很多的用处，如加载类文件、定义类和接口、在不同的组件中提供独立的命名空间，在不同的类和接口中解决符号引用问题和定位原生库的路径。</span>我们假定读者对类加载器有一些基本的了解，所以不会在此讨论在虚拟机中它如何加载和链接类。</p>
+<p>类加载器为多个组件提供独立的命名空间，当一个虚拟机实例需要运行多个不同的组件的时候(如浏览器内嵌的虚拟机实例运行多个从多个网站上下载的applet程序)，就需要用到这个特性。<span style="color: #ff0000;">类加载器通过把一个类或接口的名称映射到其真实类型(这个类型往往在虚拟机中以对象来表示)来管理独立的命名空间，如把String类映射为java.lang.String对象。每个类或接口类型与它的定义加载器相关，定义加载器首先读取类文件，再定义类或接口的对象。</span>只有当两个类或接口拥有同样的名称和定义加载器，才能说它们具有相同的类型。比如，下图中类加载器L1与L2都定义了一个类名为C的类的对象，但这两个对象却拥有不同的类型，因为它们包含的成员函数的返回类型不一致。</p>
+<p><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/different_loader.png" alt="different_loader"></p>
+<p><span style="color: #ff0000;">上图中的虚线表示不同类加载器间的委托关系。一个类加载器可以委托另一个类加载器加载一个类或接口。</span>比如，上图中类加载器L1与L2都委托类加载器Booststrap加载系统类java.lang.String。系统类可以通过委托的方式在多个加载器中共享，如果不使用这种方式的话，每个类加载器都独立加载类，如果加载的类与系统提供的类不一致(如加载了第三方的String类)，应用程序就会因为与系统类类型不一致而出错。因此，这种委托加载的方式是非常有用的。</p>
+<h2 id="11-2-2-类加载器和原生库"><a href="#11-2-2-类加载器和原生库" class="headerlink" title="11.2.2 类加载器和原生库"></a>11.2.2 类加载器和原生库</h2><p>以11.2.1节中展示的图为例，假定两个类中的成员方法都是原生函数，虚拟机就使用名称”C_f”来定位两个C.f方法。为了保证每个类C链接到正确的原生函数，两个类的类加载器必须管理自己的原生库集合，如下图所示：</p>
+<p><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/class_loader.png" alt="class_loader"></p>
+<p>因为每个类加载器管理自己的原生库集合，所以，只要多个类拥有同一个定义加载器，那么这些类所需要的任意多数量的原生函数都可以放在一个原生库中。</p>
+<p><span style="color: #ff0000;">当类的类加载器被垃圾回收机制回收后，原生库就会自动的被虚拟机卸载。</span></p>
+<h2 id="11-2-3-定位原生库"><a href="#11-2-3-定位原生库" class="headerlink" title="11.2.3 定位原生库"></a>11.2.3 定位原生库</h2><p><span style="color: #ff0000;">可以使用系统方法System.loadLibrary()来加载原生库。</span>这个方法的唯一参数是由程序员指定的原生库名，必须要保证库名不能冲突(不能与其他库名重复)。虚拟机遵守特定的规则把库名转换为原生库名(假如指定的库名为”mypkg”,那么linux下转换为libmypkg.so,windows下为mypkg.dll,Mac下为libmypkg.dylnk)。</p>
+<p><span style="color: #ff0000;">当虚拟机启动的时候，它会从指定的一系列目录中加载应用程序中类所需要的原生库。</span>指定的目录与宿主机的操作系统和虚拟机实现有关。比如Java 2 SDK中，指定的目录包括了当前工作目录、环境变量PATH包含的所有目录以及环境变量LD_LIBRARY_PATH包含的目录。</p>
+<p><pre>System.loadLibrary()方法如果不能正确加载指定的原生库的话，会抛出UnsatisfiedLinkError异常。如果在调用这个方法之前已经加载了指定的库的话，这个方法不会做任何事。如果底层的操作系统不支持动态链接的话，那么所有的原生函数必须用虚拟机提前链接(prelinked)。这时，调用System.loadLibrary()方法就没有任何效果了。</pre><br>虚拟机内部管理每一个类加载器加载的原生库。虚拟机根据下面三步来决定哪个类与新加载的原生库相关联：</p>
+<p><span style="color: #ff0000;">1.获取System.loadLibrary()方法的直接调用者</span></p>
+<p><span style="color: #ff0000;">2.获取定义这个调用者的类</span></p>
+<p><span style="color: #ff0000;">3.获取这个类的定义加载器</span></p>
+<p>在下面的例子中，原生库foo与类C的定义加载器相关联：</p>
+<div class="page" title="Page 163"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre>class C {<br>       static {<br>           System.loadLibrary(“foo”);<br>       }<br>}</pre><br></div><br></div><br></div><br></div>
+
+<h2 id="11-2-4-类型安全约束"><a href="#11-2-4-类型安全约束" class="headerlink" title="11.2.4 类型安全约束"></a>11.2.4 类型安全约束</h2><p><span style="color: #ff0000;">虚拟机只允许同一个原生库被最多一个类加载器加载，否则会抛出UnsatisfiedLinkError 异常。</span>这个约束的目的是为了<span style="color: #ff0000;">保留类加载器为它加载的每个原生库建立的独立的命名空间。</span>如果没有这个约束，当在类或接口中调用一个原生函数的时候极有可能链接到错误的库中的同名函数。</p>
+<h2 id="11-2-5-卸载原生库"><a href="#11-2-5-卸载原生库" class="headerlink" title="11.2.5 卸载原生库"></a>11.2.5 卸载原生库</h2><p><span style="color: #ff0000;">虚拟机在回收原生库的类加载器之后，会自动卸载这个原生库。因为类与它的定义加载器相关联，这说明卸载类加载的原生库的同时也会卸载这个类。</span></p>
+<h2 id="11-2-6-链接原生函数"><a href="#11-2-6-链接原生函数" class="headerlink" title="11.2.6 链接原生函数"></a>11.2.6 链接原生函数</h2><p><span style="color: #ff0000;">在第一次调用原生函数之前，虚拟机会尽量提前链接每个原生函数。最早可以链接原生函数f()的时候是在第一次调用原生函数g()的时候，在函数g()中有函数f()的引用。</span>虚拟机不应该太早链接原生函数，如果太早链接的话可能会产生链接时错误，因为实现这个原生函数的原生库可能还没有被加载。</p>
+<p>链接原生函数包含如下步骤：</p>
+<p><span style="color: #ff0000;">1.确定定义了原生函数的类的类加载器</span></p>
+<p><span style="color: #ff0000;">2.在这个类加载器相关的原生库集合中搜索原生函数</span></p>
+<p><span style="color: #ff0000;">3.设定内部的数据结构，这样一来可以直接调用原生函数。</span></p>
+<p>虚拟机把下面的各个组件联系起来推断要调用的原生函数的名称：</p>
+<p>1.”Java_”前缀</p>
+<p>2.定义原生函数的类的全称</p>
+<p>3.下划线”_”</p>
+<p>4.原生函数名</p>
+<p><span style="color: #ff0000;">5.如果是重载原生函数的话，需要在函数的参数描述符后面加两个下划线”__”</span></p>
+<p><span style="color: #ff0000;">虚拟机会在类加载器相关的所有原生库中以此搜索合适的函数名称。</span>在每一个原生库中，虚拟机首先使用原生函数的短名称(不带参数描述符的函数名称)搜索，然后使用带参数描述符的长名称搜索。<span style="color: #ff0000;">仅当原生函数重载了另一个原生函数时程序员可以使用原生函数的长名称调用原生函数，</span>如果原生函数重载了非原生函数的话，就不需要使用长名称了，因为非原生函数不会出现在原生库中。</p>
+<p>JNI采用简单的命名机制保证所有的Unicode编码字符能够转换为有效的C函数名称。下划线”_”字符把类的全称分开，因为一个类的名称或类型描述符不会以数字开头，所以我们可以用”_0,_1,_2,…,_9”来转义字符，如下所述：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/escape_character.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/escape_character.png" alt="escape_character"></a></p>
+<p><span style="color: #ff0000;">如果函数名称在多个原生库中都找到了匹配的原生函数名，那么就链接第一个被加载的原生库中的原生函数。如果所有的原生库中都找不到匹配的原生函数名，那么就抛UnsatisfiedLinkError异常。</span></p>
+<p>程序员也可以调用JNI函数RegisterNatives()来注册与本类相关联的原生函数。这个函数在注册静态链接的函数时特别有用。</p>
+<h1 id="11-4-调用约定"><a href="#11-4-调用约定" class="headerlink" title="11.4 调用约定"></a>11.4 调用约定</h1><p>调用约定决定了原生函数如何接收参数和返回结果。JNI要求原生函数必须符合给定操作系统上的标准调用约定。比如，<span style="color: #ff0000;">在Linux系统上JNI遵循C语言调用约定，在Windows系统上JNI遵循stdcall调用约定。</span></p>
+<p><span style="color: #ff0000;">当程序员需要使用另外的调用约定来调用原生函数时，就必须自己写一个桩函数，在桩函数中将参数和返回值的约定进行转换。</span></p>
+<h1 id="11-5-JNIEnv接口指针"><a href="#11-5-JNIEnv接口指针" class="headerlink" title="11.5 JNIEnv接口指针"></a>11.5 JNIEnv接口指针</h1><p>原生函数通过JNIEnv接口指针提供的JNI函数接口来访问虚拟机提供的多种功能。</p>
+<h2 id="11-5-1-JNIEnv接口指针的组织"><a href="#11-5-1-JNIEnv接口指针的组织" class="headerlink" title="11.5.1 JNIEnv接口指针的组织"></a>11.5.1 JNIEnv接口指针的组织</h2><p><span style="color: #ff0000;">一个JNIEnv接口指针是线程局部数据，在这个接口指针中包含了一个指向JNI接口表的指针。每一个JNI接口在这个表中的偏移量是定义好了的。</span>JNIEnv接口指针的组织形式与C++中的虚函数表和微软的COM接口比较类似。下图展示了JNIEnv接口指针的组织形式：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/JNIEnv.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/JNIEnv.png" alt="JNIEnv"></a></p>
+<p>&nbsp;</p>
+<p>原生函数总是以JNIEnv指针作为其第一个参数，虚拟机会保证在同一个线程中调用的原生函数总会接收到相同的JNIEnv指针。但一个原生函数也可能在不同的线程中被调用，所以在每个线程中它收到的JNIEnv指针都不一样。从上图中能看到，虽然JNIEnv指针在不同的线程中不同(线程局部)，但是JNI接口列表却是在多个线程间共享的。</p>
+<p><span style="color: #ff0000;">之所以把JNIEnv接口指针设计为线程局部结构，是因为某些宿主操作系统对线程局部存储访问没有有效的支持，通过向JNI接口函数传递线程局部指针，虚拟机内部在实现JNI接口函数的时候就避免了一些线程局部存储访问操作。</span></p>
+<p>JNIEnv接口指针是线程局部指针，因此不能在另一个线程中使用当前线程的JNIEnv指针，特别是不能使用全局引用或静态变量缓存JNIEnv指针。因为它是线程局部的，所以每个线程的JNIEnv指针都不一样，<span style="color: #ff0000;">可以使用JNIEnv指针作为线程ID来唯一的标识一个线程。</span></p>
+<h2 id="11-5-2-接口指针的优点"><a href="#11-5-2-接口指针的优点" class="headerlink" title="11.5.2 接口指针的优点"></a>11.5.2 接口指针的优点</h2><p>与硬编码的接口入口表相比，使用接口指针(JNIEnv)有很多优点：</p>
+<p>1.最重要的，原生函数接受接口指针作为参数，<span style="color: #ff0000;">这样包含这个原生函数的原生库就不用链接特定版本的虚拟机。</span>这是非常重要的，因为任意版本的虚拟机必须提供(兼容)相同的JNI接口列表，因此只要原生函数能够使用到相同的JNI接口列表(以JNIEnv指针的形式)，就不必在意到底是哪个版本的虚拟机了。而不同的宿主系统可能有不同的虚拟机的命名规则，此时如果想要在不同的虚拟机版本中运行，就需要保证原生库是独立的。</p>
+<p>2.使用接口指针的话，<span style="color: #ff0000;">虚拟机就可以提供多个版本的JNI接口表。比</span>如，一个版本的JNI接口表中的JNI函数实现时会做错误检查和无效参数的检查，可以用于调试；另一个版本的JNI接口表中的JNI函数实现时只做必要的检查，可以用于正常运行时提高效率。在Java 2 SDK 1.2中就可以使用-Xcheck:jni这个参数来启用第一个版本的JNI接口表函数。这是硬编码的接口表入口无法办到的。</p>
+<p>3.最后，<span style="color: #ff0000;">多个JNI接口表意味着在将来可以支持多个版本的类似JNIEnv指针接口。</span>虽然现在没有这么做的需要，但是将来很可能会提供多个版本的JNI接口表，除了目前JNIEnv指针指向的1.1或1.2版本。在Java 2 SDK 1.2中就提供了JNI_Onload()函数，原生库使用这个函数指定本库需要使用哪个版本的JNI接口表(1.1版本还是1.2版本)。在将来，虚拟机的实现中可能会提供多个版本的JNI接口表，此时每个原生库在被虚拟机加载时就指定本库需要使用哪个版本的JNI接口表。这也是硬编码的入口地址无法办到的。</p>
+<h1 id="11-6-传递数据"><a href="#11-6-传递数据" class="headerlink" title="11.6 传递数据"></a>11.6 传递数据</h1><p><span style="color: #ff0000;">基础数据类型，如整型、浮点型、字符型等在虚拟机与原生代码之间直接复制传递，而对象就传递其引用。</span>每一个引用包含了一个直接指向底层对象的指针，这个指针在原生代码中不会被直接使用，在原生代码看来，<span style="color: #ff0000;">引用是不透明的</span>(引用内部的实现原理对于原生函数来说是黑盒子)。</p>
+<p><span style="color: #ff0000;">传递引用而不是对象的直接指针让虚拟机能更灵活的管理对象，</span>下图展示了这种灵活性。当原生代码在使用对象的引用时，虚拟机可能正在用垃圾回收机制做处理，这个处理结构导致了底层的对象被垃圾回收机制移动了位置(比如为了减少内存碎片，把物理上分散的内存区域移动到相互聚集的地方)，位置移动之后，直接指针的指向就失效了，因此虚拟机会自动的更新这个指针指向新的位置，而原生代码可以正常使用引用，而不必在乎这个细节。</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/reference.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/reference.png" alt="reference"></a></p>
+<p>&nbsp;</p>
+<h2 id="11-6-1-全局和局部引用"><a href="#11-6-1-全局和局部引用" class="headerlink" title="11.6.1 全局和局部引用"></a>11.6.1 全局和局部引用</h2><p>JNI为原生代码提供两种引用：局部引用和全局引用。局部引用在原生函数调用期间有效，在原生函数返回时自动被释放。全局引用在被程序员显式释放之前一直有效。</p>
+<p>传递给原生函数的对象引用是局部引用，大多数的JNI函数返回局部引用。JNI也允许把局部引用转换为全局引用，JNI函数可以可以接受局部引用或全局引用作为其参数，而原生函数可以根据需要返回局部引用或全局引用。</p>
+<p>局部引用是线程局部引用。在JNI中，引用NULL指向了虚拟机中的对象null，值不是NULL的引用不会指向null对象。</p>
+<h2 id="11-6-2-实现局部引用"><a href="#11-6-2-实现局部引用" class="headerlink" title="11.6.2 实现局部引用"></a>11.6.2 实现局部引用</h2><p>为了实现局部引用，<span style="color: #ff0000;">Java虚拟机为从虚拟机到原生代码的控制过度创建登记记录。一个登记记录把不可移动的局部引用映射为对象指针。在登记记录中的对象不会被垃圾回收。</span>所有传递给原生函数的对象，包括从JNI函数中返回的局部引用，都会自动被加入到登记记录中。<span style="color: #ff0000;">在原生函数返回之后，所有登记记录都被虚拟机删除，登记记录中的所有对象都会被回收。</span>下图展示了登记记录如何被创建和销毁。</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/registry.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/registry.png" alt="registry"></a></p>
+<p>与原生函数相关的虚拟机片段(frame)包含了指向局部引用登记记录列表的指针。D.f()调用了原生函数C.g()，C.g()在C语言函数Java_C_g()中实现。在进入Java_C_g()函数之前虚拟机创建了局部引用登记记录列表，并使用指针指向它，并在Java_C_g()函数返回之后自动销毁这个列表。</p>
+<p><span style="color: #ff0000;">有多种方法可以实现局部引用登记记录，比如栈、链表或哈希表等。</span>虽然可以使用引用计数来避免在登记记录中添加重复的记录，但是JNI并不强制检测和删除重复的记录。<span style="color: #ff0000;">不能只在原生函数专有的函数栈中搜索局部引用，因为原生函数也可能把局部引用存储在堆中或转换为全局引用。</span></p>
+<h2 id="11-6-3-弱全局引用"><a href="#11-6-3-弱全局引用" class="headerlink" title="11.6.3 弱全局引用"></a>11.6.3 弱全局引用</h2><p>Java 2 SDK 1.2提供了一中新的引用：弱全局引用。不同于全局引用，弱全局引用允许其指向的底层对象被垃圾回收机制回收。当底层对象被回收后，弱全局引用也会被重新赋值为null对象的引用。因此，可以使用JNI函数IsSameObject()来比较一个弱全局引用和NULL引用是否相同。</p>
+<h1 id="11-7-访问对象"><a href="#11-7-访问对象" class="headerlink" title="11.7 访问对象"></a>11.7 访问对象</h1><p>JNI提供了丰富的接口来访问对象的引用，这就意味着不管虚拟机在内部如何表示对象，同一个原生函数可以在不同的虚拟机中正常的工作，所以说任何版本的虚拟机必须支持(兼容)同样的JNI是非常关键的设计。</p>
+<p>通过不透明的引用，JNI提供的访问对象的函数的效率要比直接使用对象指针的效率低。但大部分工作都能使用引用有效方便的完成。</p>
+<h2 id="11-7-1-访问基础数据类型的数组"><a href="#11-7-1-访问基础数据类型的数组" class="headerlink" title="11.7.1 访问基础数据类型的数组"></a>11.7.1 访问基础数据类型的数组</h2><p>大量重复访问包含很多基础数据类型的对象(比如基础数据类型数组和字符串)的效率是非常低的。假定原生函数要进行向量和矩阵的运算，那么它必须遍历向量和矩阵的每一个元素，并调用函数完成功能。这个效率是非常低下的。</p>
+<p>解决办法就是<span style="color: #ff0000;">使用”pinning”的概念</span>。<span style="color: #ff0000;">使用”pinning”，原生函数就可以要求虚拟机不要移动数组元素的位置，然后原生函数就可以获得每个元素的直接指针</span>。使用这种方法有以下<span style="color: #ff0000;">前提：</span></p>
+<p>1<span style="color: #ff0000;">.垃圾回收机制必须要支持”pinning”。</span>支持”pinning”是非常麻烦的，因为这样使得垃圾回收机制的算法更加复杂，并且会导致内存碎片(虚拟机不能移动数组元素的位置)。</p>
+<p>2<span style="color: #ff0000;">.虚拟机必须保证基础数据类型的数组中的元素物理上连续排列。</span>虽然这是非常自然的实现方法，但是boolean类型的数组就可能使用压缩式和非压缩式的方式实现。压缩式的boolean数组使用1比特表示每个元素，而非压缩式的则使用一个字节表示每个元素。因此，<span style="color: #ff0000;">依赖boolean数组的某种实现方式的原生函数是不可移植的。</span></p>
+<p>JNI采用了一种妥协的方式来解决上述前提。</p>
+<p>首先，<span style="color: #ff0000;">JNI提供了一系列的函数接口(如GetIntArrayRegion()与SetIntArrayRegion())在基础数据类型数组与原生函数缓存区(buffer)之间复制元素值。</span>当原生函数只需要访问一个大数组中的一小部分数据或原生函数需要复制数组元素时就可以使用这些函数。</p>
+<p>其次，<span style="color: #ff0000;">JNI还提供了另外一系列函数接口(如GetIntArrayElements)来获取pinning之后的数组的元素。</span>根据不同虚拟机的实现，这些函数可能导致虚拟机申请新的内存，并将数组复制到新的内存区域：</p>
+<p>1.如果垃圾回收机制支持pinning，并且数组元素能够物理上连续存放，那么就不会申请新的内存并复制数组。</p>
+<p>2.否则，数组元素就会被复制到新的内存区域(如虚拟机在堆中申请的内存区域)，并且数组元素的格式可能会被转换。最后返回这个新区域的指针。</p>
+<p>原生函数可以调用JNI提供的函数(如ReleaseIntArrayElements())来通知虚拟机数组元素不再需要了，此时虚拟机要么unpin数组，要么释放被复制的数组。</p>
+<p>这种解决方案比较灵活。因为<span style="color: #ff0000;">垃圾回收机制算法可以对每一个数组进行判断，到底是使用”pinning”还是复制，在通常的实现算法中，垃圾回收机制会复制小数组，pin大数组。</span></p>
+<p>最后，Java 2 SDK 1.2提供了两个新的函数：GetPrimitiveArrayCritical()和ReleasePrimitiveArrayCritical()。这两个函数也会获取数组的直接指针，但是有条件限制。这两个函数必须在临界区代码内执行，即不能这段临界区代码内不能调用其他任意的JNI函数，不能执行时间太长，不能等待虚拟机中的另一个线程，也不能产生死锁。当这些限制条件都满足的时候，虚拟机就可以暂时禁用垃圾回收机制，原生函数就可以在这段代码内使用数组的直接指针访问数组元素。</p>
+<p>JNI的实现必须保证运行在多个线程中的原生函数能同时访问同一个数组。比如，JNI在实现时可能为每一个pinned数组保持一个使用计数，当一个线程访问这个数组的时候，使用计数就加1，只有当使用计数变为0的时候，unpin数组才会真正的销毁这个数组。注意，多个线程同时读取数组元素是不需要互斥的，而如果同时更新数组就需要互斥与同步了。</p>
+<h2 id="11-7-2-成"><a href="#11-7-2-成" class="headerlink" title="11.7.2 成"></a>11.7.2 成</h2><h2 id="员变量和成员方法"><a href="#员变量和成员方法" class="headerlink" title="员变量和成员方法"></a>员变量和成员方法</h2><p>JNI允许原生函数访问Java中定义的类的成员变量和成员方法。JNI通过名称和类型描述符来唯一确定变量或方法。通常，访问成员变量或调用成员方法需要两步(假定读取类cls的成员变量i)：</p>
+<p>首先，遍历指定类的变量或方法，找到指定的变量或方法，获取变量或方法的ID：</p>
+<p><div class="page" title="Page 174"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>jfieldID fid = env-&gt;GetFieldID(env, cls, “i”, “I”);<br></pre><br><br><br><br><br>其次，可以直接重复使用ID来访问变量或调用方法：</p>
+<p><div class="page" title="Page 174"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>jint value = env-&gt;GetIntField(env, obj, fid);<br></pre><br><br><br><br><br>变量或方法的ID一直有效，除非虚拟机卸载定义了这些变量或方法的类或接口。</p>
+<p>类中的成员变量和方法可以是本身定义的，也可以是从父类或父接口中继承来的。Java虚拟机对继承层次中的变量和方法必须返回相同的ID。</p>
+<h1 id="11-8-错误和异常"><a href="#11-8-错误和异常" class="headerlink" title="11.8 错误和异常"></a>11.8 错误和异常</h1><h2 id="11-8-1-对编程错误不做检查"><a href="#11-8-1-对编程错误不做检查" class="headerlink" title="11.8.1 对编程错误不做检查"></a>11.8.1 对编程错误不做检查</h2><p>JNI函数不会检查接受的参数是否有效。这样设计是因为：</p>
+<p>1.强制让JNI函数检查所有可能的错误是不现实的，也会影响效率。</p>
+<p>2.在很多情况下，没有足够的运行时类型信息来标识检查结果。</p>
+<p>虽然JNI不需要进行检查，但是虚拟机可能提供了检查。比如，可以使用Java 2 SDK 1.2提供的调试版本的JNI接口列表。调试版本的JNI函数在被虚拟机调用之前就会对参数进行检查，以排除大部分可能的错误。</p>
+<h2 id="11-8-2-Java虚拟机异常"><a href="#11-8-2-Java虚拟机异常" class="headerlink" title="11.8.2 Java虚拟机异常"></a>11.8.2 Java虚拟机异常</h2><p>JNI不会依赖原生函数的异常处理机制，原生函数可以使用JNI函数Throw()或ThrowNew()让虚拟机抛出异常。当抛出异常后，挂起的异常就会被当前线程记录下来。在原生函数中抛出异常并不会被打断正常的执行流。</p>
+<p>在原生语言中没有标准的异常处理机制，因此JNI程序员必须在可能抛出异常的代码段之后检查是否有异常抛出，如果有就要对异常进行以下两种处理：</p>
+<p>1.直接从原生函数中返回，这样异常就能被这个原生函数的调用者捕获到，并在调用者中进行异常处理。</p>
+<p>2.原生函数可以调用JNI函数ExceptionClear()来清除抛出的异常，并执行自己的异常处理代码。</p>
+<p><span style="color: #ff0000;">在调用任何的JNI函数之前，必须检查异常、(如果有异常抛出)清除挂起的异常。在有挂起的异常(没有清除抛出的异常)的情况下调用JNI函数，结果是未定义的。</span>下面列出的JNI函数是可以在有挂起的异常时被调用：</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/06/exception.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/06/exception.png" alt="exception"></a></p>
+<p>&nbsp;</p>
+<p>刚开始的四个JNI函数是用于异常处理的，剩下的JNI函数是用于释放各种虚拟机资源的。当有异常时，释放虚拟机资源是必要的。</p>
+<h2 id="11-8-3-异步异常"><a href="#11-8-3-异步异常" class="headerlink" title="11.8.3 异步异常"></a>11.8.3 异步异常</h2><p>一个线程如果调用Thread.stop方法可能会在另一个线程中引起异步异常。<span style="color: #ff0000;">异步异常不会影响当前线程的原生代码的执行，除非：</span></p>
+<p><span style="color: #ff0000;">1.原生代码调用会抛出异步异常的JNI函数</span></p>
+<p><span style="color: #ff0000;">2.原生代码显式的使用ExceptionOccurred()函数来检查同步或异步异常。</span></p>
+<p>只有可能抛出异步异常的JNI函数对异步异常做检查。</p>
+<p>原生函数可以在必要的地方(如没有其他异常检查的小循环中)使用ExceptionOccurred()函数进行异步异常的检查，这样能保证当前线程能在合理的时间范围内对异步异常做检查和处理。</p>
+<p><span style="color: #ff0000;">在Java 2 SDK 1.2中反对使用可能产生异步异常的Java线程API(如Thread.stop),因为这样可能使得原生代码不可靠。反对的主要原因还包括，当前实现的JNI函数并没有严格的按照本节所属的规则去检测、处理异步异常。</span></p>
+<p>&nbsp;</p>
+<p>本章的内容到此结束，而且JNI系列博客的内容也介绍完了。如果读者感兴趣，可以继续访问Oracle官网提供的JNI文档：<a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/jniTOC.html" target="_blank" rel="noopener">文档</a>。文档中对最新版本的JNI的各种细节进行了详细阐述，非常值得参考。</p>
+<p>&nbsp;</p>
+<p><em><strong><span style="color: #ff0000;">声明：本人的JNI技术解析1-11章的博客，内容全部来源于《Java Native Interface Programmers Guide And Specification》一书，包括图片、文字介绍、示例等。这些博客只用于学术交流，没有产生利益，如果侵权了，请发邮件告知：<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a>，我会马上删除这些博客。</span></strong></em></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/13/jni10th-traps-pitfalls/" rel="next" title="JNI技术解析第10章 JNI中陷阱和常犯的错误">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第10章 JNI中陷阱和常犯的错误
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/06/keep-ssh-alive/" rel="prev" title="保持SSH连接不自动断开">
+                保持SSH连接不自动断开 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#11-1-设计目标"><span class="nav-number">1.</span> <span class="nav-text">11.1 设计目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-2-加载原生库"><span class="nav-number">2.</span> <span class="nav-text">11.2 加载原生库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-1-类加载器"><span class="nav-number">2.1.</span> <span class="nav-text">11.2.1 类加载器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-2-类加载器和原生库"><span class="nav-number">2.2.</span> <span class="nav-text">11.2.2 类加载器和原生库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-3-定位原生库"><span class="nav-number">2.3.</span> <span class="nav-text">11.2.3 定位原生库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-4-类型安全约束"><span class="nav-number">2.4.</span> <span class="nav-text">11.2.4 类型安全约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-5-卸载原生库"><span class="nav-number">2.5.</span> <span class="nav-text">11.2.5 卸载原生库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-6-链接原生函数"><span class="nav-number">2.6.</span> <span class="nav-text">11.2.6 链接原生函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-4-调用约定"><span class="nav-number">3.</span> <span class="nav-text">11.4 调用约定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-5-JNIEnv接口指针"><span class="nav-number">4.</span> <span class="nav-text">11.5 JNIEnv接口指针</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-5-1-JNIEnv接口指针的组织"><span class="nav-number">4.1.</span> <span class="nav-text">11.5.1 JNIEnv接口指针的组织</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-5-2-接口指针的优点"><span class="nav-number">4.2.</span> <span class="nav-text">11.5.2 接口指针的优点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-6-传递数据"><span class="nav-number">5.</span> <span class="nav-text">11.6 传递数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-6-1-全局和局部引用"><span class="nav-number">5.1.</span> <span class="nav-text">11.6.1 全局和局部引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-6-2-实现局部引用"><span class="nav-number">5.2.</span> <span class="nav-text">11.6.2 实现局部引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-6-3-弱全局引用"><span class="nav-number">5.3.</span> <span class="nav-text">11.6.3 弱全局引用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-7-访问对象"><span class="nav-number">6.</span> <span class="nav-text">11.7 访问对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-7-1-访问基础数据类型的数组"><span class="nav-number">6.1.</span> <span class="nav-text">11.7.1 访问基础数据类型的数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-7-2-成"><span class="nav-number">6.2.</span> <span class="nav-text">11.7.2 成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#员变量和成员方法"><span class="nav-number">6.3.</span> <span class="nav-text">员变量和成员方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-8-错误和异常"><span class="nav-number">7.</span> <span class="nav-text">11.8 错误和异常</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-8-1-对编程错误不做检查"><span class="nav-number">7.1.</span> <span class="nav-text">11.8.1 对编程错误不做检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-8-2-Java虚拟机异常"><span class="nav-number">7.2.</span> <span class="nav-text">11.8.2 Java虚拟机异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-8-3-异步异常"><span class="nav-number">7.3.</span> <span class="nav-text">11.8.3 异步异常</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="为了强调前几章介绍到的技术，本章重点讨论JNI程序员经常会犯的一些错误。这里提出的每一个错误在真正的项目中都出现过。 10.1 错误检查最常犯的错误就是在编写原生代码的时候忘记了检查JNI函数是否发生错误/异常。不像Java编程语言那样有垃圾回收机制自动回收不再使用的对象，原生语言不提供这种机制。JNI也不依赖任何的原生异常机制(比如C++异常处理)。因此，程序员每一次调用可能产生异常的JNI函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第10章 JNI中陷阱和常犯的错误">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/06/13/jni10th-traps-pitfalls/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="为了强调前几章介绍到的技术，本章重点讨论JNI程序员经常会犯的一些错误。这里提出的每一个错误在真正的项目中都出现过。 10.1 错误检查最常犯的错误就是在编写原生代码的时候忘记了检查JNI函数是否发生错误/异常。不像Java编程语言那样有垃圾回收机制自动回收不再使用的对象，原生语言不提供这种机制。JNI也不依赖任何的原生异常机制(比如C++异常处理)。因此，程序员每一次调用可能产生异常的JNI函数">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第10章 JNI中陷阱和常犯的错误">
+<meta name="twitter:description" content="为了强调前几章介绍到的技术，本章重点讨论JNI程序员经常会犯的一些错误。这里提出的每一个错误在真正的项目中都出现过。 10.1 错误检查最常犯的错误就是在编写原生代码的时候忘记了检查JNI函数是否发生错误/异常。不像Java编程语言那样有垃圾回收机制自动回收不再使用的对象，原生语言不提供这种机制。JNI也不依赖任何的原生异常机制(比如C++异常处理)。因此，程序员每一次调用可能产生异常的JNI函数">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/06/13/jni10th-traps-pitfalls/">
+
+
+
+
+
+  <title>JNI技术解析第10章 JNI中陷阱和常犯的错误 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/06/13/jni10th-traps-pitfalls/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第10章 JNI中陷阱和常犯的错误</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-06-13T16:20:34+07:00">
+                2015-06-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>为了强调前几章介绍到的技术，本章重点讨论JNI程序员经常会犯的一些错误。这里提出的每一个错误在真正的项目中都出现过。</p>
+<h1 id="10-1-错误检查"><a href="#10-1-错误检查" class="headerlink" title="10.1 错误检查"></a>10.1 错误检查</h1><p>最常犯的错误就是在编写原生代码的时候<span style="color: #ff0000;">忘记了检查JNI函数是否发生错误/异常。</span>不像Java编程语言那样有垃圾回收机制自动回收不再使用的对象，原生语言不提供这种机制。<span style="color: #ff0000;">JNI也不依赖任何的原生异常机制(比如C++异常处理)。</span>因此，<span style="color: #ff0000;">程序员每一次调用可能产生异常的JNI函数之后，都要显式的做一次错误检查或异常检查，</span>虽然并不是所有的JNI函数都会抛出异常，但是大部分都会。异常检查虽然很琐碎，但是是鲁棒健壮的程序必不可少的部分。</p>
+<h1 id="10-2-给JNI函数传递无效参数"><a href="#10-2-给JNI函数传递无效参数" class="headerlink" title="10.2 给JNI函数传递无效参数"></a>10.2 给JNI函数传递无效参数</h1><p><span style="color: #ff0000;">JNI函数不会尝试检测无效参数并从这个错误中恢复。</span>比如，对一个需要非NULL引用作为参数的JNI函数，如果你传递了NULL或(jobject)0xFFFFFFFF，那么这个行为的结果是未知的，在实际情况中，要么造成无效的输出，要么导致虚拟机崩溃。Java 2 SDK 1.2提供了命令行参数-Xcheck:jni，这个参数会让虚拟机检测并报告很多(虽然不是全部)的JNI函数中的无效参数。检测参数的有效性会导致非常明显的系统过载，因此默认会禁止使用。</p>
+<p>在C于C++标准库中，函数不检查其参数的有效性也是通常的做法，调用这些库函数的代码负责保证调用时参数有效。因此，使用JNI的时候，务必保证参数有效。</p>
+<h1 id="10-3-混淆了jclass与jobject"><a href="#10-3-混淆了jclass与jobject" class="headerlink" title="10.3 混淆了jclass与jobject"></a>10.3 混淆了jclass与jobject</h1><p>第一次使用JNI的时候，容易把对象引用(jobject类型的值)与类引用(jclass类型的值)混为一谈。</p>
+<a id="more"></a>
+<p><span style="color: #ff0000;">对象引用是java.lang.Object类与其子类的对象或包含其对象的数组的引用。而类引用则是java.lang.Class类对象的引用，是一种类类型。</span></p>
+<p>使用jclass类型作为参数的JNI函数，如GetFieldID()函数，是一种类型操作。因为这类函数从类中获得其成员变量的ID。相反，使用jobject类型作为参数的JNI函数，如GetIntField()函数，是一种对象操作。因为这类函数从实例化的类(也就是类的对象)中获取成员变量的值。</p>
+<p>因此，jobject与jclass类型是有很大区别的。</p>
+<h1 id="10-4-截断jboolean参数"><a href="#10-4-截断jboolean参数" class="headerlink" title="10.4 截断jboolean参数"></a>10.4 截断jboolean参数</h1><p>jboolean是一个8比特无符号C类型，可以存储的值为0到255。0表示JNI_FALSE，从1到255表示JNI_TRUE。但是，<span style="color: #ff0000;">对于32比特或16比特类型的变量，如果它的值超过了255，并且低8为均为0的话，就会产生问题。</span></p>
+<p>假如，有一个已定义的print()函数接受一个jboolean类型的condition变量作为参数：</p>
+<div class="page" title="Page 146"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre>void print(jboolean condition)<br>{<br>    /<em> 如果condition不是jboolean类型，那么编译器会产生代码截断它，只保留其低八位 </em>/<br>    if (condition) {<br>        printf(“truen”);<br>    } else {<br>        printf(“falsen”);<br>    }<br>}</pre><br></div><br></div><br></div><br></div><br>如果在传递参数的时候类型为jboolean，那么程序就能正常运行。如果传递的是jint或jlong等类型，就可能出现问题。比如：<br><div class="page" title="Page 147"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre lang="php"><span style="color: #ff0000;">int n = 256; /<em> 256的二进制是0x100,它的低8为全是0 </em>/<br>print(n);</span></pre><br></div><br></div><br></div><br></div><br>我们调用print()的时候，传递的是非0值(即原本向表达JNI_TRUE)，可是由于256是jint类型，会截断，只保留其低八位，而256的低八位全为0，所以实际会被认为传递的参数值是JNI_FALSE。可以采用如下的方法解决这个问题：<br><div class="page" title="Page 147"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre>n = 256;<br><span style="color: #ff0000;">print (n ? JNI_TRUE : JNI_FALSE);<br></span></pre><br></div><br></div><br></div><br></div>
+
+<h1 id="10-5-Java应用和原生代码之间的界限"><a href="#10-5-Java应用和原生代码之间的界限" class="headerlink" title="10.5 Java应用和原生代码之间的界限"></a>10.5 Java应用和原生代码之间的界限</h1><p>通常，开发一个支持原生代码的Java应用时，都会有一个问题：<span style="color: #ff0000;">哪部分代码可以放在原生代码中实现？</span>这个问题根据应用程序的特点而定，但在设计应用的时候，Java代码与原生代码之间的界限可以参考以下的设计原则：</p>
+<p>1.<span style="color: #ff0000;">尽可能的保持界限简单明了。</span>如果执行流是在Java和原生代码不断的跳来跳去，那么调试和管理就比较麻烦，而且容易出BUG。这种执行流也会阻碍虚拟机对原生代码的性能优化，比如对Java虚拟机来说，使用Java语言定义的方法更容易使用inline来处理，而对于C和C++定义的代码用inline来处理就比较麻烦。</p>
+<p>2.<span style="color: #ff0000;">在原生代码部分的代码尽可能的小。</span>原生代码既不是类型安全的，也不是可移植的。在原生代码中进行错误检查也非常的枯燥麻烦。所以，好的软件工程会使这部分代码最小化。</p>
+<p>3.<span style="color: #ff0000;">使原生代码与Java应用解耦。</span>在实际情况中，这意味着所有的原生函数都被封装到一个包或一个类中，与应用的其他部分解耦。这样一来，包含原生函数的包和类就成为了应用程序部分的移植层。</p>
+<p>JNI提供了访问虚拟机功能的函数，比如加载类、创建对象、访问类成员、调用Java方法、线程同步等等。所以，有时候<span style="color: #ff0000;">很容易在原生代码中大量使用这些功能与Java虚拟机进行复杂的交互，然而，这些任务可以在Java中轻易的完成。</span>下面来举一个例子：</p>
+<p>比如，用Java创建线程：</p>
+<p><div class="page" title="Page 148"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>new JobThread().start();<br></pre><br><br><br><br><br>相同功能的原生代码为：</p>
+<p><div class="page" title="Page 148"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>/<em> 假定下面的变量是提前缓存好了的:
+</em>Class_JobThread:  JobThread类<br><em>MID_Thread_init:  构造函数ID
+</em>MID_Thread_start: Thread.start()方法的ID<br><em>/<br>aThreadObject =(</em>env)-&gt;NewObject(env, Class_JobThread, MID_Thread_init);<br>if (aThreadObject == NULL) {<br>    … /<em> out of memory </em>/<br>}<br>(<em>env)-&gt;CallVoidMethod(env, aThreadObject, MID_Thread_start);<br>if ((</em>env)-&gt;ExceptionOccurred(env)) {<br>    … /<em> thread did not start </em>/<br>}<br></pre><br><br><br><br><br>上述的原生代码与Java代码实现相同的功能，原生代码明显比较复杂，况且，原生代码中我们还省略了错误和异常处理的代码。</p>
+<p><span style="color: #ff0000;">与其在原生代码中编写复杂的代码块来管理Java虚拟机，倒不如在Java中创建一个辅助函数来做相同的任务，使用JNI回调Java的方法来回调这个辅助函数。</span></p>
+<h1 id="10-6-混淆ID与引用"><a href="#10-6-混淆ID与引用" class="headerlink" title="10.6 混淆ID与引用"></a>10.6 混淆ID与引用</h1><p>JNI使用<span style="color: #ff0000;">引用来绑定对象。类、数组、字符串都是特殊的对象，</span>所以都可以用引用来指向它们。JNI使用<span style="color: #ff0000;">ID来绑定类成员方法和类成员变量，ID并不是引用。</span></p>
+<p><span style="color: #ff0000;">引用是Java虚拟机中的资源，可以被原生代码显式的管理，</span>比如DeleteLocalRef()可以释放引用资源，NewGlobalRef()创建引用资源。相反，<span style="color: #ff0000;">类成员变量ID和类方法ID只在定义它们的类被虚拟机卸载之前有效，并且只被虚拟机管理。</span>在虚拟机卸载一个类之前，原生代码不能显式的创建ID和删除ID。</p>
+<p>原生代码可能<span style="color: #ff0000;">对同一个对象创建多个引用</span>，比如一个局部引用和一个全局引用都指向同一个对象。相反，<span style="color: #ff0000;">唯一的ID在类的继承过程中保持不变。</span>比如类A定义了f()方法，类B继承类A的f()方法，那么下面两条语句的结果返回相同的ID：</p>
+<p><div class="page" title="Page 149"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>jmethodID MID_A_f = (<em>env)-&gt;GetMethodID(env, A, “f”, “()V”);<br>jmethodID MID_B_f = (</em>env)-&gt;GetMethodID(env, B, “f”, “()V”);<br></pre><br><br><br><br><br>所以，同一个方法或变量，在一个继承层次中始终只拥有一个ID。</p>
+<h1 id="10-7-缓存成员变量和成员方法的ID"><a href="#10-7-缓存成员变量和成员方法的ID" class="headerlink" title="10.7 缓存成员变量和成员方法的ID"></a>10.7 缓存成员变量和成员方法的ID</h1><p>原生代码把成员变量和成员方法的名称和类型签名作为字符串传递给虚拟机，从而获取到Java类的成员方法和成员变量的ID。然而，使用变量和方法的名称与类型签名在类中遍历查找是比较慢的，所以通常，我们第一次查找到之后，就<span style="color: #ff0000;">把这些ID缓存起来，以提高后续使用的效率。如果忘记了缓存，那对性能会有影响。</span></p>
+<p>在某些案例中，缓存ID不仅仅在性能方面获益。<span style="color: #ff0000;">缓存了的ID能够保证原生代码访问了正确的成员变量和方法。</span>而下面的例子就演示了缓存ID失败可能导致的细小的BUG：</p>
+<p><div class="page" title="Page 149"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre lang="php">class C {<br>       private int i;<br>       native void f();<br>}</pre><br><br><br><br><br>假定原生函数f()要获取类C的一个对象的成员变量i的值。如果不缓存ID，那么实现分为三步：获取对象的类引用，从类引用中遍历查找i的ID，使用对象引用和变量ID获取i的值：</p>
+<p><div class="page" title="Page 150"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre lang="php">// 不缓存变量ID的实现方式<br>JNIEXPORT void JNICALL Java_C_f(JNIEnv <em>env, jobject this) {<br>    jclass cls = (</em>env)-&gt;GetObjectClass(env, this);<br>    … /<em> 检查错误和异常 </em>/<br>    jfieldID fid = (<em>env)-&gt;GetFieldID(env, cls, “i”, “I”);<br>    … /</em>检查错误和异常<em>/<br>    ival = (</em>env)-&gt;GetIntField(env, this, fid);<br>    … /<em> ival的值就是this.i的值 </em>/<br>}</pre><br><br><br><br><br>在上面的案例中，获取成员变量i的值没有任何问题。然而，当我们定义<span style="color: #ff0000;">另一个类D，它继承自类C。因为C.i是私有变量，不会被继承，所以不存在变量D.i；而C.f()是protected，能够被继承。我们在类D中同样定义一个私有变量i</span>：</p>
+<p><div class="page" title="Page 150"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre lang="php">// 未缓存ID会导致BUG<br>class D extends C {<br>    private int i;//<span style="color: #ff0000;">i是D独有的，不是继承的</span><br>    D() {<br>        f(); // f()是继承自C<br>    }<br>}</pre><br><br><br><br><br>此时，如果创建类D的对象，那么类D的构造函数会调用C.f()，此时C.f()的参数是类D的对象的引用，因此它会首先获取类D的引用，再获取D.i的ID，最后ival的值为D.i的值，而不是我们期望的C.i的值。因为f()函数最初是被定义在类C中的，我们期望获取类C的变量值，而不是其他类的变量的值。</p>
+<p>解决方案就是，在你确定获取到类C的引用(不是类D的引用)时就计算并缓存这个类中变量为i的ID。后续访问这个ID，都会获得C.i而不是D.i。下面是正确的版本：</p>
+<p><div class="page" title="Page 150"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre lang="php">// 在静态初始化上下文中缓存变量ID<br>class C {<br>    private int i;<br>    native void f();<br>    private static native void initIDs();<br>    static {<br>        initIDs(); // Call an initializing native method<br>    }<br>}</pre><br><br><br><br><br>相应的原生代码修改为：</p>
+<p><div class="page" title="Page 151"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre lang="php"><span style="color: #ff0000;">static jfieldID FID_C_i;</span><br>JNIEXPORT void JNICALL Java_C_initIDs(JNIEnv <em>env, jclass cls) {<br>    /</em> Get IDs to all fields/methods of C that<br>    native methods will need. <em>/<br>    FID_C_i = (</em>env)-&gt;GetFieldID(env, cls, “i”, “I”);<br>}</pre></p>
+<p>JNIEXPORT void JNICALL Java_C_f(JNIEnv <em>env, jobject this) {<br>   ival = (</em>env)-&gt;GetIntField(env, this, FID_C_i);<br>   … /<em> 通过缓存了的ID访问变量，始终得到C.i的值 </em>/<br>}<br><br><br><br><br>变量C.i的ID在原生代码中的静态上下文中首先计算并缓存起来，因此，后续调用f()函数，直接使用这个静态全局变量，而与对象引用和类引用无关了。</p>
+<p>上面的例子同样适用于缓存成员方法ID。</p>
+<h1 id="10-8-在Unicode编码字符串末尾使用结束符"><a href="#10-8-在Unicode编码字符串末尾使用结束符" class="headerlink" title="10.8 在Unicode编码字符串末尾使用结束符"></a>10.8 在Unicode编码字符串末尾使用结束符</h1><p>使用JNI函数<span style="color: #ff0000;">GetStringChars()和GetStringCritical()获得的Unicode编码字符串是不以NULL结尾的。</span>想要获得16比特Unicode编码的字符串，可以使用JNI函数<span style="color: #ff0000;">GetStringLength()。</span></p>
+<h1 id="10-9-违反访问控制规则"><a href="#10-9-违反访问控制规则" class="headerlink" title="10.9 违反访问控制规则"></a>10.9 违反访问控制规则</h1><p>在Java编程预言中使用访问标号(public, private)可以控制类、成员变量和成员方法的访问控制，但是<span style="color: #ff0000;">JNI却不会有访问控制</span>。在Java中访问可能会引起IllegalAccessException异常的操作，在JNI中则可能是正常的。这种“宽容”可能是有意为之，不管怎么说，<span style="color: #ff0000;">在JNI中可以随意的访问和修改堆中的数据。</span></p>
+<p>在原生代码中的这种无约束的访问可能会造成意想不到的后果。比如，JIT(Just In Time)编译器<span style="color: #ff0000;">访问了final成员变量之后，原生代码却修改了它，造成前后不一致</span>。同样的，<span style="color: #ff0000;">原生代码也不应该修改类不变量(比如java.lang.String类与java.lang.Integer类的对象的值，这些值是不允许改变的)。</span></p>
+<h1 id="10-10-无视国际化编码"><a href="#10-10-无视国际化编码" class="headerlink" title="10.10 无视国际化编码"></a>10.10 无视国际化编码</h1><p>Java平台的字符串编码为Unicode，而原生代码中的字符串很可能是本地编码的。可以使用第8章提到的国际化编码中实现的工具函数<span style="color: #ff0000;">JNU_NewStringNative()和JNU_GetStringNativeChars()在jstring对象与宿主系统支持的本地编码的字符串之间进行转换。</span>特别注意消息字符串与文件名，因为它们通常是国际化编码的。</p>
+<h1 id="10-11-一直占用虚拟机资源"><a href="#10-11-一直占用虚拟机资源" class="headerlink" title="10.11 一直占用虚拟机资源"></a>10.11 一直占用虚拟机资源</h1><p>在原生代码中一个通常会<span style="color: #ff0000;">忘记的事情就是释放虚拟机资源</span>。这种忘记大多是在原生代码中有多个返回点的时候，比如出错返回，某个条件返回等等，在返回之前没有释放资源。</p>
+<p>因此，程序员务必注意，<span style="color: #ff0000;">在编写JNI程序的时候，在原生函数的每一个返回点之前务必要释放资源，比如删除局部、全局或弱全局引用。</span></p>
+<h1 id="10-12-过度创建局部引用"><a href="#10-12-过度创建局部引用" class="headerlink" title="10.12 过度创建局部引用"></a>10.12 过度创建局部引用</h1><p><span style="color: #ff0000;">创建过多的局部引用会造成内存资源浪费。</span>而且，一个不再使用的局部引用不仅仅是它所指向的对象一直占用内存资源，局部引用本身也会占用资源。特别注意要<span style="color: #ff0000;">长时间运行的原生函数、工具函数和在循环中创建的局部引用。</span>最好使用Java 2 SDK 1.2提供的<span style="color: #ff0000;">Push/PopLocalFrame()</span>函数对来更有效的管理局部引用，详细的内容请参考第5章。</p>
+<p>在Java 2 SDK 1.2中可以使用命令行参数-verbose:jni选项让虚拟机来检查和报告过度创建局部引用的原生部分。比如，输入的命令为：</p>
+<p><div class="page" title="Page 154"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>% java -verbose:jni Foo<br></pre><br><br><br><br><br>那么，如果过度创建局部引用的话，输出可能为：</p>
+<p><div class="page" title="Page 154"></div></p>
+<p><div class="section"></div></p>
+<p><div class="layoutArea"></div></p>
+<p><div class="column"></div></p>
+<p><pre>***ALERT: JNI local ref creation exceeded capacity<br>             (creating: 17, limit: 16).<br></pre></p>
+<p><pre>           at Baz.g (Native method)<br>           at Bar.f (Compiled method)<br>           at Foo.main (Compiled method)<br></pre><br><br><br><br><br>因此，可以看到原生函数Baz.g()没有进行合适的管理局部引用。</p>
+<h1 id="10-13-使用无效的局部引用"><a href="#10-13-使用无效的局部引用" class="headerlink" title="10.13 使用无效的局部引用"></a>10.13 使用无效的局部引用</h1><p><span style="color: #ff0000;">局部引用只会在一次原生函数调用过程中生效。</span>一旦该函数返回，在函数内创建的局部引用就无效了(因为会被虚拟机自动释放回收)。因此，不应该缓存局部引用(包括用全局变量或静态变量)，期望下一次调用时继续使用该局部引用。而且，<span style="color: #ff0000;">局部引用也仅仅在创建它的那个线程中有效，不应该在多个线程间传递局部引用。</span>当必须要这么做时，可以将局部引用转换为全局引用(使用NewGlobalRef()函数)。</p>
+<h1 id="10-14-在多个线程间使用同一个JNIEnv指针"><a href="#10-14-在多个线程间使用同一个JNIEnv指针" class="headerlink" title="10.14 在多个线程间使用同一个JNIEnv指针"></a>10.14 在多个线程间使用同一个JNIEnv指针</h1><p><span style="color: #ff0000;">JNIEnv指针也仅在单个线程内有效，</span>不同线程中JNIEnv指针的值不一样。所以，不应该缓存JNIEnv指针。第8章介绍了如何获取当前线程的JNIEnv指针。</p>
+<h1 id="10-15-不兼容的线程模型"><a href="#10-15-不兼容的线程模型" class="headerlink" title="10.15 不兼容的线程模型"></a>10.15 不兼容的线程模型</h1><p>在前面章节中也提到过，如果在原生代码中有依赖线程的部分，那么<span style="color: #ff0000;">原生代码依赖的线程模型要与虚拟机中支持的线程模型相同或兼容。</span>比如在Linux上编写的原生代码依赖POSIX线程模型(pthread线程库)，如果Java虚拟机不支持这种线程模型的话，那这个原生代码生成的原生库就不能在该虚拟机中运行。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/02/jni9th-leveraging-existing-native-libraries/" rel="next" title="JNI技术解析第九章 使用存在的原生库">
+                <i class="fa fa-chevron-left"></i> JNI技术解析第九章 使用存在的原生库
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/26/jni11th-design-overview/" rel="prev" title="JNI技术解析第11章 JNI设计概览">
+                JNI技术解析第11章 JNI设计概览 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#10-1-错误检查"><span class="nav-number">1.</span> <span class="nav-text">10.1 错误检查</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-2-给JNI函数传递无效参数"><span class="nav-number">2.</span> <span class="nav-text">10.2 给JNI函数传递无效参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-3-混淆了jclass与jobject"><span class="nav-number">3.</span> <span class="nav-text">10.3 混淆了jclass与jobject</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-4-截断jboolean参数"><span class="nav-number">4.</span> <span class="nav-text">10.4 截断jboolean参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-5-Java应用和原生代码之间的界限"><span class="nav-number">5.</span> <span class="nav-text">10.5 Java应用和原生代码之间的界限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-6-混淆ID与引用"><span class="nav-number">6.</span> <span class="nav-text">10.6 混淆ID与引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-7-缓存成员变量和成员方法的ID"><span class="nav-number">7.</span> <span class="nav-text">10.7 缓存成员变量和成员方法的ID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-8-在Unicode编码字符串末尾使用结束符"><span class="nav-number">8.</span> <span class="nav-text">10.8 在Unicode编码字符串末尾使用结束符</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-9-违反访问控制规则"><span class="nav-number">9.</span> <span class="nav-text">10.9 违反访问控制规则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-10-无视国际化编码"><span class="nav-number">10.</span> <span class="nav-text">10.10 无视国际化编码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-11-一直占用虚拟机资源"><span class="nav-number">11.</span> <span class="nav-text">10.11 一直占用虚拟机资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-12-过度创建局部引用"><span class="nav-number">12.</span> <span class="nav-text">10.12 过度创建局部引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-13-使用无效的局部引用"><span class="nav-number">13.</span> <span class="nav-text">10.13 使用无效的局部引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-14-在多个线程间使用同一个JNIEnv指针"><span class="nav-number">14.</span> <span class="nav-text">10.14 在多个线程间使用同一个JNIEnv指针</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-15-不兼容的线程模型"><span class="nav-number">15.</span> <span class="nav-text">10.15 不兼容的线程模型</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

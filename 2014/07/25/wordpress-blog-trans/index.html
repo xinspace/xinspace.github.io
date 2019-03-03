@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="国内服务器或虚拟空间建网站都要备案，最近审核比较严格，我做的几个站点都有点儿小问题，比如广告信息或者论坛链接之类的，但是这些站点里都没有，都是个人、企业和学校的网站。审核的效率比较低，又来回折腾了两三次，直接窝火，找人代付买了三个月Linode，试一下这款口碑很不错的美国VPS。你现在看到这篇文章所在的wordpress就搭建在新买的Linode上的，服务器在东京。速度还可以。 以上是废话，下面说">
+<meta property="og:type" content="article">
+<meta property="og:title" content="wordpress博客整站搬迁">
+<meta property="og:url" content="http://blog.xinspace.xin/2014/07/25/wordpress-blog-trans/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="国内服务器或虚拟空间建网站都要备案，最近审核比较严格，我做的几个站点都有点儿小问题，比如广告信息或者论坛链接之类的，但是这些站点里都没有，都是个人、企业和学校的网站。审核的效率比较低，又来回折腾了两三次，直接窝火，找人代付买了三个月Linode，试一下这款口碑很不错的美国VPS。你现在看到这篇文章所在的wordpress就搭建在新买的Linode上的，服务器在东京。速度还可以。 以上是废话，下面说">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="wordpress博客整站搬迁">
+<meta name="twitter:description" content="国内服务器或虚拟空间建网站都要备案，最近审核比较严格，我做的几个站点都有点儿小问题，比如广告信息或者论坛链接之类的，但是这些站点里都没有，都是个人、企业和学校的网站。审核的效率比较低，又来回折腾了两三次，直接窝火，找人代付买了三个月Linode，试一下这款口碑很不错的美国VPS。你现在看到这篇文章所在的wordpress就搭建在新买的Linode上的，服务器在东京。速度还可以。 以上是废话，下面说">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2014/07/25/wordpress-blog-trans/">
+
+
+
+
+
+  <title>wordpress博客整站搬迁 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2014/07/25/wordpress-blog-trans/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">wordpress博客整站搬迁</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-07-25T07:54:16+07:00">
+                2014-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>国内服务器或虚拟空间建网站都要备案，最近审核比较严格，我做的几个站点都有点儿小问题，比如广告信息或者论坛链接之类的，但是这些站点里都没有，都是个人、企业和学校的网站。审核的效率比较低，又来回折腾了两三次，直接窝火，找人代付买了三个月Linode，试一下这款口碑很不错的美国VPS。你现在看到这篇文章所在的wordpress就搭建在新买的Linode上的，服务器在东京。速度还可以。</p>
+<p>以上是废话，下面说一下博客整站搬迁的方法。以下方法假设使用的HTTP服务器软件是Apache、数据库系统是MySQL、服务器（虚拟空间）基于Linux系统。</p>
+<p>博客搬迁分三种情况：</p>
+<p><strong>一、不换服务器（虚拟空间），换域名</strong><br>  1.1. 这种情况比较简单，在购买域名的服务商提供的DNS服务中，将新买的域名绑定到原服务器（虚拟主机）的ip地址。<br>  1.2. 将博客使用的数据库导出（导出步骤见下面描述），修改sql文件中，把其中的所有旧的域名替换为新域名即可。<br>  经过这两步，就可以通过新域名访问博客了（可能要等一会儿，因为DNS解析域名需要一段时间，一般两个小时之后就可以访问了）。</p>
+<a id="more"></a>
+<p><strong>二、换服务器（虚拟空间，一般也就是换ip地址了），不换域名</strong><br>其实不管是wordpress等博客系统，还是dedecms、phpcms等等内容管理系统，这种情况的搬迁就三点：1.将整个站点的文件打包并在新的服务器上解压并安装;2.将相应的数据库备份，并导入到新的服务器上的数据库系统中;3.把域名绑定到新的服务器ip地址上。</p>
+<p>1.将旧服务器上的wordpress所在的安装目录打包压缩。<br>  1.1.如果使用的是云服务器或VPS，可以通过ssh连接到服务器，并用命令：<br>   <strong>$tar -cjf blog.tar.bz2  /opt/lampp/htdocs/blog/</strong>  //假设你的wordpress安装在/opt/lampp/htdocs/blog目录下<br>   将博客所在目录打包压缩成bz2文件，也可以用zip压缩生成.zip压缩文件。一般的虚拟空间是支持.zip的，如果要搬到虚拟空间的话，建议压缩成.zip文件。<br>  1.2. 如果使用的是虚拟空间，进入控制面板（一般为cPanel），选择博客所在目录，右键单击后选择压缩（compress）为.zip文件即可。<br>  1.3. 在自己的电脑上（不是服务器上）使用ftp工具获取上一步压缩文件：<br>   <strong>$ftp oldusername@oldhost </strong>                   //这是命令行命令，也可以使用filezilla等ftp软件通过图形界面下载。<br>   <strong>ftp&gt;get /opt/lampp/htdocs/blog.tar.bz2</strong>   //获取刚刚压缩的博客文件<br>  1.4. 将下载下来的博客文件上传到要搬迁到的新服务器或虚拟空间上：<br>   <strong>$ftp newuser@newhost</strong>                  //ftp登录到新服务器<br>   <strong>ftp&gt;put blog.tar.bz2 </strong>                 //上传博客文件<br>  1.5. 如果要搬迁到新的云服务器或VPS（linux系统），那么可以省略第三步,用ssh登录新服务器后，在新服务器的命令行下执行下面命令：<br>   <strong>$ftp olduser@oldhost</strong>                //新服务器上使用ftp工具直接从旧服务器上下载文件，省略第三步中转了。<br>   <strong>ftp&gt;get /opt/lampp/htdocs/blog.tar.bz2</strong><br>  1.6. 如果是在服务器或VPS上，登录服务器，用命令行解压缩，并将其放到新服务器上的http服务器根目录下。假设HTTP服务器的根目录是/opt/lampp/htdocs，执行下面命令解压缩：<br>    <strong>$tar -xf blog.tar.bz2 -C /opt/lampp/htdocs</strong>  //命令行解压<br>  1.7. 如果是在虚拟空间上，进入控制面板（cPanel），选择上传的压缩文件，右键单击，选择解压缩(extract)到指定的目录就可以了。<br>    这样，旧服务器上的博客文件就全部转移到了新服务器上了。</p>
+<p>2.将旧服务器上博客用到的数据库导出，稍作修改，导入到新服务器上的数据库系统中。<br>  2.1. 如果是虚拟空间，那么进入cpanel控制面板，往下找MySQL数据库部分，点击进入phpmyadmin，选择博客用到的数据，然后选择导出，选择导出到blog.sql就可以了。<br>  2.2. 如果是云服务器或VPS，那么登录到服务器，使用下面命令：<br>    <strong>$mysqldump -u root -p blog_database &gt; blog.sql</strong><br>    再输入root密码就将旧服务器上的博客所用的数据库导出到了blog.sql文件了。<br>  2.3. 按照1中描述的下载博客文件那样下载这个blog.sql文件，然后上传到新服务器上。<br>  2.4. 如果是搬迁到虚拟空间，进入控制面板（cPanel），进入phpmyadmin，建立一个新的数据库（建立的新数据库尽量和原来的数据库同名），为这个新数据库建立相应的管理员名和密码（管理员名和密码也尽量和原来的博客相同，这样新的博客就不用再更改配置文件了）点击导入，选择要导入的blog.sql这个文件，就可以了。<br>  2.5. 如果搬迁到云服务器或VPS，那么远程登录服务器后，执行下面命令：<br>    <strong>$mysql -u root -p<br>    Password: your root password</strong><br>    <strong>mysql&gt;create database blog</strong> //为博客建立一个新的数据库，名为blog，可以改为自己喜欢的其他名字<br>    <strong>mysql&gt;source /path/blog.sql</strong>   //导入blog.sql这个文件，这个/path/代表blog.sql文件的绝对路径，比如/homg/user/,根据blog.sql所在的路径自己修改博客搬迁。</p>
+<p>3. 稍加修改博客文件中的配置文件<br>  3.1. 如果在第2部创建新数据库和数据库管理员和密码时，使用了新的名称或密码，那么搬迁之后的博客就要修改配置文件，使得搬迁后的博客可以连接到新的数据库。<br>  3.2. 如果使用的是虚拟空间，那么进入博客所在目录，在线打开并编辑wp-config.php这个文件，找到并修改下面的内容：<br>      /*<em> 博客用到的新数据库名称，如果新数据库名称与原来的名称一样，可以不改 </em>/<br>define(‘DB_NAME’, ‘database_name’);  </p>
+<p>/*<em> MySQL数据库管理员名称，如果和之前的管理员名称一样，可以不改 </em>/<br>define(‘DB_USER’, ‘user_name’);</p>
+<p>/*<em> MySQL数据库管理员密码，如果和之前一样，可以不改 </em>/<br>define(‘DB_PASSWORD’, ‘password’);</p>
+<p>/*<em> MySQL数据库系统所在主机名，一般为localhost，也可以写服务器所用的ip地址，但建议不改变，使用localhost </em>/<br>define(‘DB_HOST’, ‘localhost’);</p>
+<p>/*<em> 数据库使用的编码，建议使用utf8,如果做中文网站，也可以使用gbk </em>/<br>define(‘DB_CHARSET’, ‘utf8’);</p>
+<p>  修改完这些内容之后，保存即可。<br>  3.3. 如果使用服务器或VPS，远程登录服务器，使用vi或nano编辑器修改上述内容，保存并退出即可。</p>
+<p>4. 将原域名绑定到新的ip地址上<br>  4.1. 进入域名服务商提供的DNS服务，删除原来的域名与ip地址的A记录，添加新A记录，把原来的域名绑定到新的ip地址即可。比如原来域名为：<a href="http://www.xinspace.name，DNS中的关系为：" target="_blank" rel="noopener">www.xinspace.name，DNS中的关系为：</a><br>  A记录：    域名               ip地址<br>         <del datetime="2014-07-24T13:56:44+00:00">xinspace.name   115.28.224.114</del>  //这是原来的绑定关系，删除这条A记录<br>         xinspace.name      106.187.90.237      //将原来的域名绑定到新的ip地址上，这个ip地址是新的服务器或虚拟空间提供的</p>
+<p>  CNAME记录：    域名                域名<br>           <a href="http://www.xinspace.name" target="_blank" rel="noopener">www.xinspace.name</a>    xinspace.name  //这条CNAME记录可以不改变</p>
+<p>   4.2. 绑定到新的ip地址之后，等一段时间（一般为2小时），就可以通过原来的域名访问搬迁之后的博客了。</p>
+<p><strong>三、既换服务器（虚拟主机或ip），又换域名</strong><br>   1.1. 这种情况就是上面两种情况综合起来就好了，先按照第一种情况把新域名绑定到新ip地址，再按照第二种情况把博客文件、数据库等安装到新服务器上，域名就可以不用改了，因为第一步已经改了域名了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/07/25/unknown-field-ioctl-specified/" rel="next" title="error: unknown field 'ioctl' specified in initializer">
+                <i class="fa fa-chevron-left"></i> error: unknown field 'ioctl' specified in initializer
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/07/26/vim-global-replace/" rel="prev" title="vim 全局替换命令">
+                vim 全局替换命令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

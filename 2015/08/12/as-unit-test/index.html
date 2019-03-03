@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="之前写过一篇关于在Android Studio上做单元测试的文章，转载的CSDN上得一篇博文。现在更新一下这个方法。最近在看《第一行代码——Android》这本书，书里提到的用Eclipse为项目做单元测试的方法在AS1.2-AS1.3上不适用，所以在查阅了Android官网之后，找到了新方法。 1.打开要测试的AS项目。 &amp;nbsp; 2.假如要对下面的这个类中的addActivity方法做单元">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Studio 单元测试 新">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/08/12/as-unit-test/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="之前写过一篇关于在Android Studio上做单元测试的文章，转载的CSDN上得一篇博文。现在更新一下这个方法。最近在看《第一行代码——Android》这本书，书里提到的用Eclipse为项目做单元测试的方法在AS1.2-AS1.3上不适用，所以在查阅了Android官网之后，找到了新方法。 1.打开要测试的AS项目。 &amp;nbsp; 2.假如要对下面的这个类中的addActivity方法做单元">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/android_studio_unit_test_dialog-449x178.png">
+<meta property="og:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/create_test_dialog1-449x304.png">
+<meta property="og:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/test-class-449x304.png">
+<meta property="og:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result-449x304.png">
+<meta property="og:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result-error-449x304.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Studio 单元测试 新">
+<meta name="twitter:description" content="之前写过一篇关于在Android Studio上做单元测试的文章，转载的CSDN上得一篇博文。现在更新一下这个方法。最近在看《第一行代码——Android》这本书，书里提到的用Eclipse为项目做单元测试的方法在AS1.2-AS1.3上不适用，所以在查阅了Android官网之后，找到了新方法。 1.打开要测试的AS项目。 &amp;nbsp; 2.假如要对下面的这个类中的addActivity方法做单元">
+<meta name="twitter:image" content="http://blog.xinspace.name/wp-content/uploads/2015/08/android_studio_unit_test_dialog-449x178.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/08/12/as-unit-test/">
+
+
+
+
+
+  <title>Android Studio 单元测试 新 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/08/12/as-unit-test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android Studio 单元测试 新</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-12T16:08:48+07:00">
+                2015-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前写过一篇关于在Android Studio上做单元测试的文章，转载的CSDN上得一篇博文。现在更新一下这个方法。最近在看《第一行代码——Android》这本书，书里提到的用Eclipse为项目做单元测试的方法在AS1.2-AS1.3上不适用，所以在查阅了Android官网之后，找到了新方法。</p>
+<p><strong>1.</strong>打开要测试的AS项目。</p>
+<p>&nbsp;</p>
+<p><strong>2.</strong>假如要对下面的这个类中的addActivity方法做单元测试：</p>
+<p><pre>public class ActivityCollector {</pre></p>
+<pre><code>public static List&amp;lt;Activity&amp;gt; activities = new ArrayList&amp;lt;Activity&amp;gt;();
+
+public static void addActivity(Activity activity) {
+    activities.add(activity);
+}
+
+public static void removeActivity(Activity activity) {
+    activities.remove(activity);
+}
+
+public static void finishAll() {
+    if(!activities.isEmpty()) {
+        for(Activity activity : activities) {
+            if(!activity.isFinishing()) {
+                activity.finish();
+            }
+        }
+    }
+}
+</code></pre><p>}<br>上面的类很简单，addActivity方法向List中添加元素，removeActivity方法用于删除元素，而finishAll方法则让List中所有的Activity都退出。</p>
+<a id="more"></a>
+<p>&nbsp;</p>
+<p><strong>3.</strong>将光标移动到类名处(如ActivityCollector末尾)，然后按下同时按下Alt和Enter键(OS X则同时按下option和return键)，AS会自动弹出提示框，第一项是Create Test：<a href="http://blog.xinspace.name/wp-content/uploads/2015/08/android_studio_unit_test_dialog.png" target="_blank" rel="noopener"><img src="http://blog.xinspace.name/wp-content/uploads/2015/08/android_studio_unit_test_dialog-449x178.png" alt="android_studio_unit_test_dialog"></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>4.</strong>选择第一项，为这个类创建测试。弹出了创建测试的对话框。我这里使用JUnit3，因为其他的我都没有安装相应的库。对话框的截图如下：</p>
+<p><a href="http://blog.xinspace.name/wp-content/uploads/2015/08/create_test_dialog1.png" target="_blank" rel="noopener"><img src="http://blog.xinspace.name/wp-content/uploads/2015/08/create_test_dialog1-449x304.png" alt="create_test_dialog"></a></p>
+<p>在Generate这一项中，有两个选项:setUp与tearDown。这是测试的两个可选方法。setUp方法会在测试之前被调用，可以在这个方法中申请资源，创建对象等等。tearDown方法会在测试完成之后被调用，用于释放资源等。可以根据需要选择是否添加这两个方法。</p>
+<p>因为测试addActivity方法比较简单，无需这两个方法，这里就勾选了。</p>
+<p>在Generate test methods for选项下面，可以看到ActivityCollector类的三个方法都呈现在下面了。因为要测试addActivity方法，所以就勾选addActivity方法。然后点击OK。</p>
+<p>&nbsp;</p>
+<p><strong>5.</strong>在弹出的对话框中选择这个测试类要存放的目录，我们保持默认即可，点击OK。</p>
+<p>&nbsp;</p>
+<p><strong>6.</strong>AS会自动创建测试类，命名为ActivityCollectorTest。我们在类中相应的测试方法中加入测试代码，最终的代码如下：</p>
+<p><pre>public class ActivityCollectorTest extends TestCase {</pre></p>
+<pre><code>public void testAddActivity() throws Exception {
+    assertEquals(0, ActivityCollector.activities.size());
+    LoginActivity loginActivity = new LoginActivity();
+    ActivityCollector.addActivity(loginActivity);
+    assertEquals(1, ActivityCollector.activities.size());
+}
+</code></pre><p>}<br>因为我们只测试了ActivityCollector.addActivity方法，因此测试类中只有testAddActivity方法，测试类中的测试方法必须以test开头。</p>
+<p>test方法中的4句是我们执行的单元测试代码，检测addActivity方法的基本功能是否正常。</p>
+<p>&nbsp;</p>
+<p>7.添加完代码之后，在AS左侧的Project中选择测试类，右键单击，选择Run ‘ActivityCollectorTest’这个选项，截图如下：</p>
+<p><a href="http://blog.xinspace.name/wp-content/uploads/2015/08/test-class.png" target="_blank" rel="noopener"><img src="http://blog.xinspace.name/wp-content/uploads/2015/08/test-class-449x304.png" alt="test-class"></a></p>
+<p>&nbsp;</p>
+<p><strong>8.</strong>之后选择要运行测试的设备，AVD或者真机测试。这一步就像运行正常的程序一样。</p>
+<p>&nbsp;</p>
+<p><strong>9.</strong>可以在AS的底部的Run选项卡中看到测试结果。如果是绿色进度条，就说明测试完成，并且全部通过。如果是红色进度条，就说明测试没通过。截图如下：</p>
+<p><a href="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result.png" target="_blank" rel="noopener"><img src="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result-449x304.png" alt="test-result"></a></p>
+<p>这里显式测试通过了。具体的信息可以自己去查看。</p>
+<p>&nbsp;</p>
+<p><strong>10.</strong>为了演示测试不通过，在testAddActivity方法最后再加入两条语句：</p>
+<p><pre>ActivityCollector.addActivity(loginActivity);<br>assertEquals(1, ActivityCollector.activities.size());</pre><br>&nbsp;</p>
+<p><strong>11.</strong> 我们向List中又添加了loginActivity这个实例，并且在下面的assert中判断List的元素只有1个。这是为了测试List是否具有排除重复元素的能力。如果List能排除重复元素，那么不管向List中添加多少重复元素，List只会保留一个。如果List没有这种能力，那么就会有多个。</p>
+<p>当然，List是不具备排除重复元素的，这部分的逻辑需要我们自己添加。稍后会提到。</p>
+<p>&nbsp;</p>
+<p><strong>12.</strong>运行这个测试。在上一步的分析中可知，这个测试肯定会出错，错误截图如下：</p>
+<p><a href="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result-error.png" target="_blank" rel="noopener"><img src="http://blog.xinspace.name/wp-content/uploads/2015/08/test-result-error-449x304.png" alt="test-result-error"></a></p>
+<p>可以看到红色的进度条，下面有红色的错误提示。第一句就提到 <span style="color: #ff0000;">junit.framework.AssertionFailedError: expected:&lt;1&gt; but was:&lt;2&gt;</span></p>
+<p>说明测试时期望assert的结果是1，但实际的结果是2。这就说明了List并没有排除重复元素的功能。此时可以修改addActivity方法，添加排除重复元素的逻辑。修改之后，ActivityCollector.addActivity方法的代码如下：</p>
+<p><pre>public static void addActivity(Activity activity) {<br>    if(!activities.contains(activity)) {<br>        activities.add(activity);<br>    }<br>}</pre><br>&nbsp;</p>
+<p><strong>13.</strong>再次运行测试类，测试就会通过了。</p>
+<p>&nbsp;</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>1.《第一行代码——Android》，13.5节。</p>
+<p>&nbsp;</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/09/localbroadcastmanager-resolved/" rel="next" title="Android Studio - LocalBroadcastManager can not be resolved">
+                <i class="fa fa-chevron-left"></i> Android Studio - LocalBroadcastManager can not be resolved
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/14/osx-disable-mobilebackups/" rel="prev" title="OSX禁止MobileBackups特性(TimeMachine本地备份)">
+                OSX禁止MobileBackups特性(TimeMachine本地备份) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">1.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

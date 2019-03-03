@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="今天开始想复习一下数据结构，就从线性表开始吧。 今天是用线性表实现多个多项式相加这个题目，自变量是x。 题目描述如下： 在数学上，一个一元多项式Pn(x)可按降幂写成：Pn(x) = pn x^n + p(n-1) x^n + ……. + p2x^2 + p1x^1 + p0，它由n+1个系数唯一确定。同样的Qn(x)也可以写成如P多项式一样。当两个多项式的某一项指数相同时，可将这项的底数相加，这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用线性表实现多个多项式相加">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/03/30/list-polynomial-add/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="今天开始想复习一下数据结构，就从线性表开始吧。 今天是用线性表实现多个多项式相加这个题目，自变量是x。 题目描述如下： 在数学上，一个一元多项式Pn(x)可按降幂写成：Pn(x) = pn x^n + p(n-1) x^n + ……. + p2x^2 + p1x^1 + p0，它由n+1个系数唯一确定。同样的Qn(x)也可以写成如P多项式一样。当两个多项式的某一项指数相同时，可将这项的底数相加，这">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用线性表实现多个多项式相加">
+<meta name="twitter:description" content="今天开始想复习一下数据结构，就从线性表开始吧。 今天是用线性表实现多个多项式相加这个题目，自变量是x。 题目描述如下： 在数学上，一个一元多项式Pn(x)可按降幂写成：Pn(x) = pn x^n + p(n-1) x^n + ……. + p2x^2 + p1x^1 + p0，它由n+1个系数唯一确定。同样的Qn(x)也可以写成如P多项式一样。当两个多项式的某一项指数相同时，可将这项的底数相加，这">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/03/30/list-polynomial-add/">
+
+
+
+
+
+  <title>用线性表实现多个多项式相加 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/03/30/list-polynomial-add/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">用线性表实现多个多项式相加</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-03-30T16:28:33+07:00">
+                2013-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天开始想复习一下数据结构，就从线性表开始吧。</p>
+<p>今天是用线性表实现多个多项式相加这个题目，自变量是x。</p>
+<p>题目描述如下：</p>
+<p>在数学上，一个一元多项式Pn(x)可按降幂写成：Pn(x) = pn x^n + p(n-1) x^n + ……. + p2x^2 + p1x^1 + p0，它由n+1个系数唯一确定。同样的Qn(x)也可以写成如P多项式一样。当两个多项式的某一项指数相同时，可将这项的底数相加，这称为多项式相加。</p>
+<p>如：多项式P: 5x^4 + 3x^2 + 4        多项式Q：3x^3 + 2x^2 + 2 。 则P+Q：5x^4 + 3x^3 + 5x^2 + 6</p>
+<p>代码如下：</p>
+<a id="more"></a>
+<p>1.头文件 link_list.h</p>
+<p>//head file<br>//History Xinspace  27 Feb   First release</p>
+<p>#ifndef _xinspace</p>
+<p>#define _xinspace 1</p>
+<p>#include &lt;stdio.h&gt;</p>
+<p>#include &lt;stdlib.h&gt;</p>
+<p>#include &lt;string.h&gt;</p>
+<p>#include &lt;errno.h&gt;</p>
+<p>#include &lt;unistd.h&gt;</p>
+<p>#include &lt;fcntl.h&gt;</p>
+<p>#include &lt;sys/stat.h&gt;</p>
+<p>#include &lt;sys/types.h&gt;</p>
+<p>#include &lt;sys/socket.h&gt;</p>
+<p>#include &lt;arpa/inet.h&gt;</p>
+<p>#include &lt;netinet/in.h&gt;</p>
+<p>#include &lt;netinet/ip.h&gt;</p>
+<p>#include &lt;pthread.h&gt;</p>
+<p>#define error_show(function)<br>do<br>{<br>fprintf(stderr, “in file:%s, in function:%s, at line %d, %s : %sn”, <strong>FILE</strong>, <strong>FUNCTION</strong>, <strong>LINE</strong>, function, strerror(errno));<br>exit(-1);<br>}while(0)</p>
+<p>#define LEN 3    //定义多项式表头数组的最大个数，即最多一次性处理几个多项式</p>
+<p>/<em>定义多项式每一项的节点结构体</em>/<br>typedef struct linklist<br>{<br>float ds;    //每一项的底数<br>int zs;        //每一项的指数<br>struct linklist *next;<br>}Polyn;</p>
+<p>Polyn <em>createPolyn(); //创建一个多项式<br>Polyn </em>createNode(float _ds, int _zs);    //创建一个节点<br>void display(Polyn <em>Head);    //显示一个多项式<br>void init(Polyn **Head_array);    //初始化多项式表头数组<br>void sort(Polyn </em>Head);    //对给定的多项式进行排序,并把具有相同指数的项相加<br>void add(Polyn **Head_array);    //将两个多项式相加</p>
+<p>#endif</p>
+<p>&nbsp;</p>
+<p>2.代码文件link_list.c</p>
+<p>/<em>自变量是x</em>/</p>
+<p>#include “link_list.h”</p>
+<p>int main(void)<br>{<br>Polyn *Head_array[LEN];    //定义多项式的表头数组<br>init(&amp;Head_array[0]);    //初始化该数组<br>add(&amp;Head_array[0]);    //将表头数组中的多项式都加起来<br>return 0;<br>}</p>
+<p>/<em>input the Polyns and be ready to process</em>/<br>void init(Polyn **Head_array)<br>{<br>int num;<br>printf(“how many polyns do you want to process(less than %d)?t”, LEN);<br>scanf(“%d”, &amp;num);<br>int count;<br>if(num &gt; LEN)<br>{<br>fprintf(stderr, “number too much!n”);<br>exit(1);<br>}<br>for(count = 0; count &lt; num; count++)<br>{<br>Head_array[count] = createPolyn();<br>//        sort(Head_array[count]);<br>}<br>//    for(count = 0; count &lt; num; count++)<br>//        display(Head_array[count]);<br>//    printf(“init done!n”);<br>}</p>
+<p>/<em>sort the Polyn gived and add the ds which the nodes have the same zs</em>/<br>void sort(Polyn *Head)<br>{<br>if(!Head)<br>{<br>fprintf(stderr, “Head is NULL!n”);<br>exit(1);<br>}</p>
+<p>Polyn <em>fh, </em>sh, <em>f, </em>s;<br>fh = Head;<br>sh = f = fh-&gt;next;<br>s = sh-&gt;next;</p>
+<p>while(s)<br>{<br>while(s)<br>{<br>if(f-&gt;zs &lt; s-&gt;zs)<br>{<br>fh-&gt;next = s;<br>sh-&gt;next = s-&gt;next;<br>s-&gt;next = f;<br>f = fh-&gt;next;<br>s = sh-&gt;next;<br>}<br>else if(f-&gt;zs &gt; s-&gt;zs)<br>{<br>sh = s;<br>s = sh-&gt;next;<br>}<br>else<br>{<br>f-&gt;ds += s-&gt;ds;<br>sh-&gt;next = s-&gt;next;<br>free(s);<br>s = sh-&gt;next;<br>}<br>}</p>
+<p>fh = f;<br>f = fh-&gt;next;<br>sh = f;<br>s = sh ? sh-&gt;next : sh;<br>}</p>
+<p>//    printf(“Sort Done!n”);<br>}</p>
+<p>/<em>add Polyns</em>/<br>void add(Polyn *<em>Head_array)<br>{<br>int count;<br>Polyn </em>temp;<br>for(count = 1; Head_array[count]-&gt;next &amp;&amp; count &lt; LEN; count++)<br>{<br>printf(“Head_array[%d]n”, count);<br>for(temp = <em>Head_array; temp-&gt;next; temp = temp-&gt;next);<br>temp-&gt;next = Head_array[count]-&gt;next;<br>sort(</em>Head_array);<br>display(Head_array[0]);<br>}<br>}</p>
+<p>/<em>create the Polyn using the function createNode()</em>/<br>Polyn <em>createPolyn()<br>{<br>Polyn </em>head = createNode(-1, -1);<br>Polyn *temp = head;</p>
+<p>float ds;<br>int zs;<br>printf(“input ‘-100′ means quit!n”);<br>while(1)<br>{<br>printf(“input ds(float):t”);<br>scanf(“%f”, &amp;ds);<br>if(ds == -100)<br>{<br>printf(“you quit!n”);<br>break;<br>}<br>else if(ds == 0)<br>{<br>fprintf(stderr, “ds is not allowed to be zero!n”);<br>continue;<br>}<br>printf(“input zs(int):t”);<br>scanf(“%d”, &amp;zs);</p>
+<p>Polyn *node = createNode(ds, zs);<br>temp-&gt;next = node;<br>temp = node;<br>}</p>
+<p>if(!(head-&gt;next))<br>{<br>fprintf(stderr, “Head is NULL!n”);<br>exit(1);<br>}</p>
+<p>//    printf(“Create Done!n”);<br>return head;<br>}</p>
+<p>/<em>create the Polyn Node</em>/<br>Polyn <em>createNode(float _ds, int _zs)<br>{<br>Polyn </em>Node = (Polyn *)malloc(sizeof(Polyn));<br>if(NULL == Node)<br>error_show(“malloc”);</p>
+<p>Node-&gt;ds = _ds;<br>Node-&gt;zs = _zs;<br>Node-&gt;next = NULL;</p>
+<p>return Node;<br>}</p>
+<p>/<em>display the Polyn gived</em>/<br>void display(Polyn <em>Head)<br>{<br>Polyn </em>temp = Head-&gt;next;</p>
+<p>if(temp)<br>{<br>printf(“%3.1fx”, temp-&gt;ds);<br>if(temp-&gt;zs != 0)<br>printf(“^%d “, temp-&gt;zs);<br>else<br>printf(” “);<br>}</p>
+<p>temp = temp-&gt;next;<br>while(temp)<br>{<br>if(temp-&gt;ds &gt;= 0)<br>printf(“+ %3.1fx”, temp-&gt;ds);<br>else<br>printf(“- %3.1fx”, temp-&gt;ds);</p>
+<p>if(temp-&gt;zs != 0)<br>printf(“^%d “, temp-&gt;zs);<br>else<br>printf(” “);</p>
+<p>temp = temp-&gt;next;<br>}<br>printf(“n”);<br>}</p>
+<p>&nbsp;</p>
+<p>该程序最重要的函数就是sort函数，它即能把给定的多项式进行降幂排序，还能将一个线性表中两个指数相同的底数相加放到第一个底数所在的节点中。</p>
+<p>add()函数就是利用了sort函数的这个加法功能实现加法的。</p>
+<p>本程序的两个文件都为原创，可下载，文件放在360云盘上：</p>
+<p>link_list.h头文件：<a href="http://l7.yunpan.cn/lk/Q8yatZSyWA2G3" title="link_list.h" target="_blank" rel="noopener">http://l7.yunpan.cn/lk/Q8yatZSyWA2G3</a></p>
+<p>link_list.c代码文件：<a href="http://l7.yunpan.cn/lk/Q8ya6Pah6G7qm" title="link_list.c" target="_blank" rel="noopener">http://l7.yunpan.cn/lk/Q8ya6Pah6G7qm</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/30/linux-man-std-function/" rel="next" title="linux 下用 man 命令不能查阅标准库函数的解决方案">
+                <i class="fa fa-chevron-left"></i> linux 下用 man 命令不能查阅标准库函数的解决方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/03/30/stack-numberic/" rel="prev" title="用栈实现数制转换">
+                用栈实现数制转换 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

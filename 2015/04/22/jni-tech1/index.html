@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在学习Android NDK开发，需要了解JNI技术，在网上找到了一本书《The Java Native Interface Programmer’s Guide and Specification》，讲JDK1.0与JDK1.2的JNI接口和功能(目前最新的是JDK1.4)。我已经看完一遍了，觉得不错，决定提取重点翻译一下，留作参考。 为了方便查找对应相关知识，关于这本书的一系列文章仍按照书本的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第一章 JNI介绍">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/04/22/jni-tech1/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="在学习Android NDK开发，需要了解JNI技术，在网上找到了一本书《The Java Native Interface Programmer’s Guide and Specification》，讲JDK1.0与JDK1.2的JNI接口和功能(目前最新的是JDK1.4)。我已经看完一遍了，觉得不错，决定提取重点翻译一下，留作参考。 为了方便查找对应相关知识，关于这本书的一系列文章仍按照书本的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-22-at-08.35.32.png">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第一章 JNI介绍">
+<meta name="twitter:description" content="在学习Android NDK开发，需要了解JNI技术，在网上找到了一本书《The Java Native Interface Programmer’s Guide and Specification》，讲JDK1.0与JDK1.2的JNI接口和功能(目前最新的是JDK1.4)。我已经看完一遍了，觉得不错，决定提取重点翻译一下，留作参考。 为了方便查找对应相关知识，关于这本书的一系列文章仍按照书本的">
+<meta name="twitter:image" content="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-22-at-08.35.32.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/04/22/jni-tech1/">
+
+
+
+
+
+  <title>JNI技术解析第一章 JNI介绍 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/04/22/jni-tech1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第一章 JNI介绍</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-22T23:38:58+07:00">
+                2015-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在学习Android NDK开发，需要了解JNI技术，在网上找到了一本书《The Java Native Interface Programmer’s Guide and Specification》，讲JDK1.0与JDK1.2的JNI接口和功能(目前最新的是JDK1.4)。我已经看完一遍了，觉得不错，决定提取重点翻译一下，留作参考。</p>
+<p>为了方便查找对应相关知识，关于这本书的一系列文章仍按照书本的章节来写。本文的知识点和图片、示例等均来源于上面提到的书。也不知道会不会侵犯版权。</p>
+<p>阅读前，确定你已经熟悉Java、C和C++语言的基本语法和基本用法，比如Java定义类，C++定义类和成员函数，C语言定义函数，还有控制流等。只需要非常基本的知识就可以了。</p>
+<p>我不对你的基本知识产生任何怀疑，因为你已经熟悉了基本知识，那就继续。</p>
+<a id="more"></a>
+<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>JNI(Java Native Interface)，即Java原生接口，将C／C++等语言写成的原生代码与用Java写成的代码整合起来，协同工作。这样可以在Java中使用已有的其他代码，无需用Java重写，也可以在Java虚拟机中完成Java不能胜任的工作（如在Java中操作文件系统）。</p>
+<p>Java平台是一个包括了Java虚拟机(VM)和API的编程环境，任何一个Java平台都保证支持Java语言、Java虚拟机和API。Java平台一般是在操作系统(Windows,Linux,Mac等)的基础上安装，它提供了一些特性，保证平台上的程序不依赖特定的操作系统(该程序用Java语言写成，可以在任何Java虚拟机中运行，与具体的操作系统无关)。而原生程序由原生语言(操作系统支持的编程语言)如C／C++写成，它们是与特定的操作系统有关的，因此在使用JNI时，程序员要保证编程环境所在的操作系统支持要使用的原生代码。</p>
+<h2 id="二、JNI的角色"><a href="#二、JNI的角色" class="headerlink" title="二、JNI的角色"></a>二、JNI的角色</h2><p>JNI是JavaVM实现的一部分，有了它，Java代码与原生代码之间可以相互调用，非常方便。下图是JNI的角色示意图。</p>
+<p><a href="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-22-at-08.35.32.png" target="_blank" rel="noopener"><img src="http://104.131.143.131/blog/wp-content/uploads/2015/04/Screen-Shot-2015-04-22-at-08.35.32.png" alt="042215_jni_tech1"></a></p>
+<p>从上图中可以看出，Java程序库可以在任何一个JavaVM上运行，而JavaVM与原生应用和原生库是依赖于具体的宿主环境（即操作系统），因此在不同的操作系统上要实现不同的JavaVM和不同的原生应用和原生库。不同的JavaVM由Orical公司实现，一部分不同的原生应用和原生库由操作系统提供（如stdio.h文件和标准C库），另一部分原生应用和原生库由程序员本人提供。</p>
+<p>JNI作为连接Java代码和原生代码之间的桥梁，支持两种原生代码：原生库和原生应用程序。</p>
+<p>原生库：使用JNI实现原生方法（函数），将这些函数封装到库中。Java代码就可以调用库里的原生方法了，这与Java调用本身的方法一样。这展示了JNI支持Java代码调用原生代码的特性。</p>
+<p>原生应用程序：JNI同时也支持原生代码调用Java代码的特性，即它提供了回调接口。可以在不同的操作系统上安装对应的JavaVM，因为JavaVM实现是依赖操作系统的，因此实现会提供原生库，封装了JavaVM的相关方法（如启动、停止JavaVM等），这些方法支持回调，即允许操作系统或其他程序调用这些库中的方法实现启动、停止VM，运行Java程序等一系列操作。因此原生应用程序可以使用JNI，调用VM的回调方法，把一个VM嵌入到原生应用程序中。简单的例子就是，操作系统上的浏览器一般是原生应用程序（C/C++实现的），但它们可以运行Java Applet，这是因为它们使用了JNI的这种回调特性，把一个JavaVM嵌入到了它本身，于是Java Applets就可以在这个VM中运行。</p>
+<h2 id="三、使用JNI的影响"><a href="#三、使用JNI的影响" class="headerlink" title="三、使用JNI的影响"></a>三、使用JNI的影响</h2><p>相比较完全用Java实现的Java应用程序，使用了JNI的Java应用程序丢失了某些特性。</p>
+<p>1.它不再平台无关，不能方便的移植。虽然用Java实现的部分可以在不同平台之间移植，但是用原生代码实现的部分就必须在不同的平台修改和重新编译。</p>
+<p>2.Java语言是类型安全的，但原生编程语言如C/C++不是。使用JNI时，要对原生代码部分额外关心，如错误检查、类型检查等。如果原生代码崩溃了，那么很有可能整个应用程序都会崩溃。因此，原生代码在调用JNI提供的接口时，必须做类型检查等。</p>
+<p>通常，原生代码所占的比例越少越好，原生代码与Java代码之间的界限越明显越好。</p>
+<h2 id="四、何时使用JNI"><a href="#四、何时使用JNI" class="headerlink" title="四、何时使用JNI"></a>四、何时使用JNI</h2><p>官方推荐尽可能的不使用JNI，只有Java不提供某项功能或考虑到效率等问题时，再考虑使用JNI。</p>
+<p>简单点来说，如果Java应用程序与原生代码的通信可以放在不同的进程中或不同的主机上，那么使用进程间通信(IPC)或网络通信(TCP/IP)；Java可以使用JDBC访问数据库等等等等。但如果Java应用程序必须要在<span style="color: #ff0000;"><em>同一个进程中</em></span>使用到底层的特性，而Java本身不提供这种特性（如操作文件系统），那么必须使用JNI。</p>
+<p>使用JNI的例子如下：</p>
+<p>1.Java应用程序想要某些操作，但Java API不提供这些操作或在不同的进程中实现效率低，那么可以使用JNI。</p>
+<p>2.想在本进程中访问已有的原生库，如标准C库，可以使用JNI。免去了在不同进程中拷贝代码和数据的资源浪费。</p>
+<p>3.一个应用程序占用多个进程，可能导致占用过多的内存空间或CPU资源。如果不能接受这种情况，可以使用JNI。</p>
+<h2 id="五、JNI的演变"><a href="#五、JNI的演变" class="headerlink" title="五、JNI的演变"></a>五、JNI的演变</h2><p>简单说，JNI目前是Java 2 SDK 1.2。相比较1.1，1.2改进了很多地方，提供了很多新接口，并且向后兼容。想要了解更多，可以去Orical官网上查询。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/03/27/undefined-reference-to-jni-createjavavm/" rel="next" title="原生应用创建Java虚拟机时遇到undefined reference to `JNI_CreateJavaVM'">
+                <i class="fa fa-chevron-left"></i> 原生应用创建Java虚拟机时遇到undefined reference to `JNI_CreateJavaVM'
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/04/23/jni-tech2/" rel="prev" title="JNI技术解析第二章 初探JNI">
+                JNI技术解析第二章 初探JNI <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、JNI的角色"><span class="nav-number">2.</span> <span class="nav-text">二、JNI的角色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、使用JNI的影响"><span class="nav-number">3.</span> <span class="nav-text">三、使用JNI的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、何时使用JNI"><span class="nav-number">4.</span> <span class="nav-text">四、何时使用JNI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、JNI的演变"><span class="nav-number">5.</span> <span class="nav-text">五、JNI的演变</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

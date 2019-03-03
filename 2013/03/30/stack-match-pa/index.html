@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="括号匹配的意思假设只允许出现两种括号：圆括号和方括号，其嵌套顺序随意，即不管[([])]或[([])]等都为正确匹配，但是形如([][)就成为错误的匹配。 实现的算法可以用“期待的紧急程度”的概念来描述： 如 [([][])] 共8个括号，从左往右依次标代号为1-8，即第一个[代号为1，第二个(代号为2，第三个[代号为3，依次类推 当计算机收到了第一个括号后，期待它与第八个括号匹配，然而等来的却是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用栈实现括号匹配">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/03/30/stack-match-pa/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="括号匹配的意思假设只允许出现两种括号：圆括号和方括号，其嵌套顺序随意，即不管[([])]或[([])]等都为正确匹配，但是形如([][)就成为错误的匹配。 实现的算法可以用“期待的紧急程度”的概念来描述： 如 [([][])] 共8个括号，从左往右依次标代号为1-8，即第一个[代号为1，第二个(代号为2，第三个[代号为3，依次类推 当计算机收到了第一个括号后，期待它与第八个括号匹配，然而等来的却是">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用栈实现括号匹配">
+<meta name="twitter:description" content="括号匹配的意思假设只允许出现两种括号：圆括号和方括号，其嵌套顺序随意，即不管[([])]或[([])]等都为正确匹配，但是形如([][)就成为错误的匹配。 实现的算法可以用“期待的紧急程度”的概念来描述： 如 [([][])] 共8个括号，从左往右依次标代号为1-8，即第一个[代号为1，第二个(代号为2，第三个[代号为3，依次类推 当计算机收到了第一个括号后，期待它与第八个括号匹配，然而等来的却是">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/03/30/stack-match-pa/">
+
+
+
+
+
+  <title>用栈实现括号匹配 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/03/30/stack-match-pa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">用栈实现括号匹配</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-03-30T16:31:01+07:00">
+                2013-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="括号匹配的意思"><a href="#括号匹配的意思" class="headerlink" title="括号匹配的意思"></a>括号匹配的意思</h1><p>假设只允许出现两种括号：圆括号和方括号，其嵌套顺序随意，即不管[([])]或[([])]等都为正确匹配，但是形如([][)就成为错误的匹配。</p>
+<h1 id="实现的算法"><a href="#实现的算法" class="headerlink" title="实现的算法"></a>实现的算法</h1><p>可以用“期待的紧急程度”的概念来描述：</p>
+<p>如 [([][])] 共8个括号，从左往右依次标代号为1-8，即第一个[代号为1，第二个(代号为2，第三个[代号为3，依次类推</p>
+<p>当计算机收到了第一个括号后，期待它与第八个括号匹配，然而等来的却是第二个括号，此时第一个括号‘[’只能暂时靠边，第二个括号的急迫程度又大于第一个括号，期待与之匹配的第七个括号的到来，然而却等来了第三个括号，这时第二个括号又要暂时靠边，第三个括号的急迫程度比第二个括号大，期待与之匹配的第四个括号的到来，第四个括号到来后与第三个括号相匹配，所以第三个括号的急迫就解决了。此时急迫程度最大的变成了第二个括号了，依次类推下去。</p>
+<p>啊，我估计各位看完上面一小段的描述之后，可能觉得天花乱坠，云里雾里的。下面就用比较通俗的语言来说一下。</p>
+<a id="more"></a>
+<h2 id="代码的设计思路："><a href="#代码的设计思路：" class="headerlink" title="代码的设计思路："></a>代码的设计思路：</h2><p>首先计算机接收一串括号表达式，如[([][])]，这时一个一个括号的检查。</p>
+<p>1.建立一个空栈，用于存放左括号和表达相应左括号的急迫程度，栈顶的左括号的急迫程度为1，其他非栈顶左括号的急迫程度为0，显然栈顶左括号的急迫程度大于非栈顶的左括号急迫程度；</p>
+<p>2.若第一个括号是左括号，不管是‘(’还是‘[’，都被压栈，急迫度为1，进入第三步；若第一个括号为右括号，不管是‘)’还是‘]’，就是错误的。因为栈顶没有与之相匹配的左括号，此时弹出出错提示，重新进入第一步；</p>
+<p>3.若第二个括号为左括号，则被压栈，急迫度为1，刚刚压栈的左括号急迫度变为0，进入第四步；若为右括号，则查看是否与栈顶的左括号相匹配，若匹配成功，则删除栈顶左括号，若匹配失败，则弹出出错提示，重新进入第一步；</p>
+<p>4.依次类推下去</p>
+<p>总而言之一句话：是左括号的，压栈，急迫度为1，是右括号的，则看其是否与栈顶的左括号相匹配，若匹配，则删除栈顶括号，若不匹配，出错。</p>
+<p>&nbsp;</p>
+<h1 id="代码："><a href="#代码：" class="headerlink" title="代码："></a>代码：</h1><h2 id="1-match-pa-h"><a href="#1-match-pa-h" class="headerlink" title="1.match_pa.h"></a>1.match_pa.h</h2><p>//Headfile<br>//    match paren<br>//History<br>//    Xinspace    5 Mar    First release</p>
+<p>#ifndef xinspace_</p>
+<p>#define xinspace_</p>
+<p>#include &lt;stdio.h&gt;</p>
+<p>#include &lt;stdlib.h&gt;</p>
+<p>#include &lt;string.h&gt;</p>
+<p>#include &lt;errno.h&gt;</p>
+<p>#include &lt;unistd.h&gt;</p>
+<p>#include &lt;fcntl.h&gt;</p>
+<p>#include &lt;sys/stat.h&gt;</p>
+<p>#include &lt;sys/types.h&gt;</p>
+<p>#include &lt;sys/socket.h&gt;</p>
+<p>#include &lt;arpa/inet.h&gt;</p>
+<p>#include &lt;netinet/in.h&gt;</p>
+<p>#include &lt;netinet/ip.h&gt;</p>
+<p>#include &lt;pthread.h&gt;</p>
+<p>#define error_show(function)<br>do<br>{<br>fprintf(stderr, “in file:%s, in function:%s, at line %d, %s : %sn”, <strong>FILE</strong>, <strong>FUNCTION</strong>, <strong>LINE</strong>, function, strerror(errno));<br>exit(-1);<br>}while(0)</p>
+<p>#define MAX 10<br>void start(); //开始函数，包含在main函数内<br>void judge(char <strong>st, char *sb, char pa);//判断一个右括号是否与栈顶的左括号匹配的函数，char </strong>st是栈顶左括号指针的地址，sb是栈底指针，pa表示一个右括号</p>
+<p>char <em>create_stack();//创建栈<br>char pop(char </em>st, char <em>sb);//出栈<br>void push(char </em>st, char pa);//压栈</p>
+<p>#endif</p>
+<p>&nbsp;</p>
+<p>2.主函数 main.c</p>
+<p>//Program<br>//    paren match<br>//History<br>//    Xinspace    5 Mar    First release</p>
+<p>#include “match_pa.h”</p>
+<p>int main(void)<br>{<br>char con = ‘y’;//这是一个选项，y表示再执行一遍程序，n表示不执行程序了，退出</p>
+<p>while(1)<br>{<br>if(con == ‘y’ || con == ‘Y’)//如果选项为y，则执行start函数<br>start();<br>else//否则，退出程序<br>{<br>printf(“you quit!n”);<br>break;<br>}</p>
+<p>fflush(NULL);<br>printf(“continue? y/nn”);<br>getchar();//这个getchar函数是用来接收回车符的，这个回车符是当你在屏幕上输入选项y或n之后敲回车的那个回车产生的。<br>con = getchar();//这个才是真正的选项y或n<br>}</p>
+<p>return 0;<br>}</p>
+<p>void start()<br>{<br>printf(“please input a trial of parensn”);<br>char array[MAX*2];    //用来保存一串括号表达式<br>scanf(“%s”, array);</p>
+<p>char <em>sp, </em>st, *sb;//sp是指栈底指针，st是栈顶指针，sb是栈底指针<br>int count = 0;//括号的数量，大于等于0小于strlen(array)<br>sp = create_stack();//创建栈<br>st = sb = sp;</p>
+<p>while(count &lt; strlen(array))<br>{<br>switch(array[count])<br>{<br>case ‘(‘://如果是左括号，则压栈<br>case ‘[‘:<br>push(st++, array[count]);<br>break;<br>case ‘)’://如果是右括号，则先检查是否与栈顶的左括号匹配，如果不匹配，则出错，若匹配，则继续<br>judge(&amp;st, sb, ‘)’);<br>break;<br>case ‘]’:<br>judge(&amp;st, sb, ‘]’);<br>break;<br>default:<br>fprintf(stderr, “wrong paren!please reinputn”);<br>}</p>
+<p>count++;<br>}<br>if(st != sb) //如果出错了，即左右括号不匹配的时候，栈中肯定还存在一些左括号没有被匹配，即st与sb不相等，把这些括号依次出栈打印到屏幕上<br>{<br>printf(“the paren stack is still left(right to left):”);<br>while(st != sb)<br>{<br>putchar(pop(–st, sb));<br>}<br>putchar(10);<br>}<br>}</p>
+<p>&nbsp;</p>
+<p>3.附加文件match_pa.c</p>
+<p>//Program<br>//    match paren<br>//History<br>//    Xinspace    5 Mar    First release<br>//</p>
+<p>#include “match_pa.h”</p>
+<p>char <em>create_stack()//创建栈<br>{<br>char </em>sp = (char <em>)malloc(sizeof(char) </em> MAX);<br>if(!sp)<br>error_show(“malloc”);</p>
+<p>return sp;<br>}</p>
+<p>void push(char <em>st, char pa)//压栈<br>{
+</em>st = pa;<br>//    printf(“insert %cn”, *st);<br>}</p>
+<p>char pop(char <em>st, char </em>sb)//出栈<br>{<br>if(st &lt; sb)<br>{<br>fprintf(stderr, “stack is NULL!n”);<br>exit(1);<br>}</p>
+<p>return *st;<br>}</p>
+<p>void judge(char *<em>st, char </em>sb, char pa)//判断一个右括号是否与栈顶的左括号匹配<br>{<br>if(pa == ‘)’)<br>{<br>if(pop(<em>st – 1, sb) == ‘(‘)<br>pop(–</em>st, sb);<br>else<br>{<br>fprintf(stderr, “before ‘)’ must be ‘(‘, but your is %c!n”, pop(<em>st – 1, sb));<br>return;<br>}<br>}<br>else if(pa == ‘]’)<br>{<br>if(pop(</em>st – 1, sb) == ‘[‘)<br>pop(–<em>st, sb);<br>else<br>{<br>fprintf(stderr, “before ‘]‘ must be ‘[‘, but your is %c!n”, pop(</em>st – 1, sb));<br>return;<br>}<br>}<br>else<br>{<br>fprintf(stderr, “paren wrong!please reinputn”);<br>}<br>}</p>
+<p>&nbsp;</p>
+<p>三个文件的下载地址：</p>
+<p><a href="http://l7.yunpan.cn/lk/Q83XkKX4hXrUf" target="_blank" rel="noopener">match_pa.h</a></p>
+<p><a href="http://l7.yunpan.cn/lk/Q83X2EhaHdfdL" target="_blank" rel="noopener">main.c</a></p>
+<p><a href="http://l7.yunpan.cn/lk/Q83XEtEQEkHFq" target="_blank" rel="noopener">match_pa.c</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/30/stack-numberic/" rel="next" title="用栈实现数制转换">
+                <i class="fa fa-chevron-left"></i> 用栈实现数制转换
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/03/30/stack-line-editor/" rel="prev" title="用栈实现简单的行编辑器">
+                用栈实现简单的行编辑器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#括号匹配的意思"><span class="nav-number">1.</span> <span class="nav-text">括号匹配的意思</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现的算法"><span class="nav-number">2.</span> <span class="nav-text">实现的算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#代码的设计思路："><span class="nav-number">2.1.</span> <span class="nav-text">代码的设计思路：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码："><span class="nav-number">3.</span> <span class="nav-text">代码：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-match-pa-h"><span class="nav-number">3.1.</span> <span class="nav-text">1.match_pa.h</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

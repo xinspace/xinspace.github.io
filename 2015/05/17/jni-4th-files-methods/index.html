@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="由于篇幅较长，因此可能要花好几天才能写完这一章。下面这一部分是05/14/2015完成的。 这一章介绍访问任意对象的成员变量和方法(调用Java中的方法就是从原生代码回调Java方法)。在后面的章节中也会介绍如何有效快速的进行访问。 4.1 访问类成员变量Java的类含有两种成员变量：静态成员变量和非静态成员变量。 我们首先介绍如何读取/修改非静态成员变量。 4.1.1 访问非静态成员变量下面看一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI技术解析第四章 访问类成员变量和成员方法">
+<meta property="og:url" content="http://blog.xinspace.xin/2015/05/17/jni-4th-files-methods/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="由于篇幅较长，因此可能要花好几天才能写完这一章。下面这一部分是05/14/2015完成的。 这一章介绍访问任意对象的成员变量和方法(调用Java中的方法就是从原生代码回调Java方法)。在后面的章节中也会介绍如何有效快速的进行访问。 4.1 访问类成员变量Java的类含有两种成员变量：静态成员变量和非静态成员变量。 我们首先介绍如何读取/修改非静态成员变量。 4.1.1 访问非静态成员变量下面看一">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI技术解析第四章 访问类成员变量和成员方法">
+<meta name="twitter:description" content="由于篇幅较长，因此可能要花好几天才能写完这一章。下面这一部分是05/14/2015完成的。 这一章介绍访问任意对象的成员变量和方法(调用Java中的方法就是从原生代码回调Java方法)。在后面的章节中也会介绍如何有效快速的进行访问。 4.1 访问类成员变量Java的类含有两种成员变量：静态成员变量和非静态成员变量。 我们首先介绍如何读取/修改非静态成员变量。 4.1.1 访问非静态成员变量下面看一">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2015/05/17/jni-4th-files-methods/">
+
+
+
+
+
+  <title>JNI技术解析第四章 访问类成员变量和成员方法 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2015/05/17/jni-4th-files-methods/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI技术解析第四章 访问类成员变量和成员方法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-17T23:01:46+07:00">
+                2015-05-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>由于篇幅较长，因此可能要花好几天才能写完这一章。下面这一部分是05/14/2015完成的。</p>
+<p>这一章介绍访问任意对象的成员变量和方法(调用Java中的方法就是从原生代码回调Java方法)。在后面的章节中也会介绍如何有效快速的进行访问。</p>
+<h1 id="4-1-访问类成员变量"><a href="#4-1-访问类成员变量" class="headerlink" title="4.1 访问类成员变量"></a>4.1 访问类成员变量</h1><p>Java的类含有两种成员变量：静态成员变量和非静态成员变量。</p>
+<p>我们首先介绍如何读取/修改非静态成员变量。</p>
+<h2 id="4-1-1-访问非静态成员变量"><a href="#4-1-1-访问非静态成员变量" class="headerlink" title="4.1.1 访问非静态成员变量"></a>4.1.1 访问非静态成员变量</h2><p>下面看一个简单的访问类成员变量的例子。</p>
+<a id="more"></a>
+<p>Java代码：</p>
+<pre escaped="true" lang="php" line="1"></pre>
+<pre escaped="true" lang="php" line="1">class InstanceFieldAccess {
+    //类成员变量 
+    private String s;
+    //原生代码读取和修改成员变量的值 
+    private native void accessField();
+
+    public static void main(String[] args) { 
+        InstanceFieldAccess c = new InstanceFieldAccess();
+        //初始化 
+        c.s = "abc";
+       //原生代码 
+       c.accessField(); 
+       System.out.println("In Java:"); 
+       System.out.println(" c.s = "" + c.s + """); 
+    } 
+    static { 
+        System.loadLibrary("InstanceFieldAccess"); 
+    }
+}</pre>
+原生代码中定义了私有成员变量为String类型，在main方法中首先初始化其值为"abc"，通过原生代码读取和修改其值后，在Java中打印出修改后的成员变量的值。
+
+下面是C代码：
+<pre escaped="true" lang="php" line="1">#include &lt;jni.h&gt;
+#include "InstanceFieldAccess.h"
+
+JNIEXPORT void JNICALL Java_InstanceFieldAccess_accessField(JNIEnv *env, jobject obj)
+{
+    //获取obj指定的类
+    jclass clazz = (*env)-&gt;GetObjectClass(env, obj);
+    if(NULL == clazz)
+        return;
+    //通过该类定义，找到该类的名称为s的成员变量，其类型签名为"Ljava/lang/String;"，即String类型
+    jfieldID sid = (*env)-&gt;GetFieldID(env, clazz, "s", "Ljava/lang/String;");
+    if(NULL == sid)
+        return;
+    //获得fieldID后，通过obj读取该成员变量的值，为jstring类型。
+    jstring s = (*env)-&gt;GetObjectField(env, obj, sid);
+    if(NULL == s)
+        return;
+    //这里就很熟悉了，将引用类型转换为C/C++相应类型。
+    const char *ss = (*env)-&gt;GetStringUTFChars(env, s, NULL);
+    if(NULL == ss)
+        return;
+    //打印
+    printf("In C:n c.s = "%s"n", ss);
+    //打印完成后，不再使用const char *ss，就释放掉。
+    (*env)-&gt;ReleaseStringUTFChars(env, s, ss);
+    //用新的值生成一个新的jstring变量。
+    s = (*env)-&gt;NewStringUTF(env, "123");
+    if(NULL == s)
+        return;   
+    //用新的jstring变量修改fieldID指定的成员变量的值。
+    (*env)-&gt;SetObjectField(env, obj, sid, s);
+}
+</pre>
+运行程序的结果为：
+<pre escaped="true" lang="php" line="1">In C:
+ c.s = "abc"
+In Java:
+ c.s = "123"</pre>
+
+<h3 id="4-1-1-1-访问成员变量的步骤"><a href="#4-1-1-1-访问成员变量的步骤" class="headerlink" title="4.1.1.1 访问成员变量的步骤"></a>4.1.1.1 访问成员变量的步骤</h3><p>总的来说，访问类的成员变量需要两步：</p>
+<p>1.通过<span style="color: #ff0000;">GetFieldID()函数获得相关类的成员变量ID</span>，这个类可以通过GetObjectClass()函数得到。</p>
+<p>2.调用<span style="color: #ff0000;">GetObjectField()函数读取引用类型的成员变量</span>，调用<span style="color: #ff0000;">Get&lt;Primitive Type&gt;Field()函数读取基本类型成员变量</span>。调用<span style="color: #ff0000;">SetObjectField()或/和Set&lt;Primitive Type&gt;Field()函数修改引用类型/基本类型成员变量的值</span>。</p>
+<h3 id="4-1-1-2-类型签名"><a href="#4-1-1-2-类型签名" class="headerlink" title="4.1.1.2 类型签名"></a>4.1.1.2 类型签名</h3><p>在GetFieldID()函数中，最后一个参数是”Ljava/lang/String;”，它被称为类型签名(或类型说明符)。它由类的成员变量类型决定。可以用<span style="color: #ff0000;">“I”表示int，用”D”表示double，用”F”表示float，用”Z”表示boolean等</span>。</p>
+<p>如果成员变量类型为引用类型，那么生成的规则是：以<span style="color: #ff0000;">“L”开头，后面跟上JNI类描述符，以分号”;”结尾，JNI类描述符中的点号”.”变为斜杠”/“</span>。如String类型的类描述符是java.lang.String(String类的包名为java.lang.String),所以String的类型签名为:”Ljava/lang/String;”。</p>
+<p>对于数组类型的成员变量，规则是：以<span style="color: #ff0000;">“[“开头，后面跟上数组元素的类型描述符</span>。如int[]的类型签名是”[I”，String[]的类型签名为”[L/java/lang/String;”。</p>
+<h2 id="4-1-2-访问静态成员变量"><a href="#4-1-2-访问静态成员变量" class="headerlink" title="4.1.2 访问静态成员变量"></a>4.1.2 访问静态成员变量</h2><p>访问静态成员变量与访问非静态成员变量差不多，只是函数稍微修改了一下。下面是Java代码：</p>
+<pre escaped="true" lang="php" line="1">class StaticFieldAccess {
+    //类静态成员变量 
+    <span style="color: #ff0000;">private static String s;</span>
+    //原生代码读取和修改成员变量的值 
+    private native void accessField();
+
+    public static void main(String[] args) { 
+        StaticFieldAccess c = new StaticFieldAccess();
+        //初始化 
+        c.s = "abc";
+       //原生代码 
+       c.accessField(); 
+       System.out.println("In Java:"); 
+       System.out.println(" c.s = "" + c.s + """); 
+    } 
+    static { 
+        System.loadLibrary("StaticFieldAccess"); 
+    }
+}</pre>
+下面是原生函数的实现代码：
+<pre escaped="true" lang="php" line="1">#include &lt;jni.h&gt;
+#include "StaticFieldAccess.h"
+
+JNIEXPORT void JNICALL Java_StaticFieldAccess_accessField(JNIEnv *env, jobject obj)
+{
+    //获取obj指定的类
+    jclass clazz = (*env)-&gt;GetObjectClass(env, obj);
+    if(NULL == clazz)
+        return;
+    //通过该类定义，找到该类的名称为s的成员变量，其类型签名为"Ljava/lang/String;"，即String类型。<span style="color: #ff0000;">注意这里函数修改为GetStaticFieldID()</span>。
+    jfieldID sid = (*env)-&gt;GetStaticFieldID(env, clazz, "s", "Ljava/lang/String;");
+    if(NULL == sid)
+        return;
+    //获得fieldID后，通过obj读取该成员变量的值，为jstring类型。<span style="color: #ff0000;">这里的函数修改为GetStaticObjectField()，并且第二个参数由obj该为clazz</span>。
+    jstring s = (*env)-&gt;GetStaticObjectField(env, clazz, sid);
+    if(NULL == s)
+        return;
+    //这里就很熟悉了，将引用类型转换为C/C++相应类型。
+    const char *ss = (*env)-&gt;GetStringUTFChars(env, s, NULL);
+    if(NULL == ss)
+        return;
+    //打印
+    printf("In C:n c.s = "%s"n", ss);
+    //打印完成后，不再使用const char *ss，就释放掉。
+    (*env)-&gt;ReleaseStringUTFChars(env, s, ss);
+    //用新的值生成一个新的jstring变量。
+    s = (*env)-&gt;NewStringUTF(env, "123");
+    if(NULL == s)
+        return;   
+    //用新的jstring变量修改fieldID指定的成员变量的值。注意，<span style="color: #ff0000;">这里的函数改为SetStaticObjectField()，</span><span style="color: #ff0000;">并且第二个参数由obj该为clazz</span></pre>
+<pre escaped="true" lang="php" line="1">。 (*env)-&gt;SetStaticObjectField(env, clazz, sid, s); }</pre>
+运行结果与非静态成员变量一样：
+<pre escaped="true" lang="php" line="1">In C:
+ c.s = "abc"
+In Java:
+ c.s = "123"</pre>
+
+<h3 id="4-1-2-1-访问静态成员变量的步骤"><a href="#4-1-2-1-访问静态成员变量的步骤" class="headerlink" title="4.1.2.1 访问静态成员变量的步骤"></a>4.1.2.1 访问静态成员变量的步骤</h3><p>与访问非静态成员变量一样：</p>
+<p>1.通过<span style="color: #ff0000;">GetStaticFieldID()函数获得相关类的静态成员变量ID</span>，这个类可以通过GetObjectClass()函数得到。</p>
+<p>2.调用<span style="color: #ff0000;">GetStaticObjectField()函数读取引用类型的静态成员变量，调用GetStatic&lt;Primitive Type&gt;Field()函数读取基本类型静态成员变量。调用SetStaticObjectField()或/和SetStatic&lt;Primitive Type&gt;Field()函数修改引用类型/基本类型静态成员变量的值</span>。</p>
+<p>3.<span style="color: #ff0000;">Get/SetStatic&lt;Type&gt;Field()系列函数的第二个参数是class类型。</span></p>
+<h1 id="4-2-访问类成员方法"><a href="#4-2-访问类成员方法" class="headerlink" title="4.2 访问类成员方法"></a>4.2 访问类成员方法</h1><p>JNI提供了很多函数允许从原生代码中调用Java的类成员方法。Java类成员方法由很多种，类静态成员方法、类非静态成员方法，特殊的有构造函数等。本节讨论调用静态成员方法和动态成员方法的相关JNI函数。</p>
+<h2 id="4-2-1-访问非静态成员方法"><a href="#4-2-1-访问非静态成员方法" class="headerlink" title="4.2.1 访问非静态成员方法"></a>4.2.1 访问非静态成员方法</h2><p>还是使用一个例子，下面是Java代码：</p>
+<pre escaped="true" lang="php" line="1">class InstanceMethodCall {
+    private native void nativeMethod();
+    //这是原生代码要回调的Java类成员方法。
+    private void callback() {
+        System.out.println("In Java.");
+    }
+
+    public static void main(String[] args) {
+        InstanceMethodCall c = new InstanceMethodCall();
+        c.nativeMethod();
+    }
+
+    static {
+        System.loadLibrary("InstanceMethodCall");
+    }
+}</pre>
+下面是原生代码的实现：
+<pre escaped="true" lang="php" line="1">#include 
+#include "InstanceMethodCall.h"
+
+JNIEXPORT void JNICALL Java_InstanceMethodCall_nativeMethod(JNIEnv *env, jobject obj)
+{
+    jclass clazz = (*env)-&gt;GetObjectClass(env, obj);
+    if(NULL == clazz)
+        return;
+    jmethodID mid = (*env)-&gt;GetMethodID(env, clazz, "callback", "()V");
+    if(NULL == mid)
+        return;
+
+    printf("In Cn");
+    (*env)-&gt;CallVoidMethod(env, obj, mid);
+}</pre>
+执行的结果如下：
+<pre escaped="true" lang="php" line="1">In C
+In Java.</pre>
+
+<h3 id="4-2-1-1-访问非静态类成员方法的步骤"><a href="#4-2-1-1-访问非静态类成员方法的步骤" class="headerlink" title="4.2.1.1 访问非静态类成员方法的步骤"></a>4.2.1.1 访问非静态类成员方法的步骤</h3><p>1.使用<span style="color: #ff0000;">GetMethodID()函数获取obj对应的类的方法ID</span>，obj对应的类可以使用GetObjectClass()函数获得。这个方法根据传入的第三个参数(方法的名称)和第四个参数(方法的签名)在第二个参数(给定的类)中遍历查找。如果找到了匹配的方法，则返回该方法在该类中的ID，否则抛出NoSuchMethod异常。</p>
+<p>2.使用<span style="color: #ff0000;">Call&lt;Return Type&gt;Method()函数调用方法ID指定的类非静态成员方法</span>。其中Return Type可以是int、float、double、boolean、Object等等。</p>
+<h3 id="4-2-1-2-Java方法的签名"><a href="#4-2-1-2-Java方法的签名" class="headerlink" title="4.2.1.2 Java方法的签名"></a>4.2.1.2 Java方法的签名</h3><p>在调用GetMethodID()函数的时候，第三个参数是Java中方法的名称，第四个参数是这个Java方法的签名(或描述符)。生成方法标签的规则是：以小括号”()”开头,小括号内是方法的参数的类型签名，多个参数用逗号”,”分隔，小括号后跟着方法返回值类型的签名。</p>
+<p>如上个例子中的Java回调方法为：void callback() {….}。参数为空，返回值为void，所以该方法的标签为”()V”。</p>
+<p>如Java方法为：String func(int, String[]) {….}。参数有两个，int和String[]，返回值为String，所以该方法的标签为”(I,[Ljava/lang/String;)Ljava/lang/String;”。</p>
+<p>&nbsp;</p>
+<p>下面的部分是05/17/2015完成的。</p>
+<p>&nbsp;</p>
+<h1 id="4-3-调用父类的非静态方法"><a href="#4-3-调用父类的非静态方法" class="headerlink" title="4.3 调用父类的非静态方法"></a>4.3 调用父类的非静态方法</h1><p>可以调用在父类中定义并在子类中重写的非静态方法。JNI提供了一系列的CallNonvirtual&lt;Type&gt;Method()函数达到这个目的。步骤是：</p>
+<p>1.使用GetMethodID()函数获得父类中定义的非静态方法的引用。</p>
+<p>2.把jobject、父类的引用(jclass)、得到的方法ID(jmethodID)和其他的参数作为函数参数传递给CallNonvirtual&lt;Type&gt;Method()函数，如CallNonvirtualVoidMethod(), CallNonvirtualBooleanMethod(), CallNonvirtualIntMethod(), CallNonvirtualObjectMethod()等。</p>
+<p>注意：在原生代码中使用CallNonvirtual&lt;Type&gt;Method()函数调用重写了的父类的非静态方法是比较少见的。这个功能类似于Java中调用重写的父类中的某个方法，如f():</p>
+<pre escaped="true" lang="php" line="1">super.f();</pre>
+
+<h1 id="4-4-调用构造函数"><a href="#4-4-调用构造函数" class="headerlink" title="4.4 调用构造函数"></a>4.4 调用构造函数</h1><p>在JNI中调用构造函数与调用其他非静态方法类似，步骤如下：</p>
+<p>1.使用GetMethodID()函数获取构造函数的ID，其中第三个参数(函数的名字)为”&lt;init&gt;”,在函数签名中返回值为”V”。</p>
+<p>2.可以把构造函数ID和其他JNI的函数(如NewObject())作为参数调用构造函数。</p>
+<p>下面以一个例子介绍如何调用构造函数。这个例子调用Java中String类的String(char *)构造函数，使用给定的字符串构造一个新的String类。这个例子仅仅是为了演示如何调用构造函数，实际根本不会这么用。</p>
+<div class="page" title="Page 65"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv <em>env, jchar </em>chars, jint len)<br>{<br>    jclass stringClass;<br>    jmethodID cid;<br>    jcharArray elemArr;<br>    jstring result;<br>    <span style="color: #ff0000;">/<em>使用FindClass函数找到java.lang.String类的引用</em>/<br>    stringClass = (<em>env)-&gt;FindClass(env, “java/lang/String”);</em></span><br>    if (stringClass == NULL) {<br>        return NULL;<br>    }<br>    <span style="color: #ff0000;">/以”&lt;init&gt;”为函数名，以”([C)V”为函数签名调用GetMethodID()函数，获取</span><br><span style="color: #ff0000;">     <em>java.lang.String类的String(char[])构造函数</em></span><br><span style="color: #ff0000;">    /<br>    cid = (<em>env)-&gt;GetMethodID(env, stringClass,”&lt;init&gt;”, “([C)V”);</em></span><br>    if (cid == NULL) {<br>        return NULL; / exception thrown <em>/<br>    }<br>    /</em>创建新的字符数组<em>/<br>    elemArr = (</em>env)-&gt;NewCharArray(env, len);<br>    if (elemArr == NULL) {<br>        return NULL;<br>    }<br>    /<em>把jchar</em>数据从位置为0开始，一共len个字符写入到字符数组中<em>/<br>    (</em>env)-&gt;SetCharArrayRegion(env, elemArr, 0, len, chars);<br>    /<em>使用NewObject函数产生新的jstring对象，即java.lang.String类对象</em>/<br>    <span style="color: #ff0000;">result = (<em>env)-&gt;NewObject(env, stringClass, cid, elemArr);</em></span><br>    /释放局部引用，可以让垃圾回收机制自动回收<em>/<br>    (</em>env)-&gt;DeleteLocalRef(env, elemArr);<br>    (<em>env)-&gt;DeleteLocalRef(env, stringClass);<br>    /</em>返回新创建的jstring对象<em>/<br>    return result;<br>}<br></em></pre><br></div><br></div><br></div><br></div><br>既然我们自己能够实现创建String类，那为什么JNI还内置提供了NewString()这样的函数呢？这是因为String类等非常常用，因此JNI有必要专门为了这些常用的类和对象创建经过优化了的JNI函数。JNI内置的函数经过特殊优化，比我们这里直接调用java.lang.String的构造函数要有效率的多。<br><br>上节学到的CallNonvirtual&lt;Type&gt;Method()函数也可以用来调用构造函数。对上述代码做一点点的修改，把下面这一句<br><pre escaped="true" lang="php" line="1">/使用NewObject函数产生新的jstring对象，即java.lang.String类对象<em>/<br>    result = (</em>env)-&gt;NewObject(env, stringClass, cid, elemArr);</pre><br>改为：<br><div class="page" title="Page 67"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">/<em>调用AllocObject()函数生成未初始化的String类对象并分配空间</em>/<br><span style="color: #ff0000;">result = (<em>env)-&gt;AllocObject(env, stringClass);</em></span><br>if (result) {<br>    <span style="color: #ff0000;">/以字符数组、构造函数的ID、要创建的类型和上一步得到的分配到的空间为参数调用CallNonvirtualVoidMethod()函数，得到新的String类对象<em>/<br>    (</em>env)-&gt;CallNonvirtualVoidMethod(env, result, stringClass,cid, elemArr);</span><br>    /<em>如果发生了异常的话，删除为String类对象分配的空间，立即返回</em>/<br>    if ((<em>env)-&gt;ExceptionCheck(env)) {<br>        (</em>env)-&gt;DeleteLocalRef(env, result);<br>        result = NULL;<br>    }<br>}</pre><br></div><br></div><br></div><br></div><br>原生代码不应该使用同一个对象参数调用构造函数多次，也就是说，<span style="color: #ff0000;">在每个对象调用了原生代码后，该原生代码最多只能调用某个类型的构造函数一次</span>。<br><br>大多数情况，<span style="color: #ff0000;">推荐使用NewObject()函数代替AllocObject()/CallNonvirtualVoidMethod()函数组合。因为后者更容易出错</span>。<br><br># 4.5 缓存成员变量和成员方法的ID<br><br>调用JNI函数获取成员变量或成员方法的ID，是在Java类文件中通过变量/方法名和签名来遍历查找，如果在原生代码中多次引用同一个变量或方法的话，采用这种方法就会显得效率低且耗时多。因此，这一节讨论如何缓存它们的ID并在该原生代码结束前重复使用。<br><br>缓存ID分两种情况，下面分别介绍。<br><br>## 4.5.1 第一种情况(Caching at Point of Use)<br><br>这个不好翻译，大概意思就是说在原生代码中使用到了成员变量或成员方法的ID时再缓存。Java代码可能会调用同一个原生函数很多次，在这个原生函数中，<span style="color: #ff0000;">只在第一次被调用时计算用到的Java类中的成员变量或成员方法的ID，并将ID保存到一个静态变量中，那么后续的所有调用都不用重新计算查找这些ID了</span>。下面是一个简单的例子：<br><div class="page" title="Page 68"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_InstanceFieldAccess_accessField(JNIEnv <em>env, jobject obj)<br>{<br>    <span style="color: #ff0000;">/</span></em>定义一个静态变量存储Java类成员变量的ID<em>/<br>    static jfieldID fid_s = NULL;<br>    /</em>获取本原生函数所属的Java对象<em>/<br>    jclass cls = (</em>env)-&gt;GetObjectClass(env, obj);<br>    jstring jstr;<br>    const char <em>str;<br>    /</em>fid_s如果为NULL，说明是第一次调用本原生函数<em>/<br>    <span style="color: #ff0000;">if (fid_s == NULL) {</span><br><span style="color: #ff0000;">        /</span></em>第一次调用本原生函数，<br><span style="color: #ff0000;">         <em>在本原生函数所属的对象所属的类中查找String s;成员变量的ID</em>/<br>        fid_s = (<em>env)-&gt;GetFieldID(env, cls, “s”,”Ljava/lang/String;”);</em></span><br><span style="color: #ff0000;">        /如果找不到，就会自动抛出异常，立即返回。让Java异常处理捕获异常<em>/<br>        if (fid_s == NULL) {<br>            return;<br>        }</em></span><br><span style="color: #ff0000;">    }</span><br>    printf(“In C:n”);<br>    /根据ID获取其内容，并转换为char<em>。</em>/<br>    jstr = (<em>env)-&gt;GetObjectField(env, obj, <span style="color: #ff0000;">fid_s</span>);<br>    str = (</em>env)-&gt;GetStringUTFChars(env, jstr, NULL);<br>    if (str == NULL) {<br>        return;<br>    }<br>    printf(“  c.s = “%s”n”, str);<br>    (<em>env)-&gt;ReleaseStringUTFChars(env, jstr, str);<br>    /</em>把ID所代表的变量的值修改为”123”<em>/<br>    jstr = (</em>env)-&gt;NewStringUTF(env, “123”);<br>    if (jstr == NULL) {<br>        return;<br>    }<br>    (<em>env)-&gt;SetObjectField(env, obj, <span style="color: #ff0000;">fid_s</span>, jstr);<br>}</em></pre><br></div><br></div><br></div><br></div><br>虽然避免了每次都重新计算查找ID，但如果该原生函数在Java中在多个线程中同时调用时，就会有一个问题：竞争。多个线程同时调用这个原生函数，同时查找计算ID。一个线程可能覆盖另个一线程存储在静态变量中的ID。所幸的是，在不同线程中对同一个类的同一个成员变量或成员方法的ID查找结果是一样的，所以虽然多线程时不同线程可能会重复查找ID，但这不会带来麻烦。<br><br>基于这个知识，我们可以修改一下上面提到的MyNewString原生函数，把java.lang.String类的构造函数ID缓存起来：<br><pre escaped="true" lang="php" line="1">jstring MyNewString(JNIEnv env, jchar <em>chars, jint len)<br>{<br>    jclass stringClass;<br>    static jmethodID cid = NULL;<br>    jcharArray elemArr;<br>    jstring result;<br>    /</em>使用FindClass函数找到java.lang.String类的引用<em>/<br>    stringClass = (</em>env)-&gt;FindClass(env, “java/lang/String”);<br>    if (stringClass == NULL) {<br>        return NULL;<br>    }<br>    <span style="color: #ff0000;">/<em>第一次调用时计算ID、后续调用可以直接使用。</em>/</span><br><span style="color: #ff0000;">    if(NULL == cid) {</span><br><span style="color: #ff0000;">       /<em>以”&lt;init&gt;”为函数名，以”([C)V”为函数签名调用GetMethodID()函数，获取</em></span><br><span style="color: #ff0000;">        java.lang.String类的String(char[])构造函数</span><br><span style="color: #ff0000;">       <em>/<br>        cid = (</em>env)-&gt;GetMethodID(env, stringClass,”&lt;init&gt;”, “([C)V”);<br>        if (cid == NULL) {<br>            return NULL; /<em> exception thrown </em>/<br>        }</span><br><span style="color: #ff0000;">    }</span><br>    /<em>创建新的字符数组</em>/<br>    elemArr = (<em>env)-&gt;NewCharArray(env, len);<br>    if (elemArr == NULL) {<br>        return NULL;<br>    }<br>    /</em>把jchar<em>数据从位置为0开始，一共len个字符写入到字符数组中</em>/<br>    (<em>env)-&gt;SetCharArrayRegion(env, elemArr, 0, len, chars);<br>    /</em>使用NewObject函数产生新的jstring对象，即java.lang.String类对象<em>/<br>    result = (</em>env)-&gt;NewObject(env, stringClass, cid, elemArr);<br>    /<em>释放局部引用，可以让垃圾回收机制自动回收</em>/<br>    (<em>env)-&gt;DeleteLocalRef(env, elemArr);<br>    (</em>env)-&gt;DeleteLocalRef(env, stringClass);<br>    /<em>返回新创建的jstring对象</em>/<br>    return result;<br>}</pre><br>红色部分代码是修改的部分。<br><br>## 4.5.2 第二种情况(Caching in the Defining Class’s Initializer)<br><br>第二种情况是在原生函数所属的类的静态初始化部分缓存ID。<br><br>在第一种情况中，每次调用原生函数都要检查静态缓存变量是否为NULL，判断ID是否已经被缓存。这种方法会带来多余的检查/计算查找ID的步骤，影响速度。比如，多线程时所有县城同时调用该方法，那么就会重复检查和计算ID N次。<br><br>在很多情况下，原生代码所需要的ID可以在应用程序还没有调用原生代码之前被缓存起来。Java虚拟机会在使用类的任何方法和变量之前执行这个类的静态初始化函数(或上下文)。因此，在这个静态初始化函数或上下文中计算查找ID并把它缓存起来，就相当于我们只计算了一次。不管是在多线程还是单线程，这个ID只会被计算查找一次，因为一个类的静态初始化只会出现一次。<br><br>比如，我们修改4.2.1节访问非静态成员方法中的例子，在静态初始化上下文中计算并缓存非静态方法的ID：<br><pre escaped="true" lang="php" line="1">class InstanceMethodCall {<br>    private native void nativeMethod();<br>   <span style="color: #ff0000;"> /<em>initIDs()用于在静态上下文中计算ID，并缓存</em>/</span><br><span style="color: #ff0000;">    private static native void initIDs();</span><br>    //这是原生代码要回调的Java类成员方法。<br>    private void callback() {<br>        System.out.println(“In Java.”);<br>    }<br><br>    public static void main(String[] args) {<br>        InstanceMethodCall c = new InstanceMethodCall();<br>        c.nativeMethod();<br>    }<br><br>    static {<br>        System.loadLibrary(“InstanceMethodCall”);<br>        <span style="color: #ff0000;">/<em>在静态上下文中调用这个函数计算并缓存ID</em></span><br><span style="color: #ff0000;">         这个函数会在InstanceMethodCall类使用任何成员前被调用。</span><br><span style="color: #ff0000;">         <em>这个函数只会被执行一次，不管单线程还是多线程。</em></span><br><span style="color: #ff0000;">         /</span><br><span style="color: #ff0000;">        initIDs();</span><br>    }<br>}</pre><br>红色部分就是新添加的两条语句，用于在静态上下文计算并缓存ID。initIDs()函数的实现如下：<br><div class="page" title="Page 70"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1"><span style="color: #ff0000;">/<em>MID_InstanceMethodCall_callback是一个全局变量，用于保存方法ID</em>/</span><br><span style="color: #ff0000;">jmethodID MID_InstanceMethodCall_callback;</span><br>JNIEXPORT void JNICALL Java_InstanceMethodCall_initIDs(JNIEnv <em>env, jclass cls)<br>{<br>    <span style="color: #ff0000;">/</span></em>获取InstanceMethodCall.callback()方法的ID，保存在全局变量中。<br><span style="color: #ff0000;">     <em>只计算一次就可以在用到InstanceMethodCall.callback()方法的地方使用全局变量</em></span><br><span style="color: #ff0000;">     /</span><br><span style="color: #ff0000;">    MID_InstanceMethodCall_callback = </span><br><span style="color: #ff0000;">         (<em>env)-&gt;GetMethodID(env, cls, “callback”, “()V”);</em></span><br>}</pre><br></div><br></div><br></div><br></div><br>因为initIDs()函数是在静态上下文中调用，是在类调用任何成员方法(如nativeMethod()或main())之前执行的，所以后面调用的方法如果要使用callback()的ID，就可以直接使用MID_InstanceMethodCall_callback了。如nativeMethod()方法的实现代码如下：<br><div class="page" title="Page 71"><br><div class="section"><br><div class="layoutArea"><br><div class="column"><br><pre escaped="true" lang="php" line="1">JNIEXPORT void JNICALL Java_InstanceMethodCall_nativeMethod(JNIEnv env, jobject obj)<br>{<br>    printf(“In Cn”);<br>   <span style="color: #ff0000;"> /<em>直接使用MID_InstanceMethodCall_callback调用callback()，不用再计算了。</em>/ </span><br><span style="color: #ff0000;">    (*env)-&gt;CallVoidMethod(env, obj, MID_InstanceMethodCall_callback);</span><br>}</pre><br></div><br></div><br></div><br></div>
+
+<h2 id="4-5-3-两种方法的比较"><a href="#4-5-3-两种方法的比较" class="headerlink" title="4.5.3 两种方法的比较"></a>4.5.3 两种方法的比较</h2><p><span style="color: #ff0000;">当程序员不能修改类的定义的时候，使用第一种方法(ID缓存在静态变量中)是合理的</span>。比如，我们自己写的MyNewString原生代码就不能在java.lang.String类的静态上下文中添加initIDs()方法，这时就只能使用第一种方法了。</p>
+<p>然而，相比第二种方法，第一种方法有一些<span style="color: #ff0000;">弊端</span>：</p>
+<p>1.前面提到过，<span style="color: #ff0000;">多线程时会重复检查和计算ID</span>，带来效率和性能问题。</p>
+<p>2.<span style="color: #ff0000;">第一种方法把ID缓存在静态变量中，这时变量中的值只在原生代码所属的类没有被卸载(unloaded)时有效。一旦Java虚拟机卸载了该类，又重新加载了该类，那么这个静态变量中的值就不再有效，如果继续引用就很可能出错。然而，第二种方法是在类的初始化静态上下文中缓存ID到全局变量，如果类被卸载又重新加载的话，这个静态上下文的部分还会重新执行一次，所以ID也会被重新计算和缓存，所以继续引用全局变量不会出错</span>。</p>
+<p>因此，<span style="color: #ff0000;">尽可能的使用第二种方法缓存ID</span>。</p>
+<h1 id="4-6-JNI调用成员变量和成员方法的性能"><a href="#4-6-JNI调用成员变量和成员方法的性能" class="headerlink" title="4.6 JNI调用成员变量和成员方法的性能"></a>4.6 JNI调用成员变量和成员方法的性能</h1><p>使用JNI技术就是为了提高Java程序的性能，那么JNI中回调Java方法(native-&gt;Java)、Java调用原生函数(Java-&gt;native)和Java调用Java函数(Java-&gt;Java)的性能分别如何呢？</p>
+<p>JNI的性能与Java虚拟机底层如何实现JNI技术有关系，因此对上述问题不可能给出具体的数值，但我们根据内在的原理来推论上述问题的答案。</p>
+<h2 id="4-6-1-Java-gt-native-与-Java-gt-Java的比较"><a href="#4-6-1-Java-gt-native-与-Java-gt-Java的比较" class="headerlink" title="4.6.1 Java-&gt;native 与 Java-&gt;Java的比较"></a>4.6.1 Java-&gt;native 与 Java-&gt;Java的比较</h2><p>Java-&gt;native很可能比Java-&gt;Java要慢，原因如下：</p>
+<p>1.原生函数很可能遵循不同的函数调用规则(如参数传递顺序),因此Java-&gt;native调用时，需要对参数和函数栈等会做额外的转换操作，以便符合原生函数的调用规则。而在同一个Java虚拟机中，Java-&gt;Java调用就不存在规则不同了，不用多余的转换。</p>
+<p>2.在Java-&gt;Java调用时，允许inline调用，非常迅速快捷。但是Java-&gt;native调用使用inline就非常困难。</p>
+<p>在典型的Java虚拟机实现中，<span style="color: #ff0000;">一般情况下Java-&gt;native比Java-&gt;Java调用要慢2-3倍</span>。因此从性能角度考虑，<span style="color: #ff0000;">除非遇到了Java不能完成的任务或Java完成起来很麻烦很困难的任务，否则尽可能的不用JNI</span>。当然，Java虚拟机可以在实现JNI时让其调用规则符合Java-&gt;Java调用，这样Java-&gt;native与Java-&gt;Java的速度就非常接近了。</p>
+<h2 id="4-6-2-Java-gt-native-与-native-gt-Java的比较"><a href="#4-6-2-Java-gt-native-与-native-gt-Java的比较" class="headerlink" title="4.6.2 Java-&gt;native 与 native-&gt;Java的比较"></a>4.6.2 Java-&gt;native 与 native-&gt;Java的比较</h2><p><span style="color: #ff0000;">这两种情况的性能差不多</span>。</p>
+<h2 id="4-6-3-native-gt-Java-与-Java-gt-Java的比较"><a href="#4-6-3-native-gt-Java-与-Java-gt-Java的比较" class="headerlink" title="4.6.3 native-&gt;Java 与 Java-&gt;Java的比较"></a>4.6.3 native-&gt;Java 与 Java-&gt;Java的比较</h2><p>理论上来说，<span style="color: #ff0000;">native-&gt;Java应该比Java-&gt;Java慢2到3倍。但实际上，可能慢10倍左右</span>。这是因为native-&gt;Java(回调)非常的罕见，所以Java虚拟机在实现的时候并没有对这种回调做优化。</p>
+<h2 id="4-6-4-JNI访问成员变量和成员方法的性能"><a href="#4-6-4-JNI访问成员变量和成员方法的性能" class="headerlink" title="4.6.4 JNI访问成员变量和成员方法的性能"></a>4.6.4 JNI访问成员变量和成员方法的性能</h2><p>在原生代码中访问成员变量或成员方法的性能主要依赖JNIEnv接口所指的JNI函数的性能。一般来说，<span style="color: #ff0000;">性能还是能接受的</span>，因为调用JNI优化过的函数只需要花费几个周期。</p>
+<p>&nbsp;</p>
+<p>哇，这一章终于介绍(翻译)完了，码字好累。不过，写完这篇文章相当于又复习了一遍，常读常新，对JNI理解会更多。有问题可以发邮件<a href="mailto:xinspace@yeah.net" target="_blank" rel="noopener">xinspace@yeah.net</a>或回复留言。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/13/android-studio-cannot-start-avd/" rel="next" title="Android Studio无法启动AVD">
+                <i class="fa fa-chevron-left"></i> Android Studio无法启动AVD
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/24/jni-5th-local-global-reference/" rel="prev" title="JNI技术解析第五章 局部引用和全局引用">
+                JNI技术解析第五章 局部引用和全局引用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#4-1-访问类成员变量"><span class="nav-number">1.</span> <span class="nav-text">4.1 访问类成员变量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-1-访问非静态成员变量"><span class="nav-number">1.1.</span> <span class="nav-text">4.1.1 访问非静态成员变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-1-1-访问成员变量的步骤"><span class="nav-number">1.1.1.</span> <span class="nav-text">4.1.1.1 访问成员变量的步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-1-2-类型签名"><span class="nav-number">1.1.2.</span> <span class="nav-text">4.1.1.2 类型签名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-2-访问静态成员变量"><span class="nav-number">1.2.</span> <span class="nav-text">4.1.2 访问静态成员变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-2-1-访问静态成员变量的步骤"><span class="nav-number">1.2.1.</span> <span class="nav-text">4.1.2.1 访问静态成员变量的步骤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-2-访问类成员方法"><span class="nav-number">2.</span> <span class="nav-text">4.2 访问类成员方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-1-访问非静态成员方法"><span class="nav-number">2.1.</span> <span class="nav-text">4.2.1 访问非静态成员方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-1-访问非静态类成员方法的步骤"><span class="nav-number">2.1.1.</span> <span class="nav-text">4.2.1.1 访问非静态类成员方法的步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-2-Java方法的签名"><span class="nav-number">2.1.2.</span> <span class="nav-text">4.2.1.2 Java方法的签名</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-3-调用父类的非静态方法"><span class="nav-number">3.</span> <span class="nav-text">4.3 调用父类的非静态方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-4-调用构造函数"><span class="nav-number">4.</span> <span class="nav-text">4.4 调用构造函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-5-3-两种方法的比较"><span class="nav-number">4.1.</span> <span class="nav-text">4.5.3 两种方法的比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-6-JNI调用成员变量和成员方法的性能"><span class="nav-number">5.</span> <span class="nav-text">4.6 JNI调用成员变量和成员方法的性能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-6-1-Java-gt-native-与-Java-gt-Java的比较"><span class="nav-number">5.1.</span> <span class="nav-text">4.6.1 Java-&gt;native 与 Java-&gt;Java的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-6-2-Java-gt-native-与-native-gt-Java的比较"><span class="nav-number">5.2.</span> <span class="nav-text">4.6.2 Java-&gt;native 与 native-&gt;Java的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-6-3-native-gt-Java-与-Java-gt-Java的比较"><span class="nav-number">5.3.</span> <span class="nav-text">4.6.3 native-&gt;Java 与 Java-&gt;Java的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-6-4-JNI访问成员变量和成员方法的性能"><span class="nav-number">5.4.</span> <span class="nav-text">4.6.4 JNI访问成员变量和成员方法的性能</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

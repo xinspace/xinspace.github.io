@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="《C专家编程》适合于对C语言有一定基础的朋友阅读。它对C语言的实现过程进行了更深一层的剖析，讲的还是很好的（除了个别知识已经过时）。下面就是我整理的一些笔记，大家可以参考看一下，并一起交流。 笔记是根据书的章节来的，但是并没有指出是哪一节，但保证是顺序记录的。 第一章 穿越时空的迷雾1.const的意义const float 类型并不是一个有限定符的指针，它的类型是指向一个有const限定符的fl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《C专家编程》笔记">
+<meta property="og:url" content="http://blog.xinspace.xin/2013/05/08/c-expert/index.html">
+<meta property="og:site_name" content="Xinspace">
+<meta property="og:description" content="《C专家编程》适合于对C语言有一定基础的朋友阅读。它对C语言的实现过程进行了更深一层的剖析，讲的还是很好的（除了个别知识已经过时）。下面就是我整理的一些笔记，大家可以参考看一下，并一起交流。 笔记是根据书的章节来的，但是并没有指出是哪一节，但保证是顺序记录的。 第一章 穿越时空的迷雾1.const的意义const float 类型并不是一个有限定符的指针，它的类型是指向一个有const限定符的fl">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T01:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《C专家编程》笔记">
+<meta name="twitter:description" content="《C专家编程》适合于对C语言有一定基础的朋友阅读。它对C语言的实现过程进行了更深一层的剖析，讲的还是很好的（除了个别知识已经过时）。下面就是我整理的一些笔记，大家可以参考看一下，并一起交流。 笔记是根据书的章节来的，但是并没有指出是哪一节，但保证是顺序记录的。 第一章 穿越时空的迷雾1.const的意义const float 类型并不是一个有限定符的指针，它的类型是指向一个有const限定符的fl">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '22EUOCAGCK',
+      apiKey: '408b4da535c917a84e064af234dcbb95',
+      indexName: 'xinspace_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.xinspace.xin/2013/05/08/c-expert/">
+
+
+
+
+
+  <title>《C专家编程》笔记 | Xinspace</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xinspace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.xinspace.xin/2013/05/08/c-expert/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xinspace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xinspace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《C专家编程》笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-05-08T20:17:00+07:00">
+                2013-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Diaries/" itemprop="url" rel="index">
+                    <span itemprop="name">Diaries</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>《C专家编程》适合于对C语言有一定基础的朋友阅读。它对C语言的实现过程进行了更深一层的剖析，讲的还是很好的（除了个别知识已经过时）。下面就是我整理的一些笔记，大家可以参考看一下，并一起交流。</p>
+<p>笔记是根据书的章节来的，但是并没有指出是哪一节，但保证是顺序记录的。</p>
+<p>第一章 穿越时空的迷雾<br>1.const的意义<br>const float <em>类型并不是一个有限定符的指针，它的类型是指向一个有const限定符的float类型的指针，即const限定符是修饰float的，而不是float </em>的。<br>关于const等限定符的特性可根据下面的例子来更加深入的理解：<br>const int a; //const限定符修饰int p,即p为只读的整型变量;<br>int const a; //意义同上;<br>const int <em>p = &amp;a; //const限定符修饰int a,a为只读的整型变量，而整型指针变量p则没有限定修饰符，可读可写。所以我们可以改变指针p的指向（即可以执行p = &amp;b），但是不能通过指针p来修改变量a的值<br>int const </em>p = &amp;a; //意义同上;<br>int * const p = &amp;a; //const限定符修饰整型指针p，所以指针p为只读变量，而整型变量a则没有限定符修饰。所以我们可以通过指针p来修改变量a的值，但是不能改变p的指向（即不能执行p = &amp;b）.</p>
+<p>最后总结一下：限定修饰符离哪个类型近，就说明修饰哪个类型的变量。如int const <em>p，const限定符离</em>p这种类型近，而<em>p的类型是int，所以const修饰的是int，而不是int </em>;而int <em> const p，const离p这种类型近，p的类型是int </em>，所以修饰的是int *,而不是int。</p>
+<p>2.以下赋值是错误的：<br>void foo(const char **p);</p>
+<p>int main(int argc, char **argv)<br>{<br>foo(argv);<br>return 0;<br>}</p>
+<p>因为ANSI C中对于赋值是如下规定的：<br>1.每个实参都应该具有自己的类型，这样它的值就可以赋值给与它所对应的形参类型的对象。<br>这说明参数传递的过程类似于赋值。所以const char <strong>可以传递给char </strong>类型的变量，但是反过来就会出错。</p>
+<a id="more"></a>
+<p>2.要使得赋值形式合法，必须满足下列条件之一：<br>两个操作数都是指向有限定符或无限定符的相容类型的指针，左边指针所指向的类型必须具有右边指针所指向类型的全部限定符。</p>
+<p>所以，char <strong>和 const char </strong>是不相容的。因为char <strong>指向的是char *，而const char </strong>指向的是const char *类型，所以虽然两个指针都没有限定符，但是指针所指向的类型是不同的，因此const char <strong>的形参不能接受char </strong>的实参。</p>
+<p>3.类型转换的小Bug</p>
+<p>#include &lt;stdio.h&gt;</p>
+<p>int array[] = {23, 24, 12, 17, 204, 99, 16};</p>
+<p>#define SIZE (sizeof(array) / sizeof(array[0]))</p>
+<p>int main()<br>{<br>int d = -1, x = 0;</p>
+<p>if(d &lt;= SIZE - 2)<br>x = array[d + 1];</p>
+<p>printf(“x = %dn”, x);<br>return 0;<br>}</p>
+<p>我们想要的效果是：x = 23,但实际效果是：x = 0</p>
+<p>这段代码有一个bug，在讨论这个bug之前，必须要谈一下类型转换方面的规定。<br>ANSI C标准所表示的意思大概如下：当执行算数运算时，操作数的类型如果不同，就会发生转换。数据类型一般朝着浮点精度更高，长度更长的方向转换，整型树如果转换为singed不会丢失信息，就转换为signed，否则就转换为unsigned。<br>所以，这里的bug就不难看出了。d为负数，而sizeof的返回值为unsigned int类型，编译器把有符号数和无符号数做比较运算时，会把有符号数升级为无符号数，所以当-1转换成无符号数时，变成了一个非常巨大的正数，所以if(d &lt;= SIZE - 2)这个判断始终为真，所以就无法给x重新赋值。<br>只要做一个小小的修改就好了，if(d &lt;= (int)SIZE - 2)，这样把无符号数强制转换为有符号数（而且转换完成后没有丢失信息），就可以在二者间比较了。</p>
+<p>对于无符号数的建议：<br>尽量不要在代码中使用无符号类型，不要仅仅因为无符号不存在负值（如年龄等）而使用它们。尽量用int这样的类型，这样在做算数运算时就不用过分担心类型转换带来的bug了。<br>只有在使用位段或者二进制掩码的时候，才可以用无符号数。而且在做运算时，应该强制类型转换为有符号数或者无符号数。</p>
+<p>第二章 这不是BUG，而是语言特性<br>1.malloc(strlen(str));这条语句是错误的，因为strlen计算字符串str的长度，这个长度并不包括最后的结束标志’ ’，所以malloc分配的内存就少了一个字节，应该把上述语句修改为malloc(strlen(str) + 1);</p>
+<p>2.NUL 还是 NULL<br>NUL表示用于结束一个ASCII字符串，即’ ’;NULL表示什么也不指向的空指针，两者不可互换。</p>
+<p>3.sizeof宏的用法<br>sizeof是一个宏，用来获得给定的变量或者类型所占字节数。<br>当用sizeof获取一个变量的大小的时候，可以不用加括号，比如要获得指针p所指向的变量的大小，可写作: sizeof *p;<br>当用sizeof获取某个类型的大小的时候，后面要加括号，比如要获得整型所占字节数，可写作: sizeof(int);</p>
+<p>4.运算符的结合性的意义<br>大家都知道C语言的运算符有优先级，用来表示哪些符号的级别更高便于运算，但是结合性是什么意思呢？<br>当出现一个运算表达式中，各个运算符的优先级都不相同的时候，我们很容易知道运算的先后顺序，比如:z = a + b <em> c;我们知道先算b</em>c，再算a + ..，最后把结果赋给z。<br>但是当一个表达式中的某些运算符如果优先级相同怎么办？先算哪一个？这时候就由结合性来决定了。比如:<br>int a = 1, b = 2, c;<br>c = a = b;<br>c的值最终是几？两个赋值语句的优先级是一样的，如果先算c = a，再算a = b，则c的值为1;若先算a = b，再算c = a，则c的值为2。因为赋值语句的结合性为右结合，所以从最右边开始算，即c的值为2.</p>
+<p>第三章 分析C语言的声明<br>1.关于函数声明<br>int(<em>fun())();函数的返回值允许是一个函数指针<br>int(</em>foo())[];函数的返回值允许是一个指向数组的指针<br>int(*foo[])();数组里允许有函数指针</p>
+<p>2.有的书中说，在调用函数时，参数按照从右到左的次序压入堆栈，这种说法是错误的。参数在传递时首先尽可能的存放到寄存器中（追求速度）。一个int型参数和只包含一个int型成员的结构体变量在传递参数时的方式可能完全不同。一个int型参数一般会被传递到寄存器中，而一个结构体的int型成员很可能是送到堆栈中。</p>
+<p>3.联合union<br>联合可以把一个事情解释成两个意思：<br>union tag<br>{<br>int integer; //整个32bits<br>struct {char c0, c1, c2, c3;} byte; //一个字节一个字节的取<br>};</p>
+<p>4.判定声明的具体含义：<br>如char <em>(</em> c[10])(int <strong>p);<br>从内往外，按照就是符号的优先级进行解读：<br>1.从c[10]开始，[]比<em>优先级高，所以c先与[]结合，表示c为一个数组;<br>2.c[10]再与</em>结合，表示c为一个元素为指针的数组;<br>3.* c[10]再与(int </strong>p)结合，表示c是一个包含函数指针的数组;<br>4.char <em>(</em>c<a href="int **p">10</a>)表示c为一个数组，该数组的元素是指向一个函数的指针，该函数的返回值是char *类型的。</p>
+<p>5.93页有一个小程序，用来理解所有声明的分析过程，可以研究一下<br>第四章 令人震惊的事实：指针和数组并不相同</p>
+<p>1.指针和数组并不同，这可能与你已知的“指针与数组相同”不同，而且很多书往往喜欢把指针和数组放在一个章节里面讲。在特定的上下文中，指针和数组还是具有相同的意义的。</p>
+<p>2.要区分指针和数组的区别，首先要搞明白什么是地址，什么是地址中的值。如：<br>x = y;<br>这条语句中，x表示地址，y则表示的y代表的地址中的值。所以，一般左值为地址，右值为值。<br>地址是在程序编译的时候就已知了，而值是在程序运行时才得知的。<br>int a[3] = {1, 2, 3}; //这条语句在程序编译的时候就确定了数组a的地址（假如为1000,1000-1011为这个数组中的三个值）<br>int *p; //这条语句也是在程序编译的时候确定了指针p的地址（假如为2000）<br>p = a; //这条语句中p表示2000,而a表示1000，这时p的地址为2000,p的值为1000<br>int c = a[1]; //这条语句的操作步骤为：1.a被定义为一个数组，而数组名就是一个地址（如上假设，地址为1000），数组元素都是在这个地址的基础上进行偏移得到的，所以在a所代表的地址的基础上偏移1个元素长度，所以地址为1003;2.获得1003地址中的值，即1003-1006地址中的一个整型值，为2,所以c的值为2<br>int d = p[1]; //这条语句的操作步骤为：1.p被定义为一个指针，内存中分配了4个字节来存储指针值（指针地址如上所述为2000,即指针值存储在2000-20003中），而2000中的值为1000（p = a;语句得到的），所以首先得到p的地址（2000）,取出其中的值（1000）;2.把上一步获得的值作为基址，再次基础上偏移1个元素长度得到相应元素的地址;3.从上一步获得的地址中取出相应的值，所以d的值也为2</p>
+<p>可以看到，同样是获取同一个地址中的值，指针要比数组多一步，这就是指针与数组不同的地方。当对这个不同之处认识不全面的话，就会造成bug。如下：<br>file1: //在一个文件中定义数组a<br>int a[3] = {1, 2, 3};</p>
+<p>file2: //在另一个文件中声明并使用这个数组<br>extern int *a; //这里的声明采用了指针的方式，而不是跟原来定义的形式一样，这样就会产生bug</p>
+<p>int c = a[1]; //根据上面对指针获得数组值步骤的讲解，我们来分析这一步的步骤：1.a被声明为指针（实际应该声明为数组 int a[];），所以获得a的地址（在编译时已知），取出地址中的值（这里注意，a的地址其实就是file1中定义数组的a的地址，对其取值就相当于取得数组a的第一个元素的值，即1）;2.把上一步获得的值作为基址，在此基础上偏移1个元素的长度得到相应元素的地址（即以地址1为基址而不是以1000为基址了，这改变了基址，就会产生bug）;3.从上一步获得的地址中取出相应的值，即从1-4地址中取出一个整型赋给c，此时已经完全偏离了正确的值。</p>
+<p>所以，指针和数组是不同的。</p>
+<p>第五章 对链接的思考<br>1.链接器的作用<br>由源文件产生的目标文件并不能直接执行，首先要载入链接器。链接器确认main函数为初始进入点（程序开始执行的地方），把符号引用绑定到内存地址，把所有的目标文件集中在一起，再加上库文件，从而产生可执行文件。</p>
+<p>2.静态链接：函数库的一份拷贝是可执行文件的物理组成部分;<br>动态链接：可执行文件只包含了文件名，让载入器在运行时能够找到所学的函数库;<br>收集模块准备执行的三个阶段的名称是：链接-编辑，载入和运行时链接。静态链接的模块被链接编辑并载入以便运行。动态链接的模块被链接编辑后载入，并在运行时进行链接以便运行。程序执行时，在main函数被调用前，运行时载入器把共享的数据对象载入到进程的地址空间。外部函数被真正调用前，运行时载入器并不解析它们，所以即使链接了函数库，如果并没有实际调用，也不会带来开销。</p>
+<p>3.创建并使用动态链接库的方法：<br>1.在一个.c文件中写入你希望的函数功能，这个文件中绝对不能有main函数;<br>如我在mylink.c中的内容为：<br>function()<br>{<br>printf(“this function is called!n”);<br>}<br>2.使用gcc命令加上-G选项来创建：<br>cc -o libmylink.so -G mylink.c<br>动态库的标准命名方法为：lib+your_link_name+.so，如上，我的动态库名称为libmylink.so。<br>3.在test.c文件中使用动态库的方法：<br>int main()<br>{<br>function();<br>}<br>4.编译这个文件：<br>cc test.c -L/home/link/ -R/home/link -lmylink<br>-L/home/link/和-R/home/link告诉编译器在链接时和运行时在哪个目录下寻找需要链接的函数库，-lmylink则是在前面指定的目录中链接libmylink.so这个函数库，-l后面的参数不需要包括lib前缀和.so后缀，只需要函数库的名字即可。</p>
+<p>第六章 运动的诗章：运行时数据结构<br>1.神奇数字<br>利用一个唯一的数字标识一个重要数据，是一种普遍的编程技巧。这个数字被称为“神奇”数字。在执行程序时，先执行该程序的第一个字（这个字中存放着神奇数字），这个神奇数字会带你跳过a.out头文件，进入程序第一条真正的可执行指令。</p>
+<p>2.段<br>就目标文件而言，段是二进制文件中简单的区域，里面保存了和某种特定类型（如符号表条目）相关的所有信息。section是ELF文件中的最小组织单位。一个段一般包含几个section。在unix中，段表示一个二进制文件相关的内容块。用size命令（size a.out）可以查看一个可执行程序里的三个段（文本段，数据段和bss段）的大小。</p>
+<p>3.源文件通过编译放入相对应的段及可执行文件在内存中的布局<br>源程序结构：<br>1 char pear[40];<br>2 static double peach;<br>3 ing mango = 13;<br>4 static long melon = 2013;<br>5<br>6 int main()<br>7 {<br>8 int i = 3, j, <em>ip;<br>9<br>10 ip = malloc(sizeof(i));<br>11 pear[5] = i;<br>12 peach = 2.0 </em> mango;<br>13}</p>
+<p>a.out可执行文件的段：<br>a.out神奇数字 //在可执行文件的第一个字中<br>a.out其他内容</p>
+<p>BSS段所需的大小<br>数据段（初始化后的全局和静态变量）<br>文本段（可执行文件的指令）</p>
+<p>这个程序中，1-4行是全局和静态变量，它们存在数据段中，如若没有初始化，则系统自动初始化为0或NULL;10-12行存在文本段中，被编译器翻译成可执行指令;8行是局部变量，它们并不存在a.out可执行程序的段中，而是在运行时创建。</p>
+<p>BSS段只保存没有值的变量，运行时所需要的BSS段的大小记录在目标文件中，BSS段不占据目标文件的任何空间。</p>
+<p>a.out可执行文件在内存中的布局：<br>进程的地址空间<br>高址<br>堆栈段<br>（向低址扩展）<br>BSS段（将a.out文件的BSS段所需大小映射至内存的未经初始化的数据）<br>数据段（将a.out的数据段映射至内存的数据段，存储经过初始化的数据）<br>文本段（将a.out的文本段映射至内存的文本段，存储可执行指令）<br>未映射区域（在内存中占据0-几k大小）<br>低址</p>
+<p>未映射区域存在于地址空间中，但是没有被赋予物理地址，所以对它的引用都是非法的。它是从地址0开始的几K字节，用于捕捉使用空指针和小整型值的指针引用内存的情况;<br>文本段包含程序指令，链接器把指令直接从文件拷贝到内存中（使用mmap()系统调用），一般设置为只读模式，不允许修改。（某些操作系统和链接器可以向段中的不同section赋予适当属性，使得某些文本为可读可执行，某些数据设置为可读可写不能执行等）;<br>数据段包含经过初始化的全局和静态变量及其值。BSS段大小从可执行文件中得到，然后链接器得到这个大小的内存地址，紧跟在数据段之后，并把这一块的内存区域清零，数据段和BSS段统称为数据区;<br>堆栈段用于保存局部变量，临时数据，传递到函数中的参数等。堆空间用来动态内存分配。</p>
+<p>3.运行时数据结构有堆栈，活动记录，数据，堆等好几种。</p>
+<p>4.各个段包含的数据结构：<br>堆栈段：<br>有单一的数据结构——堆栈（先进后出）。编译器的设计者使得这种堆栈更加灵活，我们可以从顶部获得值，也可以修改位于堆栈中部的元素的值。函数可以通过参数或者全局指针访问它所调用的函数的局部变量。运行时系统维护一个指针（通常位于寄存器内），成为sp，用于提示堆栈当前的栈顶位置。<br>堆栈的三个主要作用：<br>1.堆栈为函数内部声明的局部变量（自动变量）提供存储空间;<br>2.进行函数调用时，堆栈存储与此有关的一些维护性信息（称之为堆栈结构或过程活动记录，包括函数调用地址，不适合装入寄存器的参数及寄存器的保存值等）;<br>3.堆栈也用于暂时的存储区。</p>
+<p>在没有函数的递归调用时，堆栈段是非必要的，任何参数和局部变量都可以存入BSS段中。<br>在函数调用时，C语言把调用函数的局部变量，参数，前一个活动记录，返回地址压入堆栈，前一个活动记录是指调用该函数的函数，返回地址是指返回到调用该函数的函数的哪个位置。（见125页p143图）有的编程语言把过程活动记录保存到寄存器中以加快运行速度。<br>多线程的实质就是在一个进程的地址空间中为每个线程分配一个唯一的堆栈，每个线程的堆栈为1M（需要时增长）<br>setjmp和longjmp是改变程序控制流程的语句，利用了保存在堆栈中的过程活动记录：<br>setjmp(jmp_buf j)先调用，表示使用变量j记录现在的位置（创建活动记录并压入堆栈），函数返回0.<br>longjmp(jmp_buf j, int i)可以后来调用，表示回到j所记录的位置，函数返回i。<br>当使用longjmp的时候，j的内容被销毁。</p>
+<p>第七章 对内存的思考</p>
+<p>1.intel 80x86内存模型中的段<br>这里的段与前一张所述的unix中的段不是一个意思。这个段是内存模型设计的结果，在80x86内存模型中，各处理器的地址空间都被分割成以64K（段寄存器为16位，2^16B = 64K）为单位的区域，每个这样的区域称为段。</p>
+<p>2.80x86系列架构内存地址的形成过程：<br>取得段寄存器中的值，左移4位（相当于乘以16）,再与16位的偏移地址（在段寄存器所指向的内存的基础上进行偏移的量）相加，形成一个20位的内存地址。<br>注意，不同的段地址加上偏移地址可能得到同一个内存地址。</p>
+<p>3.虚拟内存<br>虚拟内存是为了解决早期内存对应用程序限制（128K）而提出的。现在的绝大多数操作系统都支持虚拟内存。<br>虚拟内存使得每个进程都认为自己拥有整个地址空间，所有进程实际上是共享物理内存的，当内存用完时用磁盘保存数据（即系统只把程序真正活动的部分放入内存，暂时不活动的放到硬盘中）。<br>虚拟内存通过“页”的形式组织。页就是操作系统在磁盘和内存之间移来移去或进行保护的单位，一般为几K字节。<br>page in（移入内存），page out（移出到磁盘）。<br>进程只能操作它在物理内存中的页，一旦引用了其他的页，内存管理单元（MMU）就会产生页错误。内核对此事做出响应，并判断该引用是否有效。如果无效，内核向进程发出“segmentation violation（段违规）”的信号。如果有效，内核从磁盘取回响应的页，换入到内存中，一旦页进入内存，进程就会被解锁，可以继续运行——进程本身并不知道它因为页面换入的时间等待了一会儿。</p>
+<p>3.进程地址空间分布<br>高址：<br>内核地址 内核代码和信息 1G<br>栈 函数参数，临时变量等 向下增长<br>堆 动态分布，是数据段的延伸 向上增长<br>数据段 包括BSS段，存放数据 在编译时确定大小<br>文本段 代码 在编译时确定大小<br>未分配<br>低址</p>
+<p>4.堆区对自身的区域都有记录，哪些是已经分配了的，哪些是未分配的。其中一种策略就是建立一个可用块（未分配的区域）链表，表明自身区域的大小。</p>
+<p>5.内存泄漏与内存损坏<br>C语言没有垃圾回收器（自动检测不用的内存并释放），所以需要手工的调用malloc和free函数进行分配和回收工作。这样容易造成两个问题：<br>1.释放或改写正在使用的内存地址（内存损坏）<br>2.未释放不再使用的内存（内存泄漏）<br>在使用动态分配内存时，要做到心中有数，不然程序会崩溃的。<br>内存泄漏主要的症状就是罪魁祸首的进程运行速度变慢，因为体积大的进程更有可能被系统换出，让别的进程运行，而且大进程换进换出时花费的时间也更多。即使泄漏的内存本身不使用，但它仍然存在于页面中（页面中的内容自然是垃圾信息），这样增加了进程的工作页面数量，降低了性能。<br>泄漏的内存往往比忘记释放的内存要大。因为malloc所分配的内存通常会圆整为下一个大于申请数量的2的整数次方（如申请212B，则分配256B）。</p>
+<p>6.总线错误和段错误<br>当硬件告诉操作系统一个有问题的内存引用时，就会出现这两种错误。<br>1.总线错误：bus error(core dumped)<br>总线错误几乎都是由于未对齐的读或写引起的。当出现未对齐的内存访问请求时，被堵塞的组建就是地址总线。对齐（alignment）是数据项只能存储在地址是数据项大小的整数倍的内存位置上。如int型数据能存储的内存地址为2000,2004等，而不能存放到1997,因为1997不能整除4.所以，如果你把一个char指针转换为int指针的时候，有可能会出现未对齐现象，造成总线错误。</p>
+<p>2.段错误segmentation error(core dumped)<br>段错误是由于内存管理但愿（负责支持虚拟内存的硬件）的异常所致，而该异常则通常是由于解除引用一个未初始化或非法值的指针引起的。如果指针引用一个并不位于你地址空间的地址，操作系统就会对此进行干涉。<br>造成段错误的几个直接原因：<br>解除引用一个包含非法值的指针;<br>解除引用一个空指针;<br>在未得到正确的权限时进行访问;<br>用完了栈或堆空间。<br>可能导致段错误的常见编程错误：<br>1.坏指针错误（指针赋值前引用，或向库函数传递一个坏指针，或者对指针释放之后又引用）;<br>2.改写错误（越过数组边界，在动态分配的内存两端之外写入数据）;<br>3.指针释放引起的错误（释放同一个内存块两次，或释放一块未曾使用malloc分配的内存，或释放仍在使用中的内存，或释放一个无效指针）;</p>
+<p>第八章 为什么程序员无法分清万圣节和圣诞节<br>1.类型提升<br>char,位段,枚举,unsigned char,short,unsigned short在表达式中都会被提升为int,float被提升为double,任何数组被提升为相应类型的指针.如果提升后得到的结果与不提升得到的结果相同,那么就不提升,否则,就提升.<br>Ｃ语言会提升比规范类型int 或　double更小的数据类型（即使它们的类型匹配）。</p>
+<p>第九章 在论数组<br>1.<br>|—-声明（1.外部变量如extern char a[]，不能转换为指针;2.定义如char a[10]不能换成指针;3.函数参数func(char a[j])可以转换为指针）<br>|<br>数组 |<br>|<br>|—-表达式 c=a[j]，可以转换为指针运算</p>
+<p>2.数组与指针相同的规则<br>1.在表达式中的数组名就是指针对数组的引用，指向该数组的第一个元素的指针来代替（1.数组为sizeof的操作数;2.使用&amp;操作符取数组地址;3.数组是一个字符串常量的初始值），其他情况下，编译器会把表达式中的数组访问元素转换为指针+偏移量。<br>2.C语言把数组下标作为指针偏移量;<br>3.函数参数的数组名等同于指针</p>
+<p>3.数组与指针可交换的总结：<br>1.用a[i]对数组进行访问总是被编译器改写为*(a+i)的指针访问;<br>2.指针只是指针，只代表某个元素的地址，当作为访问数组时，必须有一个标志表示到达数组末尾，否则会越界;若用下标形式访问指针，一般指针是作为函数参数使用;<br>3.当且只当作为函数参数时，数组的生命可以看成指针，当一个数组为函数参数时，编译器会把它转换为数组第一个元素的指针;<br>4.在其他情况下，数组和指针的声明和定义必须匹配。</p>
+<p>4.在可以把指针与数组名进行转换的情况下，即数组可转换为指针，则数组的数组（char a[3][4]）解释为char <em>a[4]或char (</em>a)[3]，而不能解释为char **a;</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/04/25/c-pointer-record/" rel="next" title="《C和指针》笔记">
+                <i class="fa fa-chevron-left"></i> 《C和指针》笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/05/17/apache2-linux-configure/" rel="prev" title="根据apache2 module tutorial one在linux下安装配置apache">
+                根据apache2 module tutorial one在linux下安装配置apache <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Xinspace</p>
+              <p class="site-description motion-element" itemprop="description">Personal blog from xin.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">170</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xinspace</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
